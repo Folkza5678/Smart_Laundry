@@ -16,58 +16,66 @@ body {
    ========================================================= */
 .navbar {
   background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
-  height: 105px;             /* ปรับความสูงของ Navbar ให้ยาวลงมาตามรูปสอง */
-  padding: 0 35px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  height: 140px;             /* ความสูง Navbar */
+  padding: 0 18px 0 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  position: relative;        /* ใช้เป็น reference สำหรับ absolute centering */
+  position: relative;        /* แกนกลางสำหรับจัดตำแหน่ง */
 }
 
-/* 1. ฝั่งซ้าย: โลโก้และชื่อแบรนด์ */
+/* 1. ฝั่งซ้าย: โลโก้และชื่อแบรนด์ (ขยับขึ้นบนสุดระนาบเดียวกับ FAQ) */
 .nav-brand {
+  position: absolute;
+  top: 2px;                  /* ขยับขึ้นบนสุด */
+  left: 20px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 0;
   z-index: 2;
 }
 
 .logo {
-  width: 55px;
-  height: 55px;
-  border-radius: 8px;
-  object-fit: cover;
+  width: 110px;
+  height: 110px;
+  min-width: 110px;
+  min-height: 110px;
+  flex-shrink: 0;            /* ห้ามหดขนาด */
+  object-fit: contain;
+  display: block;
+  margin-right: -30px;        /* ชิดตัวหนังสือ */
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
   border-left: 2.5px solid white;
-  padding-left: 12px;
+  padding-left: 14px;
+  flex-shrink: 0;
 }
 
 .brand-en {
   color: white;
   font-family: 'Afacad Flux', sans-serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 600;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .brand-th {
   color: white;
-  font-size: 13px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
-/* 2. ส่วนเมนู: ล็อกให้อยู่กึ่งกลางจอ 50% เป๊ะ และเว้นช่องไฟกว้างขึ้น */
+/* 2. ส่วนเมนู: กึ่งกลางจอ 50% และเกือบชิดล่าง */
 .nav-menu {
   position: absolute;
   left: 50%;
+  bottom: 12px;              /* ชิดขอบล่าง */
   transform: translateX(-50%);
   display: flex;
-  align-items: flex-end;     /* จัดให้ตัวหนังสือด้านล่างระนาบตรงกัน */
-  gap: 52px;                 /* เว้นระยะห่างระหว่างแต่ละไอคอนให้กว้างขึ้นตามแบบ */
+  align-items: flex-end;     /* ระนาบตัวหนังสือด้านล่างเสมอกัน */
+  gap: 52px;                 /* เว้นระยะห่างระหว่างแต่ละไอคอน */
   z-index: 1;
 }
 
@@ -90,17 +98,17 @@ body {
 }
 
 .nav-item .nav-icon {
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
-/* ปรับแต่งพิเศษสำหรับ QR Code (อยู่กลาง + ใหญ่กว่าเพื่อน) */
+/* ปรับแต่งพิเศษสำหรับ QR Code (อยู่กลาง + เด่นและใหญ่กว่าเพื่อน) */
 .nav-item-qr {
   position: relative;
-  top: -2px;                 /* ขยับยกขึ้นนิดหน่อยเพื่อให้บาลานซ์กับความใหญ่ */
+  top: -2px;
 }
 
 .nav-icon-qr {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 3, 108, 0.15));
 }
 
@@ -109,22 +117,29 @@ body {
   font-weight: 700;
 }
 
-/* สถานะ Active (ถ้าเลือกหน้าไหน) */
+/* สถานะ Active (สีขาว 100%) */
+.nav-item.active,
 .nav-item.active .nav-label {
-  color: #FFFFFF;
+  color: #FFFFFF !important;
 }
 
-.nav-item.active svg path {
-  fill: #FFFFFF;
+.nav-item.active svg path,
+.nav-item.active svg rect,
+.nav-item.active svg circle,
+.nav-item.active svg polygon {
+  fill: #FFFFFF !important;
 }
 
-/* 3. ฝั่งขวา: เมนูแนวตั้ง (FAQ + LINE) */
+/* 3. ฝั่งขวา: FAQ และ LINE */
 .nav-actions {
+  position: absolute;
+  top: 14px;                 /* ชิดด้านบนขวา */
+  right: 18px;               /* ชิดขอบขวา */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   z-index: 2;
 }
 
