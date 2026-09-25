@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - เลือกเครื่องซักผ้า</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;600&family=Inter:ital,wght@0,400;0,500;0,600;0,900;1,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="template/booking.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <img src="" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="#" class="nav-item active">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Booking</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📜</span>
+        <span class="nav-label">History</span>
+      </a>
+      <a href="#" class="nav-item qr-item">
+        <span class="nav-icon">🔳</span>
+        <span class="nav-label">QR Code</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">ℹ️</span>
+        <span class="nav-label">About</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">❓</span>
+        <span class="nav-label">How to use</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profile</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <h1 class="page-title">เลือกเครื่องซักผ้า</h1>
+
+    <div class="machine-grid">
+      
+      <!-- เครื่อง 01 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 01</h2>
+          <span class="badge badge-available">ว่าง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
+          </svg>
+        </div>
+        <p class="machine-info">ขนาด : 10 kg</p>
+        <button class="btn btn-primary">จองและเลือกโปรแกรมการซัก</button>
+      </div>
+
+      <!-- เครื่อง 02 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 02</h2>
+          <span class="badge badge-busy">ไม่ว่าง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/>
+          </svg>
+        </div>
+        <p class="machine-info">เหลือเวลา : 18.22 นาที</p>
+        <button class="btn btn-disabled" disabled>ไม่ว่าง</button>
+      </div>
+
+      <!-- เครื่อง 03 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 03</h2>
+          <span class="badge badge-busy">ไม่ว่าง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/>
+          </svg>
+        </div>
+        <p class="machine-info">เหลือเวลา : 6.09 นาที</p>
+        <button class="btn btn-disabled" disabled>ไม่ว่าง</button>
+      </div>
+
+      <!-- เครื่อง 04 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 04</h2>
+          <span class="badge badge-reserved">จอง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#ECF000"/>
+          </svg>
+        </div>
+        <p class="machine-info">เหลือเวลาจอง : 10.23 นาที</p>
+        <button class="btn btn-disabled" disabled>ติดจอง</button>
+      </div>
+
+      <!-- เครื่อง 05 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 05</h2>
+          <span class="badge badge-available">ว่าง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
+          </svg>
+        </div>
+        <p class="machine-info">ขนาด : 10 kg</p>
+        <button class="btn btn-primary">จองและเลือกโปรแกรมการซัก</button>
+      </div>
+
+      <!-- เครื่อง 06 -->
+      <div class="machine-card">
+        <div class="card-header">
+          <h2 class="machine-title">เครื่อง 06</h2>
+          <span class="badge badge-available">ว่าง</span>
+        </div>
+        <div class="machine-icon">
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
+            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
+            <circle cx="15" cy="17.5" r="3" fill="black"/>
+            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
+          </svg>
+        </div>
+        <p class="machine-info">ขนาด : 10 kg</p>
+        <button class="btn btn-primary">จองและเลือกโปรแกรมการซัก</button>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

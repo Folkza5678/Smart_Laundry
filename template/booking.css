@@ -1,0 +1,195 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #DDF3FD 65%, #64CEFF 100%);
+  color: #000;
+}
+
+/* Header & Navigation */
+.navbar {
+  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid white;
+  padding-left: 12px;
+}
+
+.brand-en {
+  color: white;
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.brand-th {
+  color: white;
+  font-size: 14px;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #00036C;
+  font-family: 'Afacad Flux', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+}
+
+.nav-item.active .nav-label {
+  color: #FFFFFF;
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+/* Container Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 40px;
+  font-weight: 900;
+  font-style: italic;
+  margin-bottom: 40px;
+}
+
+/* Grid Layout for Washing Machines */
+.machine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  justify-content: center;
+}
+
+/* Machine Card */
+.machine-card {
+  background: white;
+  border-radius: 30px;
+  padding: 24px;
+  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 320px;
+}
+
+.card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.machine-title {
+  font-size: 28px;
+  font-weight: 500;
+}
+
+/* Badges */
+.badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.badge-available {
+  background-color: #01D019;
+}
+
+.badge-busy {
+  background-color: #FE9616;
+}
+
+.badge-reserved {
+  background-color: #ECF000;
+  color: #000;
+}
+
+/* Machine Visual */
+.machine-icon {
+  margin: 15px 0;
+}
+
+.machine-info {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+/* Buttons */
+.btn {
+  width: 100%;
+  max-width: 240px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary {
+  background-color: #2CA7FF;
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-disabled {
+  background-color: #9B9B9A;
+  color: white;
+  cursor: not-allowed;
+}
