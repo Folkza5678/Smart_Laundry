@@ -14,22 +14,24 @@ body {
 /* Header & Navigation */
 .navbar {
   background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
-  padding: 15px 40px;
+  padding: 10px 30px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
+/* ส่วนที่ 1: ฝั่งซ้าย โลโก้และข้อความ */
 .nav-brand {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex: 1; /* ดันให้เมนูกลางอยู่ตรงกึ่งกลางจออย่างสมบูรณ์ */
 }
 
 .logo {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 8px;
   object-fit: cover;
 }
@@ -37,27 +39,29 @@ body {
 .brand-text {
   display: flex;
   flex-direction: column;
-  border-left: 3px solid white;
+  border-left: 2.5px solid white;
   padding-left: 12px;
 }
 
 .brand-en {
   color: white;
   font-family: 'Afacad Flux', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .brand-th {
   color: white;
-  font-size: 14px;
+  font-size: 13px;
 }
 
+/* ส่วนที่ 2: เมนูหลักกึ่งกลาง */
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
+  justify-content: center;
 }
 
 .nav-item {
@@ -68,7 +72,7 @@ body {
   color: #00036C;
   font-family: 'Afacad Flux', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   transition: transform 0.2s;
 }
 
@@ -80,9 +84,31 @@ body {
   color: #FFFFFF;
 }
 
-.nav-icon {
-  font-size: 20px;
-  margin-bottom: 2px;
+.nav-item.active svg path {
+  fill: #FFFFFF;
+}
+
+/* ส่วนที่ 3: เมนูฝั่งขวา (FAQ และ LINE) */
+.nav-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  flex: 1; /* ขนาดกว้างเท่ากับ nav-brand ด้านซ้าย ช่วยบาลานซ์เมนูตรงกลาง */
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
 }
 
 /* Container Layout */
