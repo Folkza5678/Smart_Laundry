@@ -16,16 +16,16 @@ body {
    ========================================================= */
 .navbar {
   background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
-  height: 140px;             /* ความสูง Navbar */
+  height: 140px;
   padding: 0 18px 0 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  position: relative;        /* แกนกลางสำหรับจัดตำแหน่ง */
+  position: relative;
 }
 
-/* 1. ฝั่งซ้าย: โลโก้และชื่อแบรนด์ (ขยับขึ้นบนสุดระนาบเดียวกับ FAQ) */
+/* 1. ฝั่งซ้าย: โลโก้และชื่อแบรนด์ */
 .nav-brand {
   position: absolute;
-  top: 2px;                  /* ขยับขึ้นบนสุด */
+  top: 2px;
   left: 20px;
   display: flex;
   align-items: center;
@@ -34,14 +34,14 @@ body {
 }
 
 .logo {
-  width: 110px;
-  height: 110px;
-  min-width: 110px;
-  min-height: 110px;
-  flex-shrink: 0;            /* ห้ามหดขนาด */
+  width: 90px;
+  height: 90px;
+  min-width: 90px;
+  min-height: 90px;
+  flex-shrink: 0;
   object-fit: contain;
   display: block;
-  margin-right: -30px;        /* ชิดตัวหนังสือ */
+  margin-right: -8px;
 }
 
 .brand-text {
@@ -71,11 +71,11 @@ body {
 .nav-menu {
   position: absolute;
   left: 50%;
-  bottom: 12px;              /* ชิดขอบล่าง */
+  bottom: 12px;
   transform: translateX(-50%);
   display: flex;
-  align-items: flex-end;     /* ระนาบตัวหนังสือด้านล่างเสมอกัน */
-  gap: 52px;                 /* เว้นระยะห่างระหว่างแต่ละไอคอน */
+  align-items: flex-end;
+  gap: 52px;
   z-index: 1;
 }
 
@@ -101,7 +101,7 @@ body {
   margin-bottom: 6px;
 }
 
-/* ปรับแต่งพิเศษสำหรับ QR Code (อยู่กลาง + เด่นและใหญ่กว่าเพื่อน) */
+/* ปรับแต่งพิเศษสำหรับ QR Code */
 .nav-item-qr {
   position: relative;
   top: -2px;
@@ -117,7 +117,7 @@ body {
   font-weight: 700;
 }
 
-/* สถานะ Active (สีขาว 100%) */
+/* สถานะ Active */
 .nav-item.active,
 .nav-item.active .nav-label {
   color: #FFFFFF !important;
@@ -133,8 +133,8 @@ body {
 /* 3. ฝั่งขวา: FAQ และ LINE */
 .nav-actions {
   position: absolute;
-  top: 14px;                 /* ชิดด้านบนขวา */
-  right: 18px;               /* ชิดขอบขวา */
+  top: 14px;
+  right: 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -265,4 +265,276 @@ body {
   background-color: #9B9B9A;
   color: white;
   cursor: not-allowed;
+}
+
+/* =========================================================
+   Booking Modal (หน้าต่างลอยจองโปรแกรม)
+   ========================================================= */
+.modal-overlay {
+  display: none;             /* ซ่อนไว้เป็นค่าเริ่มต้น */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* พื้นหลังโปร่งแสง */
+  z-index: 9999;
+  justify-content: flex-end; /* ลอยอยู่ฝั่งขวาตามแบบภาพ */
+  align-items: flex-start;
+  padding: 155px 40px 20px 20px;
+}
+
+.modal-overlay.show {
+  display: flex;             /* แสดงเมื่อมีคลาส show */
+}
+
+.modal-card {
+  background: #FFFFFF;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.25s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Header ของ Modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+}
+
+.btn-back {
+  background: #E5E7EB;
+  color: #4B5563;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-back:hover {
+  background: #D1D5DB;
+}
+
+.section-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+/* รายการโปรแกรมการซัก (Radio) */
+.program-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.program-option {
+  position: relative;
+  cursor: pointer;
+  display: block;
+}
+
+.program-option input[type="radio"] {
+  display: none;             /* ซ่อน input แบบเดิม */
+}
+
+.program-box {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 12px;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.program-box .p-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111827;
+  flex: 1;
+  margin-left: 10px;
+}
+
+.program-box .p-details {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4B5563;
+}
+
+/* วงกลม Radio */
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #9CA3AF;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s;
+}
+
+/* เมื่อโปรแกรมถูกเลือก */
+.program-option input[type="radio"]:checked + .program-box {
+  border-color: #00A3FF;
+  background: #F0F9FF;
+}
+
+.program-option input[type="radio"]:checked + .program-box .radio-custom {
+  border-color: #00A3FF;
+  background: #00A3FF;
+}
+
+.program-option input[type="radio"]:checked + .program-box .radio-custom::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  background: #FFFFFF;
+  border-radius: 50%;
+}
+
+/* รายการตัวเลือกเพิ่มเติม (Checkbox) */
+.addon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.addon-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.addon-item input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #9CA3AF;
+  border-radius: 5px;
+  display: inline-block;
+  position: relative;
+  margin-right: 10px;
+  transition: all 0.2s;
+}
+
+.addon-item input[type="checkbox"]:checked + .checkbox-custom {
+  background: #00A3FF;
+  border-color: #00A3FF;
+}
+
+.addon-item input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: '✓';
+  color: white;
+  font-size: 13px;
+  position: absolute;
+  top: -2px;
+  left: 3px;
+}
+
+.addon-name {
+  font-size: 15px;
+  color: #374151;
+  flex: 1;
+}
+
+.addon-details {
+  font-size: 14px;
+  color: #4B5563;
+}
+
+/* สรุปยอด */
+.summary-section {
+  border-top: 1px dashed #E5E7EB;
+  padding-top: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: #374151;
+}
+
+.summary-val {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ปุ่ม Action ด้านล่าง */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-action-cancel {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #9CA3AF;
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-action-cancel:hover {
+  opacity: 0.9;
+}
+
+.btn-action-confirm {
+  flex: 1.3;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #00A3FF;
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-action-confirm:hover {
+  opacity: 0.9;
 }
