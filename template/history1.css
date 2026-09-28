@@ -13,7 +13,7 @@ body {
 }
 
 /* =========================================================
-   Header & Navigation (ถอดโครงสร้างมาตรฐานเดียวกับ Booking)
+   Header & Navigation
    ========================================================= */
 .navbar {
   background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
@@ -172,7 +172,7 @@ body {
 }
 
 /* =========================================================
-   Pill Tabs (แสดงสีฟ้าชัดเจนเมื่อ Active)
+   Pill Tabs
    ========================================================= */
 .tabs-wrapper {
   display: flex;
@@ -193,7 +193,7 @@ body {
   text-decoration: none;
   border: none;
   background: transparent;
-  color: #8E8E93; /* สีเทาสำหรับปุ่มที่ไม่ได้เลือก */
+  color: #8E8E93;
   font-family: 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 600;
@@ -208,7 +208,6 @@ body {
   user-select: none;
 }
 
-/* ปุ่มสถานะ Active จะได้พื้นหลังสีฟ้า และตัวหนังสือสีขาวทันที */
 .tab-btn.active {
   background: #0095FF !important;
   color: #FFFFFF !important;
@@ -217,7 +216,7 @@ body {
 
 .tab-icon {
   flex-shrink: 0;
-  fill: currentColor; /* ไอคอนจะเปลี่ยนสีตามตัวหนังสืออัตโนมัติ */
+  fill: currentColor;
 }
 
 .tab-btn:not(.active):hover {
@@ -261,54 +260,6 @@ body {
   margin-right: 24px;
 }
 
-/* Washing Machine Mini Illustration */
-.machine-graphic {
-  width: 48px;
-  height: 56px;
-  border-radius: 6px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.graphic-blue {
-  background: #8FBFFA;
-}
-.graphic-blue .mg-top {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 12px;
-  background: #2859C5;
-  border-radius: 6px 6px 0 0;
-}
-.graphic-blue .mg-drum {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #2859C5;
-}
-
-.graphic-orange {
-  background: #F3AD61;
-}
-.graphic-orange .mg-top {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 12px;
-  background: #D3883E;
-  border-radius: 6px 6px 0 0;
-}
-.graphic-orange .mg-drum {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #E19747;
-}
-
 /* Card Details */
 .card-details {
   flex: 1;
@@ -327,6 +278,13 @@ body {
   color: #9B9B9A;
 }
 
+.card-time-remaining {
+  font-size: 16px;
+  font-weight: 500;
+  color: #E9A700;
+  margin-top: 4px;
+}
+
 /* Price & Status */
 .card-meta {
   display: flex;
@@ -342,24 +300,39 @@ body {
   color: #000000;
 }
 
-/* Status Badges */
+/* =========================================================
+   Status Badges (ตกแต่งสีตามดีไซน์)
+   ========================================================= */
 .status-badge {
   display: inline-block;
-  padding: 6px 18px;
+  padding: 6px 20px;
   border-radius: 20px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
+  white-space: nowrap;
 }
 
-/* ซักสำเร็จ (สีเขียว) */
-.status-completed {
+/* 1. สถานะ "จอง" (พื้นหลังสีเหลืองอ่อน ตัวหนังสือสีเหลืองเขียว) */
+.status-badge.status-reserved {
+  background: #F7FAC8;
+  color: #CCD300;
+}
+
+/* 2. สถานะ "จ่ายเงินแล้ว" (พื้นหลังสีเขียวอ่อน ตัวหนังสือสีเขียวสด) */
+.status-badge.status-paid {
+  background: #B6F6C1;
+  color: #00CC2D;
+}
+
+/* ซักสำเร็จ (สีเขียวมาตรฐาน) */
+.status-badge.status-completed {
   background: rgba(1, 208, 25, 0.16);
   color: #02AC16;
 }
 
 /* กำลังซัก (สีส้ม/เหลือง) */
-.status-processing {
+.status-badge.status-processing {
   background: rgba(233, 167, 0, 0.18);
   color: #E9A700;
 }
