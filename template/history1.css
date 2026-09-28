@@ -1,0 +1,406 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #DDF3FD 47%, #01AEFF 100%);
+  background-attachment: fixed;
+  color: #000;
+}
+
+/* =========================================================
+   Header & Navigation (ถอดโครงสร้างมาตรฐานเดียวกับ Booking)
+   ========================================================= */
+.navbar {
+  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
+  height: 140px;
+  padding: 0 18px 0 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.nav-brand {
+  position: absolute;
+  top: 2px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.logo {
+  width: 110px;
+  height: 110px;
+  min-width: 110px;
+  min-height: 110px;
+  flex-shrink: 0;
+  object-fit: contain;
+  display: block;
+  margin-right: -30px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  border-left: 2.5px solid white;
+  padding-left: 14px;
+  flex-shrink: 0;
+}
+
+.brand-en {
+  color: white;
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.brand-th {
+  color: white;
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.nav-menu {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 52px;
+  z-index: 1;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-decoration: none;
+  color: #00036C;
+  font-family: 'Afacad Flux', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  transition: transform 0.2s;
+  min-width: 60px;
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+}
+
+.nav-item .nav-icon {
+  margin-bottom: 6px;
+}
+
+.nav-item-qr {
+  position: relative;
+  top: -2px;
+}
+
+.nav-icon-qr {
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 4px rgba(0, 3, 108, 0.15));
+}
+
+.nav-item-qr .nav-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Tab History เป็นสีขาวเมื่อ Active */
+.nav-item.active,
+.nav-item.active .nav-label {
+  color: #FFFFFF !important;
+}
+
+.nav-item.active svg path,
+.nav-item.active svg rect,
+.nav-item.active svg circle,
+.nav-item.active svg polygon {
+  fill: #FFFFFF !important;
+}
+
+.nav-actions {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+/* =========================================================
+   Container & Typography
+   ========================================================= */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 44px;
+  font-weight: 900;
+  font-style: italic;
+  color: #000000;
+  margin-bottom: 32px;
+}
+
+/* =========================================================
+   Pill Tabs (แสดงสีฟ้าชัดเจนเมื่อ Active)
+   ========================================================= */
+.tabs-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.tabs-container {
+  display: inline-flex;
+  background: rgba(231, 231, 231, 0.7);
+  backdrop-filter: blur(6px);
+  padding: 6px;
+  border-radius: 40px;
+  gap: 8px;
+}
+
+.tab-btn {
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  color: #8E8E93; /* สีเทาสำหรับปุ่มที่ไม่ได้เลือก */
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 35px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+/* ปุ่มสถานะ Active จะได้พื้นหลังสีฟ้า และตัวหนังสือสีขาวทันที */
+.tab-btn.active {
+  background: #0095FF !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(0, 149, 255, 0.35);
+}
+
+.tab-icon {
+  flex-shrink: 0;
+  fill: currentColor; /* ไอคอนจะเปลี่ยนสีตามตัวหนังสืออัตโนมัติ */
+}
+
+.tab-btn:not(.active):hover {
+  color: #555555;
+}
+
+/* =========================================================
+   History Cards
+   ========================================================= */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.history-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 16px 30px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Icon Box */
+.card-icon-wrapper {
+  width: 90px;
+  height: 90px;
+  border-radius: 16px;
+  background: #DDF3FD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 24px;
+}
+
+/* Washing Machine Mini Illustration */
+.machine-graphic {
+  width: 48px;
+  height: 56px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.graphic-blue {
+  background: #8FBFFA;
+}
+.graphic-blue .mg-top {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 12px;
+  background: #2859C5;
+  border-radius: 6px 6px 0 0;
+}
+.graphic-blue .mg-drum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2859C5;
+}
+
+.graphic-orange {
+  background: #F3AD61;
+}
+.graphic-orange .mg-top {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 12px;
+  background: #D3883E;
+  border-radius: 6px 6px 0 0;
+}
+.graphic-orange .mg-drum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #E19747;
+}
+
+/* Card Details */
+.card-details {
+  flex: 1;
+}
+
+.card-machine-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 6px;
+}
+
+.card-subtitle {
+  font-size: 17px;
+  font-weight: 500;
+  color: #9B9B9A;
+}
+
+/* Price & Status */
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 110px;
+}
+
+.card-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ซักสำเร็จ (สีเขียว) */
+.status-completed {
+  background: rgba(1, 208, 25, 0.16);
+  color: #02AC16;
+}
+
+/* กำลังซัก (สีส้ม/เหลือง) */
+.status-processing {
+  background: rgba(233, 167, 0, 0.18);
+  color: #E9A700;
+}
+
+/* =========================================================
+   Responsive View
+   ========================================================= */
+@media (max-width: 768px) {
+  .navbar {
+    height: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .nav-brand, .nav-menu, .nav-actions {
+    position: static;
+    transform: none;
+  }
+  .nav-menu {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .history-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding: 20px;
+  }
+  .card-icon-wrapper {
+    margin-right: 0;
+  }
+  .card-meta {
+    align-items: center;
+  }
+  .tabs-container {
+    flex-direction: column;
+    width: 100%;
+  }
+  .tab-btn {
+    justify-content: center;
+  }
+}
