@@ -1,0 +1,102 @@
+/* =========================================================
+   How to Use Page Styles (ใช้ร่วมกับ booking.css)
+   ========================================================= */
+
+/* Hero Banner สำหรับหัวข้อหน้า */
+.guide-banner {
+  text-align: center;
+  padding: 40px 20px 20px;
+}
+
+.guide-title {
+  color: #FFFFFF;
+  font-size: 48px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 4px;
+}
+
+.guide-subtitle {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 18px;
+  font-family: 'Afacad Flux', sans-serif;
+  font-weight: 400;
+}
+
+/* การ์ดคอนเทนเนอร์แสดงขั้นตอน */
+.guide-card {
+  background: rgba(238, 238, 238, 0.35);
+  backdrop-filter: blur(8px);
+  background-color: #FFFFFF;
+  border-radius: 40px;
+  padding: 45px 50px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  max-width: 980px;
+  margin: 20px auto 0;
+}
+
+/* รายการขั้นตอน */
+.step-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-title {
+  color: #000000;
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.step-desc {
+  color: #000000;
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding-left: 20px;
+}
+
+/* ลิงก์สมัครสมาชิก */
+.btn-register {
+  color: #2F00FF;
+  font-weight: 700;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.btn-register:hover {
+  opacity: 0.8;
+}
+
+/* Responsive สำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 768px) {
+  .guide-title {
+    font-size: 36px;
+  }
+
+  .guide-card {
+    padding: 30px 25px;
+    border-radius: 24px;
+  }
+
+  .step-title {
+    font-size: 20px;
+  }
+
+  .step-desc {
+    font-size: 18px;
+    padding-left: 10px;
+  }
+}
