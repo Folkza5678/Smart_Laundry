@@ -1,0 +1,464 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #DDF3FD 65%, #64CEFF 100%);
+  color: #000;
+}
+
+/* =========================================================
+   Header & Navigation
+   ========================================================= */
+.navbar {
+  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
+  height: 140px;
+  padding: 0 18px 0 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.nav-brand {
+  position: absolute;
+  top: 2px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.logo {
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+  object-fit: contain;
+  margin-right: -30px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  border-left: 2.5px solid white;
+  padding-left: 14px;
+}
+
+.brand-en {
+  color: white;
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.brand-th {
+  color: white;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.nav-menu {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 52px;
+  z-index: 1;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-decoration: none;
+  color: #00036C;
+  font-family: 'Afacad Flux', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  transition: transform 0.2s;
+  min-width: 60px;
+}
+
+.nav-item:hover {
+  transform: translateY(-2px);
+}
+
+.nav-item .nav-icon {
+  margin-bottom: 6px;
+}
+
+.nav-item-qr {
+  position: relative;
+  top: -2px;
+}
+
+.nav-icon-qr {
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 4px rgba(0, 3, 108, 0.15));
+}
+
+.nav-item-qr .nav-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Active State */
+.nav-item.active,
+.nav-item.active .nav-label {
+  color: #FFFFFF !important;
+}
+
+.nav-item.active svg path,
+.nav-item.active svg rect,
+.nav-item.active svg circle {
+  fill: #FFFFFF !important;
+}
+
+.nav-actions {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+/* =========================================================
+   Main Layout & Card Container
+   ========================================================= */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px 60px 20px;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 38px;
+  font-weight: 900;
+  font-style: italic;
+  margin-bottom: 30px;
+  color: #00036C;
+}
+
+.stage-card {
+  background: white;
+  border-radius: 35px;
+  padding: 35px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  transition: all 0.3s ease;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   Stage 1: Machine Scanner & Webcam Styling
+   ========================================================= */
+.selected-program-bar {
+  background: #E8F5FE;
+  border: 1.5px solid #85D0FF;
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.program-label {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 2px;
+}
+
+.program-detail {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00036C;
+}
+
+.program-price {
+  font-size: 24px;
+  font-weight: 900;
+  color: #00036C;
+}
+
+/* Viewfinder & Video Box */
+.scanner-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.scanner-box {
+  width: 280px;
+  height: 280px;
+  background: #181818;
+  border-radius: 25px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* วิดีโอแสดงผลภาพจากกล้องจริง */
+.scanner-box video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 25px;
+  z-index: 0;
+}
+
+.corner-border {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 4px solid #0095FF;
+  z-index: 1;
+}
+
+.top-left { top: 15px; left: 15px; border-right: none; border-bottom: none; }
+.top-right { top: 15px; right: 15px; border-left: none; border-bottom: none; }
+.bottom-left { bottom: 15px; left: 15px; border-right: none; border-top: none; }
+.bottom-right { bottom: 15px; right: 15px; border-left: none; border-top: none; }
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #00FF87, transparent);
+  box-shadow: 0 0 12px #00FF87;
+  animation: scan 2.2s infinite ease-in-out;
+  z-index: 1;
+}
+
+@keyframes scan {
+  0% { top: 10%; }
+  50% { top: 85%; }
+  100% { top: 10%; }
+}
+
+.scanner-tip {
+  color: white;
+  font-size: 13px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 6px 14px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+/* Manual Input Section */
+.manual-input-section {
+  text-align: center;
+}
+
+.manual-title {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid #D0D0D0;
+  border-radius: 16px;
+  font-size: 18px;
+  text-align: center;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #0095FF;
+}
+
+/* =========================================================
+   Stage 2: Payment QR Styling
+   ========================================================= */
+.payment-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #EEE;
+  padding-bottom: 16px;
+}
+
+.promptpay-logo {
+  height: 38px;
+  object-fit: contain;
+}
+
+.timer-badge {
+  background: #FFF0F0;
+  color: #FF1C1C;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  gap: 6px;
+}
+
+.qr-code-box {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.payment-qr-img {
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+  border: 1px solid #DDD;
+  padding: 10px;
+  background: white;
+}
+
+.qr-notice {
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
+}
+
+.payment-summary {
+  background: #F8FBFE;
+  border-radius: 20px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  color: #444;
+}
+
+.total-row {
+  border-top: 1px dashed #CCC;
+  padding-top: 10px;
+  margin-top: 4px;
+  font-weight: 700;
+  color: #000;
+}
+
+.total-price {
+  font-size: 22px;
+  color: #00036C;
+  font-weight: 900;
+}
+
+/* Action Buttons */
+.payment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-primary {
+  background: #0095FF;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-dark {
+  background: #181818;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 18px;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-secondary {
+  background: #F0F0F0;
+  color: #555;
+  border: none;
+  padding: 14px;
+  border-radius: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover, .btn-dark:hover, .btn-secondary:hover {
+  opacity: 0.9;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Demo Helpers */
+.demo-trigger {
+  text-align: center;
+  border-top: 1px solid #EEE;
+  padding-top: 15px;
+  margin-top: 5px;
+}
+
+.btn-demo, .btn-demo-success {
+  background: transparent;
+  border: 1px dashed #888;
+  color: #666;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-demo-success {
+  border-color: #28a745;
+  color: #28a745;
+}

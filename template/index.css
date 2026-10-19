@@ -334,3 +334,105 @@ body {
     font-size: 32px;
   }
 }
+
+/* คลาสสำหรับควบคุมขนาด SVG รูปฟองสบู่ ไม่ให้ทับเลย์เอาต์เดิม */
+.laundry-hero-svg {
+    width: 100%;
+    max-width: 350px; /* ปรับขนาดความกว้างตามความเหมาะสมของกรอบในเว็บคุณ */
+    height: auto;
+    display: block;
+}
+
+/* Styling สำหรับ Hero Banner */
+.hero-card {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.hero-svg-bg {
+  width: 100%;
+  display: flex;
+}
+
+.hero-svg-bg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* จัดวางข้อความให้อยู่ฝั่งซ้ายซ้อนทับภาพ */
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  transform: translateY(-50%);
+  max-width: 500px;
+  color: #ffffff;
+  z-index: 2;
+}
+
+.hero-title {
+  font-family: 'Inter', 'Afacad Flux', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 16px;
+  color: #ffffff;
+}
+
+.hero-description {
+  font-family: 'Inter', 'ABeeZee', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ปุ่มกดบน Banner */
+.hero-btn {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #00036C;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 30px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.hero-btn:hover {
+  background-color: #e8eeff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* รองรับการแสดงผลบนหน้าจอมือถือ/แท็บเล็ต */
+@media (max-width: 768px) {
+  .hero-content {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    max-width: 100%;
+    padding: 24px;
+    background-color: #00036C;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .hero-description {
+    font-size: 0.85rem;
+  }
+}
+ 
+
+        
