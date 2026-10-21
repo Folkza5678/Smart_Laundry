@@ -183,7 +183,8 @@ body.page-faq {
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f8fb;
+  background: #ffffff !important;
+  background-image: none !important;
   min-height: 100vh;
 }
 

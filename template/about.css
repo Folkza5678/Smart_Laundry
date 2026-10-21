@@ -2,6 +2,10 @@
    About Us Page Styles (ใช้ร่วมกับ booking.css)
    ========================================================= */
 
+   body.page-about {
+  background: #ffffff !important;
+  background-image: none !important;
+}
 
 .about-content {
   display: flex;
@@ -86,12 +90,22 @@
   padding: 0;
   overflow: hidden;
   border-radius: 40px;
-  min-height: 420px;
+  min-height: 400px;
 }
 
-.contact-map {
-  flex: 1.5;
-  background: #f0f0f0;
+.contact-map a {
+  display: block;
+  text-decoration: none;
+}
+
+.contact-map .map-img {
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.contact-map .map-img:hover {
+  opacity: 0.9;
+  transform: scale(1.01); /* ขยายใหญ่ขึ้นเล็กน้อยตอนเอาเมาส์ชี้ */
 }
 
 .map-img {
@@ -161,13 +175,7 @@
 }
 
 /* 1. กำหนดสีพื้นหลังหลักของหน้าเว็บ (คลีนๆ) */
-body.page-about {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f8fb; /* สีพื้นหลังสว่าง คลีนๆ */
-  min-height: 100vh;
-}
+
 
 /* 2. สไตล์สำหรับแถบ Banner รูปภาพส่วนหัว */
 .page-banner {
