@@ -8,16 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,900;1,900&display=swap" rel="stylesheet">
+  
+  <!-- ลิงก์ไฟล์ CSS (ตัดคำว่า template/ ออกเพราะไฟล์อยู่ในโฟลเดอร์เดียวกัน) -->
   <link rel="stylesheet" href="template/booking.css">
   <link rel="stylesheet" href="template/faq.css">
 </head>
-<body>
+<body class="page-faq">
 
-  <!-- Navbar (ตรงตามโครงสร้าง blueprint.txt) -->
+  <!-- Navbar -->
   <header class="navbar">
     <!-- ฝั่งซ้าย: โลโก้และชื่อแบรนด์ -->
     <div class="nav-brand">
-      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <img src="../images/logols.png" alt="Smart Laundry Logo" class="logo">
       <div class="brand-text">
         <span class="brand-en">Smart Laundry</span>
         <span class="brand-th">สมาร์ท ลอนดรี</span>
@@ -57,7 +59,7 @@
 
       <a href="about.html" class="nav-item">
         <svg class="nav-icon" width="30" height="30" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M17 0C7.61136 0 0 7.61136 0 17C0 26.3886 7.61136 34 17 34C26.3886 34 34 26.3886 34 17C34 7.61136 26.3886 0 17 0ZM16.2273 7.72727C15.8174 7.72727 15.4243 7.8901 15.1345 8.17993C14.8446 8.46976 14.6818 8.86285 14.6818 9.27273C14.6818 9.68261 14.8446 10.0757 15.1345 10.3655C15.4243 10.6554 15.8174 10.8182 16.2273 10.8182H17C17.4099 10.8182 17.803 10.6554 18.0928 10.3655C18.3826 10.0757 18.5455 9.68261 18.5455 9.27273C18.5455 8.86285 18.3826 8.46976 18.0928 8.17993C17.803 7.8901 17.4099 7.72727 17 7.72727H16.2273ZM13.9091 13.9091C13.4992 13.9091 13.1061 14.0719 12.8163 14.3617C12.5265 14.6516 12.3636 15.0447 12.3636 15.4545C12.3636 15.8644 12.5265 16.2575 12.8163 16.5473C13.1061 16.8372 13.4992 17 13.9091 17H15.4545V21.6364H13.9091C13.4992 21.6364 13.1061 21.7992 12.8163 22.089C12.5265 22.3788 12.3636 22.7719 12.3636 23.1818C12.3636 23.5917 12.5265 23.9848 12.8163 24.2746C13.1061 24.5644 13.4992 27.273 13.9091 24.7273H20.0909C20.5008 24.7273 20.8939 24.5644 21.1837 24.2746C21.4735 23.9848 21.6364 23.5917 21.6364 23.1818C21.6364 22.7719 21.4735 22.3788 21.1837 22.089C20.8939 21.7992 20.5008 21.6364 20.0909 21.6364H18.5455V15.4545C18.5455 15.0447 18.3826 14.6516 18.0928 14.3617C17.803 14.0719 17.4099 13.9091 17 13.9091H13.9091Z" fill="#00036C"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M17 0C7.61136 0 0 7.61136 0 17C0 26.3886 7.61136 34 17 34C26.3886 34 34 26.3886 34 17C34 7.61136 26.3886 0 17 0ZM16.2273 7.72727C15.8174 7.72727 15.4243 7.8901 15.1345 8.17993C14.8446 8.46976 14.6818 8.86285 14.6818 9.27273C14.6818 9.68261 14.8446 10.0757 15.1345 10.3655C15.4243 10.6554 15.8174 10.8182 16.2273 10.8182H17C17.4099 10.8182 17.803 10.6554 18.0928 10.3655C18.3826 10.0757 18.5455 9.68261 18.5455 9.27273C18.5455 8.86285 18.3826 8.46976 18.0928 8.17993C17.803 7.8901 17.4099 7.72727 17 7.72727H16.2273ZM13.9091 13.9091C13.4992 13.9091 13.1061 14.0719 12.8163 14.3617C12.5265 14.6516 12.3636 15.0447 12.3636 15.4545C12.3636 15.8644 12.5265 16.2575 12.8163 16.5473C13.1061 16.8372 13.4992 17 13.9091 17H15.4545V21.6364H13.9091C13.4992 21.6364 13.1061 21.7992 12.8163 22.089C12.5265 22.3788 12.3636 22.7719 12.3636 23.1818C12.3636 23.5917 12.5265 23.9848 12.8163 24.2746C13.1061 24.5644 13.4992 24.7273 13.9091 24.7273H20.0909C20.5008 24.7273 20.8939 24.5644 21.1837 24.2746C21.4735 23.9848 21.6364 23.5917 21.6364 23.1818C21.6364 22.7719 21.4735 22.3788 21.1837 22.089C20.8939 21.7992 20.5008 21.6364 20.0909 21.6364H18.5455V15.4545C18.5455 15.0447 18.3826 14.6516 18.0928 14.3617C17.803 14.0719 17.4099 13.9091 17 13.9091H13.9091Z" fill="#00036C"/>
         </svg>
         <span class="nav-label">About</span>
       </a>
@@ -78,7 +80,7 @@
       </a>
     </nav>
 
-    <!-- ฝั่งขวา: FAQ (Active อยู่หน้านี้) และ LINE -->
+    <!-- ฝั่งขวา: FAQ และ LINE -->
     <div class="nav-actions">
       <a href="faq.html" class="action-btn faq-btn active" title="FAQ">
         <svg width="39" height="38" viewBox="0 0 39 38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,15 +99,15 @@
     </div>
   </header>
 
-  <!-- Banner หัวข้อ -->
-  <section class="faq-banner">
-    <h1 class="faq-title">คำถามที่พบบ่อย</h1>
+  <!-- Banner หัวข้อ (กำหนดความสูงสไตล์ About) -->
+  <section class="page-banner">
+    <h1>คำถามที่พบบ่อย</h1>
   </section>
 
   <!-- เนื้อหาหลัก -->
   <main class="container">
     
-    <!-- แท็บเลือกหมวดหมู่คำถาม (2 หมวดหมู่สลับในหน้าเดียว) -->
+    <!-- แท็บเลือกหมวดหมู่คำถาม -->
     <div class="faq-tabs">
       <button class="tab-btn active" onclick="switchTab(event, 'booking-tab')">การจองคิว</button>
       <button class="tab-btn" onclick="switchTab(event, 'status-tab')">การเช็คสถานะเครื่อง</button>
@@ -114,9 +116,7 @@
     <!-- กล่องรวมรายการคำถาม -->
     <div class="faq-card">
 
-      <!-- ==========================================
-           หมวดที่ 1: การจองคิว
-           ========================================== -->
+      <!-- หมวดที่ 1: การจองคิว -->
       <div id="booking-tab" class="tab-content active">
         
         <div class="faq-item">
@@ -165,9 +165,7 @@
 
       </div>
 
-      <!-- ==========================================
-           หมวดที่ 2: การเช็คสถานะเครื่อง
-           ========================================== -->
+      <!-- หมวดที่ 2: การเช็คสถานะเครื่อง -->
       <div id="status-tab" class="tab-content">
         
         <div class="faq-item">
@@ -219,21 +217,15 @@
     </div>
   </main>
 
-  <!-- JavaScript สลับแท็บ และเปิด/ปิดคำตอบ -->
   <script>
-    // สลับหมวดหมู่คำถาม (Tabs)
     function switchTab(event, tabId) {
-      // เอาคลาส active ออกจากปุ่มแท็บทั้งหมด
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      // เอาคลาส active ออกจากเนื้อหาแท็บทั้งหมด
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-      // ใส่คลาส active ให้ปุ่มและเนื้อหาที่ถูกเลือก
       event.currentTarget.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
 
-    // เปิด-ปิด Accordion เพื่อดูคำตอบ
     function toggleAccordion(button) {
       const faqItem = button.parentElement;
       faqItem.classList.toggle('open');

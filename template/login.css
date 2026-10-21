@@ -1,0 +1,267 @@
+/* ==========================================
+   Global Layout & Background
+   ========================================== */
+body.page-login {
+  font-family: 'Inter', 'Hanuman', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.login-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px 60px;
+}
+
+.page-top-title {
+  color: #114E72;
+  font-family: 'Hanuman', serif;
+  font-size: 48px;
+  font-weight: 900;
+  margin-top: 10px;
+  margin-bottom: 24px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* ==========================================
+   Login Card Layout & Center Logo Overlap
+   ========================================== */
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 560px;
+  display: flex;
+  background: #F7F6F6;
+  border-radius: 4px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+  overflow: visible; /* ให้โลโก้วงกลมตรงกลางแสดงผลได้เต็มที่ไม่ถูกตัดขอบ */
+}
+
+/* ฝั่งซ้าย: ไล่ระดับสี + ข้อมูลแบรนด์ */
+/* ฝั่งซ้าย: ไล่ระดับสี + จัดเนื้อหาให้อยู่ตรงกลาง */
+.login-brand-side {
+  flex: 1;
+  background: linear-gradient(180deg, #38B6FF 0%, #0084FF 100%);
+  display: flex;
+  align-items: center;     /* จัดแนวตั้งให้อยู่ตรงกลาง */
+  justify-content: left;  /* จัดแนวนอนให้อยู่ตรงกลาง */
+  padding: 40px;           /* ตั้งระยะขอบให้เท่ากันทุกด้าน */
+  box-sizing: border-box;
+}
+
+.brand-graphics {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* คุมขนาด SVG ไม่ให้ใหญ่เกินไปและให้อยู่ตรงกลาง */
+.brand-graphics svg {
+  width: 100%;
+  max-width: 550px;        /* สามารถเปลี่ยนเลขนี้ถ้าอยากได้โลโก้ เล็ก/ใหญ่ กว่านี้ */
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.brand-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #ffffff;
+}
+
+.sl-logo-img {
+  width: 80px;
+  height: auto;
+  object-fit: contain;
+}
+
+.divider-line {
+  width: 2px;
+  height: 90px;
+  background-color: #ffffff;
+}
+
+.brand-text-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 38px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.brand-subtitle {
+  font-family: 'ABeeZee', 'Hanuman', sans-serif;
+  font-size: 18px;
+  color: #ffffff;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+/* โลโก้วงกลมตรงกลางระหว่างสองฝั่ง */
+.center-logo-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 165px;
+  height: 165px;
+  pointer-events: none;
+}
+
+.center-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.12));
+}
+
+/* ฝั่งขวา: ฟอร์มเข้าสู่ระบบ */
+.login-form-side {
+  flex: 1;
+  background: #F7F6F6;
+  padding: 50px 60px 50px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.form-title {
+  color: #114E72;
+  font-family: 'Hanuman', serif;
+  font-size: 48px;
+  font-weight: 900;
+  margin-top: 0;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #114E72;
+  font-family: 'Hanuman', serif;
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.form-group label .required {
+  color: #FF0000;
+}
+
+.form-group input {
+  width: 100%;
+  height: 50px;
+  padding: 0 18px;
+  background: #FFFFFF;
+  border: 1.5px solid #888888;
+  border-radius: 20px;
+  font-size: 15px;
+  color: #333333;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #C2C2C2;
+  font-family: 'Hanuman', serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.form-group input:focus {
+  border-color: #0084FF;
+  box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.2);
+}
+
+.form-footer-links {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-family: 'Hanuman', serif;
+  color: #114E72;
+  text-align: center;
+}
+
+.register-link {
+  color: #114E72;
+  font-weight: 900;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+.terms-text {
+  font-size: 12px;
+  font-family: 'Hanuman', serif;
+  color: #333333;
+  margin: 0 0 4px 0;
+  text-align: center;
+}
+
+.privacy-link {
+  font-size: 12px;
+  font-family: 'Hanuman', serif;
+  font-weight: 700;
+  color: #333333;
+  text-decoration: none;
+}
+
+.privacy-link:hover {
+  text-decoration: underline;
+}
+
+/* รองรับ Responsive สำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 900px) {
+  .login-card {
+    flex-direction: column;
+  }
+  .center-logo-wrapper {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: -40px auto -20px auto;
+  }
+  .login-brand-side {
+    padding: 40px 20px;
+  }
+  .login-form-side {
+    padding: 40px 24px;
+  }
+}

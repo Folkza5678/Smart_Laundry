@@ -177,3 +177,42 @@
     font-size: 16px;
   }
 }
+
+/* กำหนดสีพื้นหลังหลักของหน้า FAQ (คลีนๆ ไม่ใส่รูปเต็มจอ) */
+body.page-faq {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f8fb;
+  min-height: 100vh;
+}
+
+/* แถบ Banner รูปภาพส่วนหัว */
+.page-banner {
+  width: 100%;
+  height: 220px; /* กำหนดความสูงของแถบแบนเนอร์ */
+  
+  /* เรียกใช้รูปภาพพื้นหลังแบนเนอร์ */
+  background-image: url('../images/wash.png'); /* เปลี่ยนชื่อไฟล์รูปภาพตามที่ต้องการ */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* จัดวางข้อความให้อยู่ตรงกลาง */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ใส่เงาสีดำโปร่งแสงช่วยให้อ่านข้อความได้ชัดเจน */
+  background-color: rgba(0, 0, 0, 0.25);
+  background-blend-mode: overlay;
+}
+
+/* ข้อความหัวข้อ FAQ ในแบนเนอร์ */
+.page-banner h1 {
+  color: #ffffff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
