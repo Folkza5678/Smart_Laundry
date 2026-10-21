@@ -29,6 +29,11 @@ body {
   display: flex;
   align-items: center;
   z-index: 2;
+  text-decoration: none; /* เอาเส้นใต้ลิงก์ออก */
+  color: inherit;        /* ให้ใช้สีข้อความตามเดิม */
+  display: flex;         /* จัดโลโก้กับข้อความให้อยู่แนวนอนตามเดิม */
+  align-items: center;
+  cursor: pointer;
 }
 
 .logo {
