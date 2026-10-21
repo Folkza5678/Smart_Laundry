@@ -7,8 +7,17 @@
 body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
-  background: #B5DEFF;
   color: #000;
+
+  /* โค้ดพื้นหลังรูปภาพ */
+  background-image: url('../images/bb.jpg'); /* ถ้ารูปอยู่ในโฟลเดอร์ images ให้ใช้ ../ นำหน้า */
+  background-size: cover;          /* ปรับรูปให้ขยายเต็มหน้าจอ */
+  background-position: center;     /* จัดวางรูปไว้ตรงกลาง */
+  background-repeat: no-repeat;    /* ไม่ให้รูปซ้ำ */
+  background-attachment: fixed;    /* ( optional ) ล็อกรูปไว้ไม่ให้เลื่อนตามเวลา Scroll หน้าจอ */
+  
+  /* สีสำรองระหว่างรอรูปโหลด */
+  background-color: #B5DEFF;
 }
 
 /* =========================================================

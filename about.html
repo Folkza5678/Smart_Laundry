@@ -8,16 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,900;1,900&display=swap" rel="stylesheet">
+  
+  <!-- แก้ไข Path CSS (เนื่องจากไฟล์อยู่นอกโฟลเดอร์Root หรือใน template ให้เรียกตรงๆ) -->
   <link rel="stylesheet" href="template/booking.css">
   <link rel="stylesheet" href="template/about.css">
 </head>
-<body>
+<body class="page-about"> <!-- เพิ่ม class="page-about" สำหรับกำหนด CSS แยกหน้า -->
 
-  <!-- Header / Navbar (ตรงตาม blueprint.txt) -->
+  <!-- Header / Navbar -->
   <header class="navbar">
     <!-- ฝั่งซ้าย: โลโก้และชื่อแบรนด์ -->
     <div class="nav-brand">
-      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <img src="../images/logols.png" alt="Smart Laundry Logo" class="logo"> <!-- เติม ../ เพื่อถอยไปดึงรูปจากโฟลเดอร์ images -->
       <div class="brand-text">
         <span class="brand-en">Smart Laundry</span>
         <span class="brand-th">สมาร์ท ลอนดรี</span>
@@ -98,9 +100,13 @@
     </div>
   </header>
 
+  <!-- ส่วน Banner หัวข้อเฉพาะสำหรับรูปภาพแถบยาว -->
+  <section class="page-banner">
+    <h1>เกี่ยวกับเรา</h1>
+  </section>
+
   <!-- Main Content Layout -->
   <main class="container">
-    <h1 class="page-title">เกี่ยวกับเรา</h1>
 
     <div class="about-content">
       
@@ -117,7 +123,7 @@
         <div class="gallery-frame">
           <div class="decorative-box box-top-right"></div>
           <div class="decorative-box box-bottom-left"></div>
-          <img src="https://placehold.co/1167x759" alt="Smart Laundry Store Showcase" class="gallery-img">
+          <img src="../images/s.png" alt="Smart Laundry Store Showcase" class="gallery-img"> <!-- แก้ไขเป็นรูป wash.png -->
         </div>
       </section>
 

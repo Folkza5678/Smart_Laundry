@@ -2,6 +2,7 @@
    About Us Page Styles (ใช้ร่วมกับ booking.css)
    ========================================================= */
 
+
 .about-content {
   display: flex;
   flex-direction: column;
@@ -157,4 +158,43 @@
   .about-desc {
     font-size: 18px;
   }
+}
+
+/* 1. กำหนดสีพื้นหลังหลักของหน้าเว็บ (คลีนๆ) */
+body.page-about {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f8fb; /* สีพื้นหลังสว่าง คลีนๆ */
+  min-height: 100vh;
+}
+
+/* 2. สไตล์สำหรับแถบ Banner รูปภาพส่วนหัว */
+.page-banner {
+  width: 100%;
+  height: 220px; /* ปรับความสูงของแถบ Banner ได้ตามต้องการ */
+  
+  /* เรียกใช้รูปภาพแบนเนอร์ */
+  background-image: url('../images/wash.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* จัดวางข้อความให้อยู่ตรงกลางแถบ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ใส่เงาสีดำโปร่งแสงซ้อนบนรูปเพื่อให้ข้อความอ่านง่ายขึ้น */
+  background-color: rgba(0, 0, 0, 0.25);
+  background-blend-mode: overlay;
+}
+
+/* 3. สไตล์ตัวหนังสือหัวข้อใน Banner */
+.page-banner h1 {
+  color: #ffffff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* ใส่เงาให้ตัวหนังสือเด่นขึ้น */
 }
