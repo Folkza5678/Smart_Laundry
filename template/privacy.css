@@ -1,0 +1,137 @@
+/* ==========================================
+   Global Reset & Background Fix
+   ========================================== */
+body, 
+body.page-privacy {
+  font-family: 'Afacad Flux', 'Hanuman', 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF !important;
+  background: #FFFFFF !important;
+  background-image: none !important;
+  color: #333333;
+  min-height: 100vh;
+}
+
+/* ==========================================
+   Centered Wrapper / Container Layout
+   ========================================== */
+.privacy-container {
+  width: 100%;
+  max-width: 1100px; /* จำกัดความกว้างไม่ให้ข้อความยืดเต็มจอ */
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  box-sizing: border-box;
+}
+
+/* Page Title */
+.page-title {
+  color: #114E72;
+  font-family: 'Hanuman', serif;
+  font-size: 42px;
+  font-weight: 900;
+  text-align: center;
+  margin: 10px 0 35px 0;
+}
+
+/* ==========================================
+   Privacy Policy Card Box (Figma Style)
+   ========================================== */
+.privacy-card {
+  background-color: #EDF9FF; /* สีฟ้าอ่อนตาม Figma */
+  border-radius: 35px;
+  padding: 50px 60px;
+  box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.04), 0px 8px 24px rgba(17, 78, 114, 0.08);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==========================================
+   Typography & Sections
+   ========================================== */
+.paragraph {
+  color: #555555;
+  font-size: 18px;
+  line-height: 1.8;
+  font-weight: 500;
+  margin: 0;
+}
+
+.privacy-section {
+  margin-top: 10px;
+}
+
+.section-title {
+  color: #114E72;
+  font-family: 'Hanuman', serif;
+  font-size: 22px;
+  font-weight: 900;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+/* List Items Formatting */
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.data-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #555555;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.list-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #114E72;
+  border-radius: 50%;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
+.highlight-text {
+  color: #114E72;
+  font-weight: 800;
+  margin-right: 6px;
+}
+
+/* ==========================================
+   Responsive Design (มือถือและแท็บเล็ต)
+   ========================================== */
+@media (max-width: 768px) {
+  .privacy-container {
+    padding: 20px 15px 50px;
+  }
+
+  .page-title {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  .privacy-card {
+    padding: 28px 20px;
+    border-radius: 24px;
+    gap: 16px;
+  }
+
+  .paragraph,
+  .data-list li {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+}
