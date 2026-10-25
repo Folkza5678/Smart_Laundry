@@ -8,18 +8,18 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&display=swap" rel="stylesheet">
   
-  <!-- CSS Links -->
+  <!-- CSS Link -->
   <link rel="stylesheet" href="../template/dashboard.css">
 </head>
 <body class="admin-body">
 
   <div class="admin-layout">
     
-    <!-- Sidebar -->
+    <!-- Sidebar (คงดีไซน์เดิม 100%) -->
     <aside class="sidebar">
-      <a href="index.html" class="sidebar-brand">
+      <a href="../index.html" class="sidebar-brand">
         <div class="brand-divider"></div>
         <div class="brand-text">
           <span class="brand-en">Smart Laundry</span>
@@ -30,25 +30,21 @@
       <hr class="sidebar-separator">
 
       <nav class="sidebar-menu">
-        <!-- Dashboard (Active) -->
         <a href="admin_dashboard.html" class="menu-item active">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           <span class="menu-label">Dashboard</span>
         </a>
 
-        <!-- Management -->
-        <a href="manage.html" class="menu-item">
+        <a href="admin_management.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span class="menu-label">Management</span>
         </a>
 
-        <!-- Transaction History -->
         <a href="admin_transactions.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           <span class="menu-label">Transaction History</span>
         </a>
 
-        <!-- Settings / Use Management -->
         <a href="admin_settings.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span class="menu-label">Settings /<br/>Use Management</span>
@@ -56,84 +52,90 @@
       </nav>
     </aside>
 
-    <!-- Main Dashboard Content -->
+    <!-- Main Content (ปรับใหม่ให้อ่านง่าย สบายตา) -->
     <main class="dashboard-content">
       
-      <!-- Top Sales Cards Grid -->
+      <!-- Top Sales Cards -->
       <div class="stats-grid">
         
-        <!-- ยอดขายรายวัน Card -->
-        <div class="stat-card">
-          <div class="card-header">
-            <h2>ยอดขายรายวัน</h2>
-          </div>
-          <div class="card-body">
-            <span class="stat-value">฿ 2,450</span>
-            <span class="stat-desc">อัปเดตวันนี้ล่าสุด</span>
-          </div>
+        <div class="content-card">
+          <div class="card-title">ยอดขายรายวัน</div>
+          <div class="card-value">฿ 2,450</div>
+          <div class="card-subtitle">อัปเดตวันนี้ล่าสุด</div>
         </div>
 
-        <!-- ยอดขายรายเดือน Card -->
-        <div class="stat-card">
-          <div class="card-header">
-            <h2>ยอดขายรายเดือน</h2>
-          </div>
-          <div class="card-body">
-            <span class="stat-value">฿ 68,200</span>
-            <span class="stat-desc">ประจำเดือนนี้</span>
-          </div>
+        <div class="content-card">
+          <div class="card-title">ยอดขายรายเดือน</div>
+          <div class="card-value">฿ 68,200</div>
+          <div class="card-subtitle">ประจำเดือนนี้</div>
         </div>
 
       </div>
 
       <!-- Graph Section -->
-      <section class="dashboard-card chart-card">
-        <div class="card-header">
-          <h2>กราฟสรุปการใช้งาน</h2>
-        </div>
-        <div class="card-body chart-placeholder">
-          <!-- พื้นที่จำลองสำหรับกราฟ (สามารถเชื่อม Chart.js / ApexCharts ได้) -->
-          <div class="graph-mockup">
-            <div class="bar" style="height: 40%;" data-label="จ."></div>
-            <div class="bar" style="height: 65%;" data-label="อ."></div>
-            <div class="bar" style="height: 50%;" data-label="พ."></div>
-            <div class="bar" style="height: 85%;" data-label="พฤ."></div>
-            <div class="bar" style="height: 95%;" data-label="ศ."></div>
-            <div class="bar" style="height: 70%;" data-label="ส."></div>
-            <div class="bar" style="height: 80%;" data-label="อา."></div>
+      <section class="content-card chart-card">
+        <h2 class="section-title">กราฟสรุปการใช้งาน</h2>
+        
+        <div class="chart-wrapper">
+          <div class="chart-bars">
+            <div class="bar-col">
+              <div class="bar" style="height: 40%;"></div>
+              <span class="bar-text">จ.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar" style="height: 65%;"></div>
+              <span class="bar-text">อ.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar" style="height: 50%;"></div>
+              <span class="bar-text">พ.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar" style="height: 85%;"></div>
+              <span class="bar-text">พฤ.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar bar-active" style="height: 95%;"></div>
+              <span class="bar-text">ศ.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar" style="height: 70%;"></div>
+              <span class="bar-text">ส.</span>
+            </div>
+            <div class="bar-col">
+              <div class="bar" style="height: 80%;"></div>
+              <span class="bar-text">อา.</span>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Real-time Status Section -->
-      <section class="dashboard-card status-card">
-        <div class="card-header">
-          <h2>สถานะตู้ซัก-อบ ทั้งหมดแบบ Real-time</h2>
-        </div>
-        <div class="card-body">
-          <div class="machine-grid">
-            
-            <div class="machine-item status-busy">
-              <span class="machine-name">เครื่องที่ 01 (ซัก)</span>
-              <span class="status-badge">กำลังใช้งาน (เหลือ 15 นาที)</span>
-            </div>
-
-            <div class="machine-item status-available">
-              <span class="machine-name">เครื่องที่ 02 (ซัก)</span>
-              <span class="status-badge">ว่าง</span>
-            </div>
-
-            <div class="machine-item status-available">
-              <span class="machine-name">เครื่องที่ 03 (อบ)</span>
-              <span class="status-badge">ว่าง</span>
-            </div>
-
-            <div class="machine-item status-offline">
-              <span class="machine-name">เครื่องที่ 04 (ซัก)</span>
-              <span class="status-badge">งดให้บริการ</span>
-            </div>
-
+      <section class="content-card">
+        <h2 class="section-title">สถานะตู้ซัก-อบ ทั้งหมดแบบ Real-time</h2>
+        
+        <div class="status-grid">
+          
+          <div class="status-box">
+            <span class="machine-name">เครื่องที่ 01 (ซัก)</span>
+            <span class="status-badge badge-busy">กำลังใช้งาน (เหลือ 15 นาที)</span>
           </div>
+
+          <div class="status-box">
+            <span class="machine-name">เครื่องที่ 02 (ซัก)</span>
+            <span class="status-badge badge-available">ว่าง</span>
+          </div>
+
+          <div class="status-box">
+            <span class="machine-name">เครื่องที่ 03 (อบ)</span>
+            <span class="status-badge badge-available">ว่าง</span>
+          </div>
+
+          <div class="status-box">
+            <span class="machine-name">เครื่องที่ 04 (ซัก)</span>
+            <span class="status-badge badge-offline">งดให้บริการ</span>
+          </div>
+
         </div>
       </section>
 

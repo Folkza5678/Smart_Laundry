@@ -1,5 +1,5 @@
 /* ==========================================
-   Reset & Base Styles
+   Reset & Base Layout
    ========================================== */
 * {
   box-sizing: border-box;
@@ -8,21 +8,20 @@
 }
 
 body.admin-body {
-  font-family: 'Afacad Flux', 'Hanuman', 'Inter', sans-serif;
-  background-color: #F4F8FB;
+  font-family: 'Afacad Flux', 'Hanuman', sans-serif;
+  background-color: #F4F8FB; /* พื้นหลังสีฟ้าเทาอ่อน ช่วยตัดกับ Sidebar */
   color: #333333;
   min-height: 100vh;
 }
 
-/* ==========================================
-   Admin Layout (Sidebar + Main Content)
-   ========================================== */
 .admin-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar Styling */
+/* ==========================================
+   Sidebar (คงสไตล์เดิมแบบที่ทำไว้ตอนแรก)
+   ========================================== */
 .sidebar {
   width: 340px;
   background: linear-gradient(180deg, #0095FF 0%, #88EBFF 100%);
@@ -75,7 +74,6 @@ body.admin-body {
   margin-bottom: 30px;
 }
 
-/* Sidebar Navigation Menu */
 .sidebar-menu {
   display: flex;
   flex-direction: column;
@@ -99,7 +97,6 @@ body.admin-body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Active Menu Item Styling */
 .menu-item.active {
   background: rgba(40, 89, 197, 0.35);
   color: #FFFFFF;
@@ -123,164 +120,161 @@ body.admin-body {
 }
 
 /* ==========================================
-   Main Content Container
+   Main Content Area (ปรับสีเน้นขาวเนียน อ่านง่าย)
    ========================================== */
 .dashboard-content {
   flex-grow: 1;
-  padding: 30px 40px;
+  padding: 35px 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 1200px;
+  max-width: 1250px;
 }
 
-/* ==========================================
-   Dashboard Cards (Matching Figma Gradient)
-   ========================================== */
+/* Top 2 KPI Grid Cards */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
 
-.stat-card, 
-.dashboard-card {
-  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
-  border-radius: 15px;
-  color: #FFFFFF;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+/* Base Content Card (สีขาว ขอบมน เงาละมุน) */
+.content-card {
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  padding: 24px 30px;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E5E9F0;
 }
 
-.card-header {
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.card-header h2 {
-  font-size: 24px;
+.card-title {
+  font-size: 22px;
   font-weight: 600;
+  color: #114E72;
+  margin-bottom: 8px;
 }
 
-.card-body {
-  padding: 24px;
-}
-
-.stat-value {
+.card-value {
   font-size: 42px;
-  font-weight: 700;
-  display: block;
-  margin-bottom: 4px;
+  font-weight: 800;
+  color: #0095FF;
+  line-height: 1.1;
+  margin-bottom: 6px;
 }
 
-.stat-desc {
-  font-size: 16px;
-  opacity: 0.95;
+.card-subtitle {
+  font-size: 15px;
+  color: #777777;
+}
+
+/* Section Titles inside Cards */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #114E72;
+  margin-bottom: 20px;
 }
 
 /* ==========================================
-   Chart & Graph Section
+   Chart Styling (กราฟแท่งสีฟ้าบนการ์ดขาว)
    ========================================== */
-.chart-placeholder {
-  min-height: 220px;
+.chart-wrapper {
+  height: 200px;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  padding-top: 15px;
 }
 
-.graph-mockup {
+.chart-bars {
   width: 100%;
-  height: 180px;
+  height: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 15px;
-  padding-bottom: 25px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 2px solid #E2E8F0;
+  padding-bottom: 4px;
 }
 
-.graph-mockup .bar {
-  width: 35px;
-  background: #FFFFFF;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  position: relative;
-  transition: height 0.3s ease;
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  width: 42px;
 }
 
-.graph-mockup .bar::after {
-  content: attr(data-label);
-  position: absolute;
-  bottom: -25px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #FFFFFF;
-  font-size: 15px;
+.bar {
+  width: 100%;
+  background-color: #88EBFF;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.bar-active, .bar-col:hover .bar {
+  background-color: #0095FF;
+}
+
+.bar-text {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #555555;
 }
 
 /* ==========================================
-   Real-time Machines Status
+   Real-Time Status Grid
    ========================================== */
-.machine-grid {
+.status-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
-.machine-item {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #333333;
-  padding: 16px;
-  border-radius: 12px;
+.status-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .machine-name {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: #114E72;
 }
 
 .status-badge {
   font-size: 14px;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   display: inline-block;
   width: fit-content;
 }
 
-.status-busy .status-badge {
+.badge-busy {
   background-color: #FFE6E6;
   color: #D93025;
 }
 
-.status-available .status-badge {
+.badge-available {
   background-color: #E6F4EA;
   color: #137333;
 }
 
-.status-offline .status-badge {
+.badge-offline {
   background-color: #F1F3F4;
   color: #5F6368;
 }
 
-/* ==========================================
-   Responsive Design
-   ========================================== */
+/* Responsive Layout */
 @media (max-width: 992px) {
-  .admin-layout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    padding: 20px;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+  .admin-layout { flex-direction: column; }
+  .sidebar { width: 100%; }
+  .stats-grid { grid-template-columns: 1fr; }
 }
