@@ -1,0 +1,286 @@
+/* ==========================================
+   Reset & Base Styles
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-body {
+  font-family: 'Afacad Flux', 'Hanuman', 'Inter', sans-serif;
+  background-color: #F4F8FB;
+  color: #333333;
+  min-height: 100vh;
+}
+
+/* ==========================================
+   Admin Layout (Sidebar + Main Content)
+   ========================================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 340px;
+  background: linear-gradient(180deg, #0095FF 0%, #88EBFF 100%);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  color: #FFFFFF;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
+.brand-divider {
+  width: 3px;
+  height: 45px;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-en {
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.brand-th {
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.sidebar-separator {
+  border: none;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 30px;
+}
+
+/* Sidebar Navigation Menu */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  color: #00036C;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 500;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Active Menu Item Styling */
+.menu-item.active {
+  background: rgba(40, 89, 197, 0.35);
+  color: #FFFFFF;
+  border-top-left-radius: 23px;
+  border-bottom-left-radius: 23px;
+  border-bottom-right-radius: 33px;
+  border-top-right-radius: 0;
+}
+
+.menu-item.active .menu-icon {
+  stroke: #FFFFFF;
+}
+
+.menu-icon {
+  stroke: #00036C;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  line-height: 1.2;
+}
+
+/* ==========================================
+   Main Content Container
+   ========================================== */
+.dashboard-content {
+  flex-grow: 1;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+}
+
+/* ==========================================
+   Dashboard Cards (Matching Figma Gradient)
+   ========================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.stat-card, 
+.dashboard-card {
+  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
+  border-radius: 15px;
+  color: #FFFFFF;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.stat-value {
+  font-size: 42px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.stat-desc {
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+/* ==========================================
+   Chart & Graph Section
+   ========================================== */
+.chart-placeholder {
+  min-height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.graph-mockup {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 15px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.graph-mockup .bar {
+  width: 35px;
+  background: #FFFFFF;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+.graph-mockup .bar::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #FFFFFF;
+  font-size: 15px;
+}
+
+/* ==========================================
+   Real-time Machines Status
+   ========================================== */
+.machine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.machine-item {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333333;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.machine-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #114E72;
+}
+
+.status-badge {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.status-busy .status-badge {
+  background-color: #FFE6E6;
+  color: #D93025;
+}
+
+.status-available .status-badge {
+  background-color: #E6F4EA;
+  color: #137333;
+}
+
+.status-offline .status-badge {
+  background-color: #F1F3F4;
+  color: #5F6368;
+}
+
+/* ==========================================
+   Responsive Design
+   ========================================== */
+@media (max-width: 992px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
