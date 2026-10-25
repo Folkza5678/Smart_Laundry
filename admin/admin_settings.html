@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - Settings & User Management</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Links (ใช้ ../ ถอยออกไปเรียกโฟลเดอร์ template) -->
+  <link rel="stylesheet" href="../template/admin_settings.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-brand">
+        <div class="brand-divider"></div>
+        <div class="brand-text">
+          <span class="brand-en">Smart Laundry</span>
+          <span class="brand-th">สมาร์ท ลอนดรี</span>
+        </div>
+      </a>
+
+      <hr class="sidebar-separator">
+
+      <nav class="sidebar-menu">
+        <!-- Dashboard -->
+        <a href="admin_dashboard.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="menu-label">Dashboard</span>
+        </a>
+
+        <!-- Management -->
+        <a href="manage.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="menu-label">Management</span>
+        </a>
+
+        <!-- Transaction History -->
+        <a href="admin_transactions.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="menu-label">Transaction History</span>
+        </a>
+
+        <!-- Settings / Use Management (Active) -->
+        <a href="admin_settings.html" class="menu-item active">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="menu-label">Settings /<br/>Use Management</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="settings-content">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="header-en">Settings / User Management</h1>
+        <h2 class="header-th">ตั้งค่าระบบและจัดการสมาชิก</h2>
+      </div>
+
+      <!-- Top Settings Grid (2 Cards) -->
+      <div class="settings-grid">
+        
+        <!-- Card 1: เวลาเปิด-ปิดร้าน -->
+        <div class="setting-card">
+          <div class="card-title-group">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0095FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <h3>เวลาเปิด-ปิดร้าน</h3>
+          </div>
+          <p class="card-subtext">กำหนดช่วงเวลาเปิดให้บริการหน้าร้านอัตโนมัติ</p>
+
+          <div class="time-inputs">
+            <div class="input-group">
+              <label>เวลาเปิดร้าน</label>
+              <input type="time" value="08:00" class="time-control">
+            </div>
+            <div class="input-group">
+              <label>เวลาปิดร้าน</label>
+              <input type="time" value="22:00" class="time-control">
+            </div>
+          </div>
+
+          <div class="card-footer-action">
+            <span class="status-label">สถานะร้านปัจจุบัน: <strong class="text-green">เปิดให้บริการ</strong></span>
+            <button class="btn-save">บันทึกเวลา</button>
+          </div>
+        </div>
+
+        <!-- Card 2: LINE Notification -->
+        <div class="setting-card">
+          <div class="card-title-group">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AD6A" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <h3>LINE Notification</h3>
+          </div>
+          <p class="card-subtext">แจ้งเตือนผู้ดูแลระบบเมื่อมีรายการจองใหม่หรือเครื่องขัดข้อง</p>
+
+          <div class="toggle-row">
+            <span>ส่งการแจ้งเตือนอัตโนมัติ</span>
+            <label class="switch">
+              <input type="checkbox" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="token-input-group">
+            <label>LINE Notify Token</label>
+            <input type="password" value="************************" class="text-control" readonly>
+          </div>
+
+          <div class="card-footer-action">
+            <button class="btn-secondary">ทดสอบส่งแจ้งเตือน</button>
+            <button class="btn-save">บันทึกการตั้งค่า</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Card: User Management Table -->
+      <div class="user-management-section">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">จัดการสมาชิก & รายงานการใช้งาน</h3>
+            <p class="section-desc">ตรวจสอบ ค้นหา และบริหารจัดการสิทธิ์ผู้ใช้งานในระบบ</p>
+          </div>
+          
+          <!-- Search Box -->
+          <div class="search-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7D7D7D" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="ค้นหา ชื่อ, อีเมล หรือ เบอร์โทรศัพท์...">
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">ลำดับ</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th>อีเมล / ช่องทางติดต่อ</th>
+                <th>จำนวนใช้งาน</th>
+                <th>สถานะบัญชี</th>
+                <th style="text-align: center;">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>สมชาย ใจดี</strong></td>
+                <td>somchai.j@gmail.com</td>
+                <td>24 ครั้ง</td>
+                <td><span class="badge-status status-normal">ปกติ</span></td>
+                <td class="action-cell">
+                  <button class="btn-action-sm btn-edit">แก้ไข</button>
+                  <button class="btn-action-sm btn-ban">ระงับ</button>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>กมลวรรณ สุขเสริฐ</strong></td>
+                <td>kamon.k@gmail.com</td>
+                <td>12 ครั้ง</td>
+                <td><span class="badge-status status-normal">ปกติ</span></td>
+                <td class="action-cell">
+                  <button class="btn-action-sm btn-edit">แก้ไข</button>
+                  <button class="btn-action-sm btn-ban">ระงับ</button>
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>รายงานพฤติกรรมไม่เหมาะสม</strong></td>
+                <td>Stalker69@gmail.com</td>
+                <td>2 ครั้ง</td>
+                <td><span class="badge-status status-warning">ผิดปกติ / เฝ้าระวัง</span></td>
+                <td class="action-cell">
+                  <button class="btn-action-sm btn-edit">ตรวจสอบ</button>
+                  <button class="btn-action-sm btn-ban active-ban">ปลดระงับ</button>
+                </td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>วิชัย รักชาติ</strong></td>
+                <td>wichai.r@gmail.com</td>
+                <td>45 ครั้ง</td>
+                <td><span class="badge-status status-normal">ปกติ</span></td>
+                <td class="action-cell">
+                  <button class="btn-action-sm btn-edit">แก้ไข</button>
+                  <button class="btn-action-sm btn-ban">ระงับ</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer -->
+        <div class="table-footer">
+          <span class="pagination-info">แสดงรายการที่ 1 - 4 จากทั้งหมด 158 สมาชิก</span>
+          <div class="pagination-buttons">
+            <button class="page-btn">Prev</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">Next</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
