@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - Transaction History</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Links (ใช้ ../ ถอยออกไปเรียกโฟลเดอร์ template) -->
+  <link rel="stylesheet" href="../template/admin_transactions.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-brand">
+        <div class="brand-divider"></div>
+        <div class="brand-text">
+          <span class="brand-en">Smart Laundry</span>
+          <span class="brand-th">สมาร์ท ลอนดรี</span>
+        </div>
+      </a>
+
+      <hr class="sidebar-separator">
+
+      <nav class="sidebar-menu">
+        <!-- Dashboard -->
+        <a href="admin_dashboard.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="menu-label">Dashboard</span>
+        </a>
+
+        <!-- Management -->
+        <a href="manage.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="menu-label">Management</span>
+        </a>
+
+        <!-- Transaction History (Active) -->
+        <a href="admin_transactions.html" class="menu-item active">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="menu-label">Transaction History</span>
+        </a>
+
+        <!-- Settings / Use Management -->
+        <a href="admin_settings.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="menu-label">Settings /<br/>Use Management</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="transactions-content">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="header-en">Transaction History</h1>
+        <h2 class="header-th">ประวัติการชำระเงิน</h2>
+      </div>
+
+      <!-- 4 Stat Summary Cards -->
+      <div class="stats-grid-4">
+        
+        <div class="stat-box">
+          <span class="stat-title">Total Transactions</span>
+          <span class="stat-value">฿50,000</span>
+        </div>
+
+        <div class="stat-box">
+          <span class="stat-title">Total Scans</span>
+          <span class="stat-value">1,250 ครั้ง</span>
+        </div>
+
+        <div class="stat-box">
+          <span class="stat-title">Success Rate</span>
+          <span class="stat-value">98.5%</span>
+        </div>
+
+        <div class="stat-box">
+          <span class="stat-title">Pending Issues</span>
+          <span class="stat-value">3 ครั้ง</span>
+        </div>
+
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="filters-bar">
+        
+        <!-- Search Field -->
+        <div class="search-input-wrapper">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7D7D7D" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search" class="filter-input search-input">
+        </div>
+
+        <!-- Date Range Select -->
+        <div class="select-wrapper">
+          <span class="filter-label">Date Range</span>
+          <select class="filter-select">
+            <option>Today | 7 Days | Custom</option>
+            <option>Today</option>
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+          </select>
+        </div>
+
+        <!-- Machine Group Select -->
+        <div class="select-wrapper">
+          <span class="filter-label">Machine Group</span>
+          <select class="filter-select">
+            <option>Washing | Drying</option>
+            <option>Washing</option>
+            <option>Drying</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Transactions Table Container -->
+      <div class="table-container">
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Transaction ID ↕</th>
+              <th>Date & Time ↕</th>
+              <th>Machine ID ↕</th>
+              <th>Payment Method ↕</th>
+              <th>Amount (฿) ↕</th>
+              <th>Payment Status ↕</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td>2000399331</td>
+              <td>23/02-2024, 25:20</td>
+              <td>WASH-01</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$50,000</td>
+              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399332</td>
+              <td>23/02-2024, 25:20</td>
+              <td>DRY-02</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$15,000</td>
+              <td><span class="status-pill status-failed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> FAILED ล้มเหลว</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399333</td>
+              <td>22/02-2024, 25:20</td>
+              <td>DRY-02</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$50,000</td>
+              <td><span class="status-pill status-pending"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> PENDING รอตรวจสอบ</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399334</td>
+              <td>23/02-2024, 25:20</td>
+              <td>WASH-01</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$50,000</td>
+              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399335</td>
+              <td>23/02-2024, 25:20</td>
+              <td>DRY-02</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$50,000</td>
+              <td><span class="status-pill status-failed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> FAILED ล้มเหลว</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399337</td>
+              <td>23/02-2024, 25:20</td>
+              <td>DRY-02</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$50,000</td>
+              <td><span class="status-pill status-pending"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> PENDING รอตรวจสอบ</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+            <tr>
+              <td>2000399338</td>
+              <td>23/02-2024, 25:20</td>
+              <td>WASH-01</td>
+              <td><span class="badge-payment">PromptPay</span></td>
+              <td>$15,000</td>
+              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
+              <td><button class="btn-detail">Details ▾</button></td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Table Footer & Pagination -->
+        <div class="table-footer">
+          <span class="pagination-info">Showing 1 to 11 of 48 transactions</span>
+          <div class="pagination-buttons">
+            <button class="page-btn">Prev</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span class="page-dots">...</span>
+            <button class="page-btn">Next</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
