@@ -1,0 +1,309 @@
+/* ==========================================
+   Reset & Base Styles
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-body {
+  font-family: 'Afacad Flux', 'Hanuman', 'Inter', sans-serif;
+  background-color: #F4F8FB;
+  color: #333333;
+  min-height: 100vh;
+}
+
+/* ==========================================
+   Admin Layout Structure
+   ========================================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 340px;
+  background: linear-gradient(180deg, #0095FF 0%, #88EBFF 100%);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  color: #FFFFFF;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
+.brand-divider {
+  width: 3px;
+  height: 45px;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-en {
+  font-family: 'Afacad Flux', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.brand-th {
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.sidebar-separator {
+  border: none;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 30px;
+}
+
+/* Sidebar Navigation Menu */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  color: #00036C;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 500;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-item.active {
+  background: rgba(40, 89, 197, 0.35);
+  color: #FFFFFF;
+  border-top-left-radius: 23px;
+  border-bottom-left-radius: 23px;
+  border-bottom-right-radius: 33px;
+  border-top-right-radius: 0;
+}
+
+.menu-item.active .menu-icon {
+  stroke: #FFFFFF;
+}
+
+.menu-icon {
+  stroke: #00036C;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  line-height: 1.2;
+}
+
+/* ==========================================
+   Management Main Content
+   ========================================== */
+.management-content {
+  flex-grow: 1;
+  padding: 35px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1200px;
+}
+
+.page-title {
+  color: #2859C5;
+  font-family: 'Afacad Flux', 'Hanuman', sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+}
+
+/* Top Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.summary-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-dark {
+  background-color: #F0F2F5;
+  color: #464646;
+}
+
+.icon-green {
+  background-color: #E6F8EB;
+  color: #02AC16;
+}
+
+.icon-red {
+  background-color: #FDECEA;
+  color: #CC0000;
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 18px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.summary-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.text-green { color: #02AC16; }
+.text-red { color: #CC0000; }
+
+/* ==========================================
+   Machine Grid & Machine Cards
+   ========================================== */
+.machines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.machine-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.machine-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.machine-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.machine-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #222222;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Badges */
+.badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+}
+
+.badge-available { background-color: #01D019; }
+.badge-busy { background-color: #FE9616; }
+.badge-reserved { background-color: #ECF000; color: #333333; }
+
+/* Illustration Area */
+.machine-illustration {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.machine-details {
+  font-size: 16px;
+  color: #444444;
+  font-weight: 500;
+}
+
+.btn-action {
+  width: 100%;
+  max-width: 220px;
+  height: 44px;
+  background-color: #2CA7FF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Inter', 'Hanuman', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-action:hover {
+  background-color: #1A8CE0;
+}
+
+/* ==========================================
+   Responsive Design
+   ========================================== */
+@media (max-width: 992px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

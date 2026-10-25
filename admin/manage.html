@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - Machine Management</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Links (ใช้ ../ ถอยออกไปเรียกโฟลเดอร์ template) -->
+  <link rel="stylesheet" href="../template/manage.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="../index.html" class="sidebar-brand">
+        <div class="brand-divider"></div>
+        <div class="brand-text">
+          <span class="brand-en">Smart Laundry</span>
+          <span class="brand-th">สมาร์ท ลอนดรี</span>
+        </div>
+      </a>
+
+      <hr class="sidebar-separator">
+
+      <nav class="sidebar-menu">
+        <!-- Dashboard -->
+        <a href="admin_dashboard.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="menu-label">Dashboard</span>
+        </a>
+
+        <!-- Management (Active) -->
+        <a href="manage.html" class="menu-item active">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="menu-label">Management</span>
+        </a>
+
+        <!-- Transaction History -->
+        <a href="admin_transactions.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="menu-label">Transaction History</span>
+        </a>
+
+        <!-- Settings / Use Management -->
+        <a href="admin_settings.html" class="menu-item">
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="menu-label">Settings /<br/>Use Management</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Content -->
+    <main class="management-content">
+      
+      <!-- Page Title -->
+      <h1 class="page-title">สรุปสถานะตู้ (Machine Management)</h1>
+
+      <!-- Summary Top Cards -->
+      <div class="summary-grid">
+        <!-- Card 1: ตู้ทั้งหมด -->
+        <div class="summary-card">
+          <div class="card-icon icon-dark">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="8" y1="6" x2="8.01" y2="6"/><line x1="12" y1="6" x2="12.01" y2="6"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-label">ตู้ทั้งหมด</span>
+            <span class="summary-count">4 เครื่อง</span>
+          </div>
+        </div>
+
+        <!-- Card 2: พร้อมใช้งาน -->
+        <div class="summary-card">
+          <div class="card-icon icon-green">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-label">พร้อมใช้งาน</span>
+            <span class="summary-count text-green">2 เครื่อง</span>
+          </div>
+        </div>
+
+        <!-- Card 3: ชำรุด/ปิดการใช้งาน -->
+        <div class="summary-card">
+          <div class="card-icon icon-red">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-label">ชำรุด/ปิดการใช้งาน</span>
+            <span class="summary-count text-red">0 เครื่อง</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Machines Grid (4 Cards) -->
+      <div class="machines-grid">
+
+        <!-- Machine 01 -->
+        <div class="machine-card">
+          <div class="machine-header">
+            <h3 class="machine-title">เครื่อง 01</h3>
+            <span class="badge badge-available">ว่าง</span>
+          </div>
+          <div class="machine-illustration">
+            <!-- SVG Icon เครื่องซักผ้า -->
+            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#2859C5" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#50C3FF" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#2859C5"/><circle cx="10" cy="6" r="1" fill="#2859C5"/></svg>
+          </div>
+          <div class="machine-details">
+            <span class="detail-text">ขนาด : 10 kg</span>
+          </div>
+          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
+        </div>
+
+        <!-- Machine 02 -->
+        <div class="machine-card">
+          <div class="machine-header">
+            <h3 class="machine-title">เครื่อง 02</h3>
+            <span class="badge badge-busy">ไม่ว่าง</span>
+          </div>
+          <div class="machine-illustration">
+            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#FE9616" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#FE9616" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#FE9616"/><circle cx="10" cy="6" r="1" fill="#FE9616"/></svg>
+          </div>
+          <div class="machine-details">
+            <span class="detail-text">เหลือเวลา : 18.22 นาที</span>
+          </div>
+          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
+        </div>
+
+        <!-- Machine 03 -->
+        <div class="machine-card">
+          <div class="machine-header">
+            <h3 class="machine-title">เครื่อง 03</h3>
+            <span class="badge badge-reserved">จอง</span>
+          </div>
+          <div class="machine-illustration">
+            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#D4B200" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#ECF000" fill-opacity="0.5"/><circle cx="7" cy="6" r="1" fill="#D4B200"/><circle cx="10" cy="6" r="1" fill="#D4B200"/></svg>
+          </div>
+          <div class="machine-details">
+            <span class="detail-text">เหลือเวลาจอง : 10.23 นาที</span>
+          </div>
+          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
+        </div>
+
+        <!-- Machine 04 -->
+        <div class="machine-card">
+          <div class="machine-header">
+            <h3 class="machine-title">เครื่อง 04</h3>
+            <span class="badge badge-available">ว่าง</span>
+          </div>
+          <div class="machine-illustration">
+            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#2859C5" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#50C3FF" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#2859C5"/><circle cx="10" cy="6" r="1" fill="#2859C5"/></svg>
+          </div>
+          <div class="machine-details">
+            <span class="detail-text">ขนาด : 10 kg</span>
+          </div>
+          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
