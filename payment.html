@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - ชำระเงิน PromptPay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Afacad Flux', sans-serif;
+    }
+
+    body {
+      background-color: #F4F6F9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo {
+      height: 40px;
+    }
+
+    .brand-en {
+      font-weight: 700;
+      color: #00036C;
+      font-size: 1.1rem;
+    }
+
+    .brand-th {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 30px auto;
+      padding: 0 20px;
+      width: 100%;
+      flex: 1;
+    }
+
+    .pay-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(0, 3, 108, 0.08);
+      text-align: center;
+      border: 1px solid #EAEFF8;
+    }
+
+    .pp-header {
+      background: #113566;
+      color: white;
+      padding: 12px;
+      border-radius: 12px 12px 0 0;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .qr-box {
+      border: 2px dashed #CBD5E1;
+      border-top: none;
+      padding: 20px;
+      border-radius: 0 0 12px 12px;
+      background: #FAFAFA;
+      margin-bottom: 20px;
+    }
+
+    .qr-img {
+      width: 210px;
+      height: 210px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .amount-display {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #00036C;
+      margin: 10px 0 4px;
+    }
+
+    .timer-text {
+      font-size: 0.9rem;
+      color: #E65100;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .details-list {
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      color: #475569;
+    }
+
+    .detail-item strong {
+      color: #0F172A;
+    }
+
+    .btn-demo {
+      width: 100%;
+      padding: 14px;
+      background-color: #10B981;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .btn-demo:hover {
+      background-color: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #64748B;
+      border: 1px solid #CBD5E1;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="index.html" class="nav-brand">
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
+  </header>
+
+  <main class="container">
+    <div class="pay-card">
+      
+      <div class="pp-header">
+        <span>PROMPTPAY</span>
+      </div>
+
+      <div class="qr-box">
+        <img id="qrImage" src="" alt="PromptPay QR Code" class="qr-img">
+        <div class="amount-display" id="amountText">0.00 บาท</div>
+        <div class="timer-text" id="timerText">กรุณาชำระภายใน 05:00 นาที</div>
+      </div>
+
+      <div class="details-list">
+        <div class="detail-item">
+          <span>ตู้ซักผ้า:</span>
+          <strong id="machineText">-</strong>
+        </div>
+        <div class="detail-item">
+          <span>โปรแกรม:</span>
+          <strong id="programText">-</strong>
+        </div>
+        <div class="detail-item">
+          <span>รหัสอ้างอิง:</span>
+          <strong id="txText">-</strong>
+        </div>
+      </div>
+
+      <!-- ปุ่มกดสำหรับทดสอบระบบในขั้นตอน Demo -->
+      <button class="btn-demo" onclick="simulateSuccess()">
+        ⚡ จำลองการชำระเงินสำเร็จ (Demo)
+      </button>
+
+      <button class="btn-cancel" onclick="cancelPayment()">
+        ยกเลิกรายการ
+      </button>
+
+    </div>
+  </main>
+
+  <script>
+    let currentPaymentId = null;
+    let pollInterval = null;
+    let timerInterval = null;
+
+    // 1. โหลดข้อมูล QR Code ชำระเงินจาก Backend
+    async function initPayment() {
+      // ดึง machine_code จาก URL query string (ถ้ามี)
+      const urlParams = new URLSearchParams(window.location.search);
+      const machineCode = urlParams.get('code') || 'M-01';
+
+      try {
+        const res = await fetch('/api/payment/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ machine_code: machineCode })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          Swal.fire('เกิดข้อผิดพลาด', data.error || 'ไม่สามารถสร้าง QR Code ได้', 'error')
+            .then(() => window.location.href = 'history.html');
+          return;
+        }
+
+        currentPaymentId = data.payment_id;
+        document.getElementById('amountText').innerText = `${data.amount}.00 บาท`;
+        document.getElementById('machineText').innerText = `ตู้ ${data.machine_code}`;
+        document.getElementById('programText').innerText = data.program;
+        document.getElementById('txText').innerText = data.tx_id;
+
+        // สั่งสร้างรูป QR Code จาก PromptPay Payload
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.qr_payload)}`;
+        document.getElementById('qrImage').src = qrApiUrl;
+
+        // เริ่มนับถอยหลัง
+        startCountdown(data.expires_in);
+
+        // เริ่มตรวจสอบสถานะอัตโนมัติทุกๆ 2 วินาที
+        startPolling();
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 2. ตรวจสอบสถานะการชำระเงินทุกๆ 2 วินาที (Polling)
+    function startPolling() {
+      pollInterval = setInterval(async () => {
+        if (!currentPaymentId) return;
+        const res = await fetch(`/api/payment/${currentPaymentId}/status`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'success') {
+            clearInterval(pollInterval);
+            clearInterval(timerInterval);
+            Swal.fire({
+              title: 'ชำระเงินสำเร็จ!',
+              text: 'กำลังส่งสัญญาณเปิดตู้ซักผ้า...',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.href = 'history.html';
+            });
+          }
+        }
+      }, 2000);
+    }
+
+    // 3. จำลองการจ่ายเงินสำเร็จ (ปุ่ม Demo)
+    async function simulateSuccess() {
+      if (!currentPaymentId) return;
+      const res = await fetch(`/api/payment/${currentPaymentId}/simulate-success`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        Swal.fire('ข้อผิดพลาด', data.error || 'ไม่สามารถจำลองรายการได้', 'error');
+      }
+    }
+
+    // 4. สั่งนับถอยหลังเวลาชำระเงิน
+    function startCountdown(seconds) {
+      let timeLeft = seconds;
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(pollInterval);
+          Swal.fire('หมดเวลาชำระเงิน', 'คิวจองของคุณหมดอายุแล้ว', 'warning')
+            .then(() => window.location.href = 'history.html');
+          return;
+        }
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        document.getElementById('timerText').innerText = `กรุณาชำระภายใน ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} นาที`;
+        timeLeft--;
+      }, 1000);
+    }
+
+    // 5. ยกเลิกการชำระเงิน
+    async function cancelPayment() {
+      await fetch('/api/payment/cancel', { method: 'POST' });
+      window.location.href = 'history.html';
+    }
+
+    window.onload = initPayment;
+  </script>
+</body>
+</html>

@@ -578,7 +578,7 @@ def confirm_checkin_page():
 
 
 # ============================================================
-#  ชำระเงิน PromptPay (QR Code Payment)
+#  ชำระเงิน PromptPay (แยก qrcode.html และ payment.html)
 # ============================================================
 def crc16(s):
     crc = 0xFFFF
@@ -614,9 +614,14 @@ def pending_booking(uid):
 
 
 @app.route("/qrcode.html")
-@app.route("/payment.html")
 def qrcode_page():
     return render_template("qrcode.html")
+
+
+@app.route("/payment.html")
+@app.route("/payment")
+def payment_page():
+    return render_template("payment.html")
 
 
 @app.get("/api/bookings/pending")
@@ -719,6 +724,34 @@ def api_payment_simulate(pid):
     if not own_payment(pid) or not mark_payment_success(pid):
         return err("ทำรายการไม่ได้ (QR อาจหมดอายุแล้ว)", 409)
     return jsonify(ok=True)
+
+
+# ============================================================
+#  [NEW FEATURE 4]: API ตรวจสถานะการซักสำหรับ Global Notification
+# ============================================================
+@app.get("/api/user/active-status")
+@login_required
+def api_user_active_status():
+    """เช็กเบื้องหลังว่าผู้ใช้กำลังซักผ้าตู้ไหนอยู่ และเหลือเวลากี่วินาที"""
+    u = current_user()
+    db = get_db()
+    b = db.execute("""
+        SELECT b.*, m.name AS machine_name, m.code AS machine_code 
+        FROM bookings b
+        JOIN machines m ON m.id = b.machine_id
+        WHERE b.user_id = ? AND b.status = 'washing'
+    """, (u["id"],)).fetchone()
+
+    if not b:
+        return jsonify(has_active=False)
+
+    sec_left = max(0, int((parse_ts(b["end_time"]) - now()).total_seconds()))
+    return jsonify(
+        has_active=True,
+        booking_id=b["id"],
+        machine_name=b["machine_name"],
+        seconds_left=sec_left
+    )
 
 
 # ============================================================
