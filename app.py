@@ -83,7 +83,6 @@ CREATE TABLE IF NOT EXISTS bookings(
   minutes INTEGER, price INTEGER,
   status TEXT,        -- reserved | washing | completed | cancelled | expired
   created_at TEXT, reserve_expires TEXT, start_time TEXT, end_time TEXT);
--- 1 เครื่อง มีรายการ "จอง/กำลังซัก" ได้ทีละ 1 รายการเท่านั้น (กันจองซ้อนแบบ atomic)
 CREATE UNIQUE INDEX IF NOT EXISTS one_active_per_machine
   ON bookings(machine_id) WHERE status IN ('reserved','washing');
 CREATE TABLE IF NOT EXISTS payments(
@@ -165,15 +164,25 @@ def set_setting(key, value):
 #  ตัวช่วยกลาง: เวลา / สถานะเครื่อง / auth
 # ============================================================
 @app.template_filter("thai_dt")
-def thai_dt(s):                       # 2026-09-16 15:06:00 -> 16 กันยายน 2026, 15.06 น.
+def thai_dt(s):
     d = parse_ts(s)
     return f"{d.day} {THAI_MONTHS[d.month - 1]} {d.year}, {d:%H.%M} น." if d else "-"
 
 
 @app.template_filter("short_dt")
-def short_dt(s):                      # -> 16/09/2026, 15:06
+def short_dt(s):
     d = parse_ts(s)
     return d.strftime("%d/%m/%Y, %H:%M") if d else "-"
+
+
+@app.template_filter("format_mmss")
+def format_mmss(seconds):
+    """แปลงจำนวนวินาทีเป็น นาที:วินาที เช่น 120 -> 2:00"""
+    if not seconds or seconds <= 0:
+        return "0:00"
+    m = int(seconds) // 60
+    s = int(seconds) % 60
+    return f"{m}:{s:02d}"
 
 
 def to_int(v, default=0):
@@ -189,7 +198,7 @@ def err(msg, code=400):
 
 @app.before_request
 def refresh_states():
-    """อัปเดตสถานะแบบ lazy: จองหมดเวลา / QR หมดอายุ / ซักเสร็จ (ไม่ต้องใช้ scheduler)"""
+    """อัปเดตสถานะแบบ lazy: จองหมดเวลา / QR หมดอายุ / ซักเสร็จ"""
     if request.endpoint in (None, "assets"):
         return
     db, t = get_db(), ts(now())
@@ -202,9 +211,9 @@ def refresh_states():
 def store_open():
     n = now().strftime("%H:%M")
     o, c = get_setting("open_time", "08:00"), get_setting("close_time", "22:00")
-    if o == c:                                                  # เปิด = ปิด -> เปิดตลอด 24 ชม.
+    if o == c:
         return True
-    return (o <= n < c) if o < c else (n >= o or n < c)         # รองรับเปิดข้ามเที่ยงคืน
+    return (o <= n < c) if o < c else (n >= o or n < c)
 
 
 def machine_states():
@@ -216,15 +225,19 @@ def machine_states():
     out = []
     for r in rows:
         d = dict(r)
-        d["state"], d["left"] = "free", 0
+        d["state"], d["left"], d["left_seconds"] = "free", 0, 0
         if not r["enabled"]:
             d["state"] = "offline"
         elif r["bstatus"] == "washing":
             d["state"] = "busy"
-            d["left"] = max(0, (parse_ts(r["end_time"]) - now()).total_seconds() / 60)
+            sec = max(0, int((parse_ts(r["end_time"]) - now()).total_seconds())) if r["end_time"] else 0
+            d["left_seconds"] = sec
+            d["left"] = sec / 60.0
         elif r["bstatus"] == "reserved":
             d["state"] = "reserved"
-            d["left"] = max(0, (parse_ts(r["reserve_expires"]) - now()).total_seconds() / 60)
+            sec = max(0, int((parse_ts(r["reserve_expires"]) - now()).total_seconds())) if r["reserve_expires"] else 0
+            d["left_seconds"] = sec
+            d["left"] = sec / 60.0
         out.append(d)
     return out
 
@@ -272,7 +285,6 @@ def admin_required(f):
 
 # ============================================================
 #  ไฟล์ static (css / รูป / รูปโปรไฟล์)
-#  เก็บไว้ที่  template/  images/  uploads/  (โฟลเดอร์เดิมของโปรเจกต์)
 # ============================================================
 @app.route("/<any(template,images,uploads):folder>/<path:filename>")
 def assets(folder, filename):
@@ -281,7 +293,6 @@ def assets(folder, filename):
 
 # ============================================================
 #  หน้า: index.html / about.html / howtouse.html / faq.html / privacy.html
-#  (หน้าข้อมูลทั่วไป ไม่ต้องใช้ฐานข้อมูล)
 # ============================================================
 @app.route("/")
 def home():
@@ -335,7 +346,7 @@ def register():
 
 
 # ============================================================
-#  หน้า: login.html   (เข้าสู่ระบบ)   +   /logout (ออกจากระบบ)
+#  หน้า: login.html / logout
 # ============================================================
 @app.route("/login.html", methods=["GET", "POST"])
 def login():
@@ -364,7 +375,7 @@ def logout():
 
 
 # ============================================================
-#  หน้า: gprofile.html (ผู้เยี่ยมชม) / profile.html (สมาชิก)
+#  หน้า: gprofile.html / profile.html
 # ============================================================
 @app.route("/gprofile.html")
 def gprofile():
@@ -379,7 +390,7 @@ def profile():
 
 
 # ============================================================
-#  หน้า: edit_profile.html   (แก้ไขข้อมูลสมาชิก + อัปโหลดรูป)
+#  หน้า: edit_profile.html
 # ============================================================
 ALLOWED_IMG = {"png", "jpg", "jpeg", "gif", "webp"}
 
@@ -397,7 +408,7 @@ def edit_profile():
             flash("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @)", "error")
         birth = None
         if f.get("birthdate", "").strip():
-            try:                                           # รับ dd/mm/yyyy (รองรับ พ.ศ. ด้วย)
+            try:
                 d, m, y = map(int, f["birthdate"].strip().split("/"))
                 birth = datetime(y - 543 if y > 2400 else y, m, d).strftime("%Y-%m-%d")
             except ValueError:
@@ -432,7 +443,7 @@ def edit_profile():
 
 
 # ============================================================
-#  หน้า: password.html   (เปลี่ยนรหัสผ่าน)
+#  หน้า: password.html
 # ============================================================
 @app.route("/password.html", methods=["GET", "POST"])
 @login_required
@@ -458,7 +469,7 @@ def change_password():
 
 
 # ============================================================
-#  หน้า: report.html   (แจ้งปัญหา - ผู้เยี่ยมชมก็แจ้งได้)
+#  หน้า: report.html
 # ============================================================
 @app.route("/report.html", methods=["GET", "POST"])
 def report():
@@ -510,7 +521,7 @@ def api_create_booking():
         return err("กรุณาเลือกโปรแกรมการซัก")
     dry, soft = bool(d.get("dry")), bool(d.get("softener"))
     minutes = prog["minutes"] + (sv["dry"]["minutes"] if dry else 0)
-    price = prog["price"] + (sv["dry"]["price"] if dry else 0) + (sv["softener"]["price"] if soft else 0)  # คำนวณฝั่งเซิร์ฟเวอร์เสมอ
+    price = prog["price"] + (sv["dry"]["price"] if dry else 0) + (sv["softener"]["price"] if soft else 0)
     if db.execute("SELECT 1 FROM bookings WHERE user_id=? AND status='reserved'", (u["id"],)).fetchone():
         return err("คุณมีรายการจองที่ยังไม่ชำระเงิน กรุณาชำระเงินหรือยกเลิกก่อน", 409)
     t = now()
@@ -545,14 +556,13 @@ def tlv(tag, val):
 
 
 def promptpay_payload(target_id, amount):
-    """สร้างข้อความ EMVCo PromptPay QR (เอาไปสร้างเป็นรูป QR ที่หน้าเว็บ)"""
     t = re.sub(r"\D", "", target_id)
     if len(t) == 10 and t.startswith("0"):
-        tgt = tlv("01", "0066" + t[1:])        # เบอร์มือถือ
+        tgt = tlv("01", "0066" + t[1:])
     elif len(t) == 13:
-        tgt = tlv("02", t)                     # เลขบัตรประชาชน / เลขผู้เสียภาษี
+        tgt = tlv("02", t)
     else:
-        tgt = tlv("03", t)                     # e-Wallet
+        tgt = tlv("03", t)
     body = (tlv("00", "01") + tlv("01", "12") + tlv("29", tlv("00", "A000000677010111") + tgt)
             + tlv("53", "764") + tlv("54", "%.2f" % amount) + tlv("58", "TH") + "6304")
     return body + crc16(body)
@@ -574,7 +584,7 @@ def qrcode_page():
     return render_template("qrcode.html")
 
 
-@app.get("/api/bookings/pending")                      # ดึงรายการที่จองไว้ มาโชว์ด้านบนหน้า QR
+@app.get("/api/bookings/pending")
 @login_required
 def api_pending_booking():
     b = pending_booking(current_user()["id"])
@@ -593,7 +603,7 @@ def payment_json(p, b):
                 machine_code=b["machine_code"], program=b["program_name"], capacity_kg=b["capacity_kg"])
 
 
-@app.post("/api/payment/start")                         # ยืนยันตู้ -> สร้าง QR ชำระเงิน
+@app.post("/api/payment/start")
 @login_required
 def api_payment_start():
     u, db = current_user(), get_db()
@@ -623,14 +633,14 @@ def own_payment(pid):
                                WHERE p.id=? AND b.user_id=?""", (pid, current_user()["id"])).fetchone()
 
 
-@app.get("/api/payment/<int:pid>/status")               # หน้าเว็บเรียกถามทุก 3 วินาที (polling)
+@app.get("/api/payment/<int:pid>/status")
 @login_required
 def api_payment_status(pid):
     p = own_payment(pid)
     return jsonify(status=p["status"]) if p else err("not found", 404)
 
 
-@app.post("/api/payment/cancel")                        # ปุ่ม "ยกเลิกรายการ"
+@app.post("/api/payment/cancel")
 @login_required
 def api_payment_cancel():
     u, db = current_user(), get_db()
@@ -642,7 +652,6 @@ def api_payment_cancel():
 
 
 def mark_payment_success(pid):
-    """เรียกเมื่อได้รับเงินจริง (เช่น จาก webhook ของธนาคาร/payment gateway) -> เริ่มซัก"""
     db = get_db()
     p = db.execute("""SELECT p.*, b.minutes, b.machine_id FROM payments p
                       JOIN bookings b ON b.id=p.booking_id WHERE p.id=?""", (pid,)).fetchone()
@@ -659,7 +668,7 @@ def mark_payment_success(pid):
     return True
 
 
-@app.post("/api/payment/<int:pid>/simulate-success")    # ปุ่ม "จำลองระบบได้รับเงินสำเร็จ" (DEMO_MODE เท่านั้น)
+@app.post("/api/payment/<int:pid>/simulate-success")
 @login_required
 def api_payment_simulate(pid):
     if not DEMO_MODE:
@@ -670,7 +679,7 @@ def api_payment_simulate(pid):
 
 
 # ============================================================
-#  หน้า: history1.html  (และ history.html)  ประวัติการซัก / การจอง
+#  หน้า: history1.html  (และ history.html)
 # ============================================================
 @app.route("/history1.html")
 @app.route("/history.html")
@@ -683,7 +692,9 @@ def history():
     for r in rows:
         d = dict(r)
         end = r["reserve_expires"] if r["status"] == "reserved" else r["end_time"]
-        d["left"] = max(0, (parse_ts(end) - now()).total_seconds() / 60) if r["status"] in ("reserved", "washing") else 0
+        sec = max(0, int((parse_ts(end) - now()).total_seconds())) if r["status"] in ("reserved", "washing") and end else 0
+        d["left_seconds"] = sec
+        d["left"] = sec / 60.0
         items.append(d)
     return render_template("history1.html",
                            washes=[i for i in items if i["status"] in ("washing", "completed")],
@@ -691,8 +702,7 @@ def history():
 
 
 # ============================================================
-#  LINE แจ้งเตือนผู้ดูแล  (LINE Notify ปิดบริการแล้ว -> ใช้ LINE Messaging API)
-#  ตั้งค่า: token = Channel access token (หน้า admin_settings) + env LINE_ADMIN_USER_ID
+#  LINE แจ้งเตือนผู้ดูแล
 # ============================================================
 def line_push(token, to, text):
     req = urllib.request.Request(
@@ -741,7 +751,7 @@ def admin_dashboard():
 
 
 # ============================================================
-#  ADMIN: manage.html   (สรุปสถานะตู้ / แก้ไขตู้ / ตั้งราคา)
+#  ADMIN: manage.html
 # ============================================================
 @app.route("/admin/manage.html")
 @admin_required
@@ -784,7 +794,7 @@ def admin_update_service(key):
 
 
 # ============================================================
-#  ADMIN: admin_transactions.html   (ประวัติการชำระเงิน + ค้นหา/กรอง/แบ่งหน้า)
+#  ADMIN: admin_transactions.html
 # ============================================================
 @app.route("/admin/admin_transactions.html")
 @admin_required
@@ -816,7 +826,7 @@ def admin_transactions():
 
 
 # ============================================================
-#  ADMIN: admin_settings.html   (ตั้งเวลาร้าน / LINE / จัดการสมาชิก)
+#  ADMIN: admin_settings.html
 # ============================================================
 @app.route("/admin/admin_settings.html")
 @admin_required
@@ -851,7 +861,7 @@ def admin_save_settings():
             set_setting(k, d[k])
     if "line_enabled" in d:
         set_setting("line_enabled", "1" if d["line_enabled"] else "0")
-    if d.get("line_token"):                        # ว่าง = ไม่เปลี่ยน token เดิม
+    if d.get("line_token"):
         set_setting("line_token", str(d["line_token"]).strip())
     return jsonify(ok=True)
 
