@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="template/history1.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="global-notify.js"></script>
 </head>
 <body>
 
@@ -82,7 +81,7 @@
     <div class="nav-actions">
       <a href="faq.html" class="action-btn faq-btn" title="FAQ">
         <svg width="39" height="38" viewBox="0 0 39 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5 0C8.73068 0 0 8.50682 0 19C0 29.4932 8.73068 38 19.5 38C30.2693 38 39 29.4932 39 19C39 8.50682 30.2693 0 19.5 0ZM17.5358 13.7059C17.9435 12.9235 18.2449 12.5521 18.4949 12.3586C18.6828 12.2135 18.938 12.0909 19.5 12.0909C20.608 12.0909 21.2727 12.9027 21.2727 13.7802C21.2727 14.2604 21.177 14.4987 20.9146 14.8027C20.5477 15.2276 19.8687 15.7441 18.525 16.6095L17.7273 17.1207V20.7273C17.7273 21.1854 17.914 21.6247 18.2465 21.9486C18.5789 22.2726 19.0298 22.4545 19.5 22.4545C19.9702 22.4545 20.4211 22.2726 20.7535 21.9486C21.086 21.6247 21.2727 21.1854 21.2727 20.7273V18.9706C22.2335 18.3246 23.0401 17.7063 23.6251 17.0292C24.4707 16.0515 24.8182 15.0083 24.8182 13.7802C24.8182 11.2411 22.8097 8.63636 19.5 8.63636C18.2875 8.63636 17.215 8.94036 16.2949 9.65027C15.4369 10.3118 14.8519 11.2221 14.3733 12.1462C14.262 12.3491 14.1935 12.5716 14.1718 12.8006C14.15 13.0297 14.1754 13.2606 14.2465 13.48C14.3176 13.6994 14.4329 13.9027 14.5857 14.078C14.7385 14.2533 14.9257 14.3972 15.1364 14.501C15.347 14.6049 15.5768 14.6668 15.8123 14.6829C16.0478 14.6991 16.2842 14.6693 16.5077 14.5952C16.7312 14.5212 16.9373 14.4043 17.1139 14.2516C17.2904 14.0989 17.4339 13.9134 17.5358 13.7059ZM21.2727 26.7727C21.2727 26.3146 21.086 25.8753 20.7535 25.5514C20.4211 25.2274 19.9702 25.0455 19.5 25.0455C19.0298 25.0455 18.5789 25.2274 18.2465 25.5514C17.914 25.8753 17.7273 26.3146 17.7273 26.7727V27.6364C17.7273 28.0945 17.914 28.5338 18.2465 28.8577C18.5789 29.1817 19.0298 29.3636 19.5 29.3636C19.9702 29.3636 20.4211 29.1817 20.7535 28.8577C21.086 28.5338 21.2727 28.0945 21.2727 27.6364V26.7727Z" fill="#00036C"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5 0C8.73068 0 0 8.50682 0 19C0 29.4932 8.73068 38 19.5 38C30.2693 38 39 29.4932 39 19C39 8.50682 30.2693 0 19.5 0ZM17.5358 13.7059C17.9435 12.9235 18.2449 12.5521 18.4949 12.3586C18.6828 12.2135 18.938 12.0909 19.5 12.0909C20.608 12.0909 21.2727 12.9027 21.2727 13.7802C21.2727 14.2604 21.177 14.4987 20.9146 14.8027C20.5477 15.2276 19.8687 15.7441 18.525 16.6095L17.7273 17.1207V20.7273C17.7273 21.1854 17.914 21.6247 18.2465 21.9486C18.5789 22.2726 19.0298 22.4545 19.5 22.4545C19.9702 22.4545 20.4211 22.2726 20.7535 21.9486C21.086 21.6247 21.2727 21.1854 21.2727 20.7273V18.9706C22.2335 18.3246 23.0401 17.7063 23.6251 17.0292C24.4707 16.0515 24.8182 15.0083 24.8182 13.7802C24.8182 11.2411 22.8097 8.63636 19.5 8.63636C18.2875 8.63636 17.215 8.94036 16.2949 9.65027C15.4369 10.3118 14.8519 11.2221 14.3733 12.1462C14.262 12.3491 14.1935 12.5716 14.1718 12.8006C14.15 13.0297 14.1754 13.2606 14.2465 13.48C14.3176 13.6994 14.4329 13.9027 14.5857 14.078C14.7385 14.2533 14.9257 14.3972 15.1364 14.501C15.347 14.6049 15.5768 14.6668 15.8123 14.6829C16.0478 14.6991 16.2842 14.6693 16.5077 14.5952C16.7312 14.5212 16.9373 14.4043 17.1139 14.2516C17.2904 14.0989 17.4339 13.9134 17.5358 13.7059ZM21.2727 26.7727C21.2727 26.3146 21.086 25.8753 20.7535 25.5514C20.4211 25.2274 19.9702 25.0455 19.5 25.0455C19.0298 25.0455 18.5789 25.2274 18.2465 25.5514C17.7273 25.8753 17.7273 26.3146 17.7273 26.7727V27.6364C17.7273 28.0945 17.914 28.5338 18.2465 28.8577C18.5789 29.1817 19.0298 29.3636 19.5 29.3636C19.9702 29.3636 20.4211 29.1817 20.7535 28.8577C21.086 28.5338 21.2727 28.0945 21.2727 27.6364V26.7727Z" fill="#00036C"/>
         </svg>
       </a>
 
@@ -148,7 +147,10 @@
           <h2 class="card-machine-title">{{ h.machine_name }} (ขนาด {{ h.capacity_kg }} กก.)</h2>
           <p class="card-subtitle">โปรแกรม{{ h.program_name }} ({{ h.minutes }} นาที) • {{ h.start_time|thai_dt }}</p>
           {% if h.status == 'washing' %}
-          <p class="card-time-remaining">เหลือเวลา : <span class="live-countdown" data-left-seconds="{{ (h.left * 60)|int }}">{{ '%.2f'|format(h.left) }} นาที</span></p>
+          {% set left_sec = (h.left * 60)|int %}
+          {% set mins = left_sec // 60 %}
+          {% set secs = left_sec % 60 %}
+          <p class="card-time-remaining">เหลือเวลา : <span class="live-countdown" data-left-seconds="{{ left_sec }}">{{ mins }}:{{ '%02d'|format(secs) }} นาที</span></p>
           {% endif %}
         </div>
         <div class="card-meta">
@@ -185,7 +187,10 @@
           <h2 class="card-machine-title">{{ h.machine_name }} (ขนาด {{ h.capacity_kg }} กก.)</h2>
           <p class="card-subtitle">โปรแกรม{{ h.program_name }} ({{ h.minutes }} นาที) • {{ h.created_at|thai_dt }}</p>
           {% if h.status == 'reserved' %}
-          <p class="card-time-remaining">เหลือเวลา : <span class="live-countdown" data-left-seconds="{{ (h.left * 60)|int }}">{{ '%.2f'|format(h.left) }} นาที</span></p>
+          {% set left_sec = (h.left * 60)|int %}
+          {% set mins = left_sec // 60 %}
+          {% set secs = left_sec % 60 %}
+          <p class="card-time-remaining">เหลือเวลา : <span class="live-countdown" data-left-seconds="{{ left_sec }}">{{ mins }}:{{ '%02d'|format(secs) }} นาที</span></p>
           {% endif %}
         </div>
         <div class="card-meta">
@@ -227,7 +232,7 @@
       }
     }
 
-    // สคริปต์นับถอยหลังเรียลไทม์ (Live Countdown)
+    // สคริปต์นับถอยหลังเรียลไทม์ (Live Countdown) ปรับปรุงรันทันที
     function initRealtimeCountdowns() {
       const countdownElements = document.querySelectorAll('.live-countdown');
 
@@ -240,21 +245,28 @@
 
         const targetTime = Date.now() + leftSeconds * 1000;
 
-        const interval = setInterval(() => {
+        const updateTimer = () => {
           const now = Date.now();
           const diff = Math.ceil((targetTime - now) / 1000);
 
           if (diff <= 0) {
             el.innerText = 'หมดเวลา / เสร็จสิ้น';
-            clearInterval(interval);
-            return;
+            return true;
           }
 
           const mins = Math.floor(diff / 60);
           const secs = diff % 60;
           const formattedSecs = secs < 10 ? '0' + secs : secs;
           el.innerText = `${mins}:${formattedSecs} นาที`;
-        }, 1000);
+          return false;
+        };
+
+        // ทำงานทันที 1 ครั้งไม่ต้องรอ 1 วินาที
+        if (!updateTimer()) {
+          const interval = setInterval(() => {
+            if (updateTimer()) clearInterval(interval);
+          }, 1000);
+        }
       });
     }
 
@@ -285,29 +297,23 @@
     setInterval(checkGlobalBookingTimer, 1000);
     document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
   </script>
-  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ -->
   <script>
     (function () {
-      let activeCheckInterval = null;
-
-      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
           if (!res.ok) return;
           const data = await res.json();
 
-          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
           if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
             localStorage.removeItem('booking_expires_at');
           }
 
-          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
           if (data.has_active && data.status === 'just_completed') {
             const notifiedKey = 'notified_completed_' + data.booking_id;
 
-            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
             if (!sessionStorage.getItem(notifiedKey)) {
               sessionStorage.setItem(notifiedKey, 'true');
               localStorage.removeItem('booking_expires_at');
@@ -316,12 +322,12 @@
                 icon: 'success',
                 title: '🧺 ผ้าซักเสร็จเรียบร้อยแล้ว!',
                 text: `ผ้าของคุณที่ตู้ ${data.machine_name || ''} (${data.machine_code || ''}) ซักเสร็จเรียบร้อยแล้ว กรุณามารับผ้าด้วยครับ`,
-                confirmButtonText: 'ไปที่หน้าประวัติ',
+                confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#00036C',
                 allowOutsideClick: false
               }).then((result) => {
                 if (result.isConfirmed) {
-                  window.location.href = 'history1.html';
+                  window.location.reload();
                 }
               });
             }
@@ -331,7 +337,6 @@
         }
       }
 
-      // 2. ตรวจสอบหมดเวลาจองค้าง
       function checkBookingTimer() {
         const expiresAt = localStorage.getItem('booking_expires_at');
         if (!expiresAt) return;
@@ -352,7 +357,6 @@
         }
       }
 
-      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
       checkActiveStatus();
       checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
