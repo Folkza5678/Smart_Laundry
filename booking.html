@@ -344,6 +344,37 @@
       }
     }
   </script>
+  <script>
+  function checkGlobalBookingTimer() {
+    const expiresAt = localStorage.getItem('booking_expires_at');
+    if (!expiresAt) return;
 
+    const now = Date.now();
+    const diff = parseInt(expiresAt) - now;
+
+    // ถ้าเวลาเหลือน้อยกว่าหรือเท่ากับ 0 (หมดเวลา 10 นาที)
+    if (diff <= 0) {
+      // ล้างค่านับถอยหลังออก
+      localStorage.removeItem('booking_expires_at');
+
+      // แสดง Pop-up แจ้งเตือนทันที
+      Swal.fire({
+        icon: 'warning',
+        title: 'หมดเวลาการจอง!',
+        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวเครื่องซักผ้าแล้ว กรุณาทำการจองใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง / ไปหน้าจอง',
+        confirmButtonColor: '#00036C',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        window.location.href = 'booking.html';
+      });
+    }
+  }
+
+  // รันตรวจจับทุกๆ 1 วินาที และรันทันทีเมื่อโหลดหน้าเว็บ
+  setInterval(checkGlobalBookingTimer, 1000);
+  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+</script>
 </body>
 </html>
