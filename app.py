@@ -356,9 +356,18 @@ def login():
         if u["status"] == "banned":
             flash("บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ", "error")
             return render_template("login.html"), 403
+        
+        # ดึง next_url ที่บันทึกไว้จากการสแกน QR Code ก่อน clear session
+        next_url = session.get("next_url")
+
         session.clear()
         session["uid"] = u["id"]
         session.permanent = True
+        
+        # ถ้ามี next_url ค้างอยู่ ให้เด้งไปหน้ายืนยันตู้ที่สแกนไว้ทันที
+        if next_url:
+            return redirect(next_url)
+
         return redirect("/admin/admin_dashboard.html" if u["is_admin"] else "/index.html")
     return render_template("login.html")
 
@@ -534,6 +543,8 @@ def confirm_checkin_page():
     """เปิดขึ้นมาเมื่อลูกค้าใช้กล้องสแกน QR หน้าตู้"""
     u = current_user()
     if not u:
+        # จำ URL ที่สแกนค้างไว้ แล้วส่งไปหน้าล็อกอิน
+        session["next_url"] = request.full_path
         flash("กรุณาเข้าสู่ระบบก่อนยืนยันการใช้บริการ", "error")
         return redirect("/login.html")
     
