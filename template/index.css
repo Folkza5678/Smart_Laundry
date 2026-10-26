@@ -232,7 +232,7 @@ body {
   justify-content: center;
   background-color: #181818;
   color: #FFFFFF;
-  font-family: inherit;
+  font-family: 'Afacad Flux', sans-serif;
   font-size: 15px;
   font-weight: 400;
   padding: 10px 28px;
@@ -253,9 +253,38 @@ body {
    Board สีขาว (About) — มุมล่างโค้ง
    ========================================================= */
 .main-board {
-  background: #FFFFFF;
+  position: relative;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* section แรก (About) = การ์ดสีขาว มุมล่างโค้งทั้งสองข้าง + เส้นคั่นอยู่ด้านล่าง */
+.main-board .info-section:first-of-type {
+  position: relative;
+  z-index: 1;
+  padding: 40px 97px 80px;
+  border-radius: 0 0 40px 0;
+  background:
+    linear-gradient(#AEA6A6, #AEA6A6) center bottom 36px / 85% 2px no-repeat,
+    #FFFFFF;
+}
+
+/* section ที่สอง (How to Use) = กระจกโปร่งใส มุมโค้งทุกมุม วางซ้อนใต้การ์ดขาว */
+.main-board .info-section ~ .info-section {
+  position: relative;
+  margin-top: -40px;
+  padding: 130px 97px 190px;
   border-radius: 0 0 40px 40px;
-  padding: 30px 97px 50px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* hr เดิมไม่ต้องใช้ (เส้นคั่นวาดในการ์ดขาวแล้ว) */
+.main-board .section-divider {
+  display: none;
 }
 
 /* =========================================================
@@ -284,6 +313,7 @@ body {
 }
 
 /* label ซ้าย */
+.section-side > :not(img),
 .section-side-title {
   grid-column: 1;
   grid-row: 1;
@@ -312,13 +342,12 @@ body {
   grid-column: 3;
   grid-row: 1;
   align-self: center;
-  max-width: 620px;
+  max-width: 560px;
   font-size: 38px;
   font-weight: 500;
   line-height: 1.3;
   color: #000;
   margin: 0;
-  text-wrap: balance;
 }
 
 /* รูปใต้ label */
@@ -371,13 +400,13 @@ body {
    Glass board (How to Use) — กระจกฝ้าโปร่งแสงเห็นพื้นหลังฟองสบู่
    ========================================================= */
 .glass-board {
-  margin-top: 40px;
-  padding: 50px 97px 60px;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 40px;
+  position: relative;
+  margin-top: -40px;               /* ซ่อนใต้ขอบโค้งของกล่องขาว */
+  padding: 130px 97px 190px;
+  background: rgba(255, 255, 255, 0.55);   /* โปร่งแสง เห็นฟองสบู่ด้านหลัง */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 0 0 40px 40px;
 }
 
 /* =========================================================
@@ -391,6 +420,19 @@ body {
   .main-board,
   .glass-board {
     padding: 30px 28px 40px;
+  }
+
+  .glass-board {
+    padding-top: 70px;
+  }
+
+  .main-board .info-section:first-of-type,
+  .main-board .info-section ~ .info-section {
+    padding: 30px 28px 60px;
+  }
+
+  .main-board .info-section ~ .info-section {
+    padding-top: 70px;
   }
 
   .info-section {
