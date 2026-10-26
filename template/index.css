@@ -55,14 +55,30 @@ body {
   z-index: 2;
 }
 
-.logo {
-  width: 60px;
-  height: 60px;
-  min-width: 60px;
+/* โลโก้: 60x60px เท่าหน้า How to use (ครอบคลุมทุกรูปแบบโครงสร้างใน .nav-brand) */
+.logo,
+.nav-brand img,
+.nav-brand svg {
+  width: 60px !important;
+  height: 60px !important;
+  min-width: 60px !important;
+  max-width: none !important;
+  max-height: none !important;
   flex-shrink: 0;
   object-fit: contain;
   display: block;
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ถ้ารูปถูกห่อด้วย element อื่น ให้ตัวห่อกว้างเท่ากัน */
+.nav-brand > :first-child:not(.brand-text) {
+  width: 60px !important;
+  height: 60px !important;
+  min-width: 60px !important;
+  flex: 0 0 60px;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .brand-text {
