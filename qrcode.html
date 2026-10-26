@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,900;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="template/qrcode.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- ไลบรารีอ่าน QR Code แบบยิงเบื้องหลัง ไม่ทำลาย CSS/Layout เดิม -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script src="global-notify.js"></script>
 </head>
 <body>
@@ -17,12 +19,12 @@
   <!-- Navbar Header -->
   <header class="navbar">
     <a href="index.html" class="nav-brand">
-  <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
-  <div class="brand-text">
-    <span class="brand-en">Smart Laundry</span>
-    <span class="brand-th">สมาร์ท ลอนดรี</span>
-  </div>
-</a>
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
 
     <!-- เมนูตรงกลาง (QR Code เป็น Active) -->
     <nav class="nav-menu">
@@ -113,10 +115,10 @@
         <div class="program-price" id="program-price">-</div>
       </div>
 
-      <!-- กล้องสแกน (มี แท็ก video แสดง Feed กล้องจริง) -->
+      <!-- กล้องสแกน -->
       <div class="scanner-wrapper">
         <div class="scanner-box">
-          <video id="webcam-preview" autoplay playsinline muted></video>
+          <video id="webcam-preview" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
           <div class="corner-border top-left"></div>
           <div class="corner-border top-right"></div>
           <div class="corner-border bottom-left"></div>
@@ -177,7 +179,7 @@
 
       <!-- Action Buttons -->
       <div class="payment-actions">
-        <button class="btn-dark full-width" onclick="alert('บันทึก QR Code ลงในอัลบั้มรูปเรียบร้อยแล้ว')">
+        <button class="btn-dark full-width" onclick="saveQRCodeSuccess()">
           📥 บันทึกรูป QR Code
         </button>
         <button class="btn-secondary full-width" onclick="cancelPayment()">
@@ -196,9 +198,12 @@
 
   </main>
 
-  <!-- JavaScript คุมกล้อง สลับสเตจ และนับเวลาถอยหลัง -->
+  <!-- JavaScript คุมกล้อง สแกนเรียลไทม์เบื้องหลัง สลับสเตจ และ SweetAlert2 Popup -->
   <script>
     let timerInterval, pollInterval, videoStream = null, currentPaymentId = null, pendingMachine = null;
+    let isScanning = false;
+    const canvasElement = document.createElement("canvas");
+    const canvasContext = canvasElement.getContext("2d");
 
     async function api(url, body) {
       const res = await fetch(url, {
@@ -210,7 +215,6 @@
       return { ok: res.ok, data: await res.json().catch(() => ({})) };
     }
 
-    // ดึงรายการที่จองไว้ มาแสดงในแถบด้านบน
     async function loadPendingBooking() {
       const { data } = await api('/api/bookings/pending');
       const b = data.booking;
@@ -224,25 +228,87 @@
     async function startCamera() {
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        document.getElementById('webcam-preview').srcObject = videoStream;
-      } catch (err) { console.error('ไม่สามารถเปิดกล้องได้: ', err); }
-    }
-    function stopCamera() {
-      if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+        const video = document.getElementById('webcam-preview');
+        video.srcObject = videoStream;
+        video.setAttribute("playsinline", true);
+        await video.play();
+        isScanning = true;
+        requestAnimationFrame(scanQRCodeTick);
+      } catch (err) { 
+        console.error('ไม่สามารถเปิดกล้องได้: ', err); 
+      }
     }
 
-    // ปุ่ม "จำลองการสแกนตู้สำเร็จ" = ใส่รหัสตู้ที่จองไว้ให้อัตโนมัติ
+    function scanQRCodeTick() {
+      if (!isScanning) return;
+      const video = document.getElementById('webcam-preview');
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvasElement.height = video.videoHeight;
+        canvasElement.width = video.videoWidth;
+        canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        
+        const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+
+        if (code && code.data) {
+          let scannedResult = code.data.trim();
+          
+          if (scannedResult.includes('code=')) {
+            const urlParams = new URLSearchParams(scannedResult.split('?')[1]);
+            scannedResult = urlParams.get('code') || scannedResult;
+          }
+
+          document.getElementById('machine-id-input').value = scannedResult;
+          isScanning = false;
+          proceedToPayment();
+          return;
+        }
+      }
+
+      if (isScanning) {
+        requestAnimationFrame(scanQRCodeTick);
+      }
+    }
+
+    function stopCamera() {
+      isScanning = false;
+      if (videoStream) { 
+        videoStream.getTracks().forEach(t => t.stop()); 
+        videoStream = null; 
+      }
+    }
+
     function simulateScan() {
       if (pendingMachine) document.getElementById('machine-id-input').value = pendingMachine;
       proceedToPayment();
     }
 
-    // ยืนยันตู้ -> ขอ QR ชำระเงินจาก backend
     async function proceedToPayment() {
       const code = document.getElementById('machine-id-input').value.trim();
-      if (!code) { alert('กรุณากรอกรหัสตู้'); return; }
+      if (!code) { 
+        Swal.fire({
+          icon: 'warning',
+          title: 'แจ้งเตือน',
+          text: 'กรุณากรอกรหัสตู้ซักผ้าหน้าร้าน',
+          confirmButtonColor: '#00036C'
+        });
+        return; 
+      }
+      
       const { ok, data } = await api('/api/payment/start', { machine_code: code });
-      if (!ok) { alert(data.error || 'เกิดข้อผิดพลาด'); return; }
+      if (!ok) { 
+        Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถทำรายการได้',
+          text: data.error || 'เกิดข้อผิดพลาดในการดึงข้อมูลรายการจอง',
+          confirmButtonColor: '#00036C'
+        });
+        return; 
+      }
+
       stopCamera();
       currentPaymentId = data.payment_id;
       document.getElementById('confirmed-machine').innerText = data.machine_code;
@@ -269,19 +335,41 @@
       resetToScan();
     }
 
-    // ถามสถานะการจ่ายเงินทุก 3 วินาที -> ถ้าจ่ายแล้วไปหน้า History อัตโนมัติ
+    function saveQRCodeSuccess() {
+      Swal.fire({
+        icon: 'success',
+        title: 'บันทึกสำเร็จ',
+        text: 'บันทึก QR Code ลงในอัลบั้มรูปเรียบร้อยแล้ว',
+        confirmButtonColor: '#00036C'
+      });
+    }
+
     function startPolling() {
       clearInterval(pollInterval);
       pollInterval = setInterval(async () => {
         const { data } = await api('/api/payment/' + currentPaymentId + '/status');
         if (data.status === 'success') {
           clearInterval(pollInterval); clearInterval(timerInterval);
-          alert('ชำระเงินสำเร็จ! กำลังพาคุณไปที่หน้า History เพื่อติดตามสถานะ...');
-          location.href = 'history1.html';
+          Swal.fire({
+            icon: 'success',
+            title: '💳 ชำระเงินสำเร็จ!',
+            text: 'ระบบได้รับยอดชำระเรียบร้อยแล้ว กำลังพาคุณไปหน้า History...',
+            confirmButtonColor: '#00036C',
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            location.href = 'history1.html';
+          });
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          alert('QR Code หมดอายุหรือรายการถูกยกเลิก กรุณาเริ่มรายการใหม่');
-          resetToScan();
+          Swal.fire({
+            icon: 'error',
+            title: 'หมดเวลาชำระเงิน',
+            text: 'QR Code หมดอายุหรือรายการถูกยกเลิก กรุณาเริ่มรายการใหม่',
+            confirmButtonColor: '#00036C'
+          }).then(() => {
+            resetToScan();
+          });
         }
       }, 3000);
     }
@@ -299,38 +387,45 @@
       timerInterval = setInterval(tick, 1000);
     }
 
-    // (โหมดทดสอบ DEMO_MODE) จำลองว่าธนาคารแจ้งว่าได้รับเงินแล้ว
     async function simulateSuccess() {
       const { ok, data } = await api('/api/payment/' + currentPaymentId + '/simulate-success', {});
-      if (!ok) { alert(data.error || 'ทำรายการไม่ได้'); return; }
-      // polling จะพาไปหน้า History เอง
+      if (!ok) { 
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: data.error || 'ทำรายการไม่ได้',
+          confirmButtonColor: '#00036C'
+        });
+        return; 
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => { loadPendingBooking(); startCamera(); });
   </script>
-  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
-<script>
-  function checkGlobalBookingTimer() {
-    const expiresAt = localStorage.getItem('booking_expires_at');
-    if (!expiresAt) return;
 
-    if (Date.now() >= parseInt(expiresAt)) {
-      localStorage.removeItem('booking_expires_at');
-      Swal.fire({
-        icon: 'warning',
-        title: 'หมดเวลาการจอง!',
-        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง / ไปหน้าจอง',
-        confirmButtonColor: '#00036C',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then(() => {
-        window.location.href = 'booking.html';
-      });
+  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
+  <script>
+    function checkGlobalBookingTimer() {
+      const expiresAt = localStorage.getItem('booking_expires_at');
+      if (!expiresAt) return;
+
+      if (Date.now() >= parseInt(expiresAt)) {
+        localStorage.removeItem('booking_expires_at');
+        Swal.fire({
+          icon: 'warning',
+          title: 'หมดเวลาการจอง!',
+          text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง / ไปหน้าจอง',
+          confirmButtonColor: '#00036C',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        }).then(() => {
+          window.location.href = 'booking.html';
+        });
+      }
     }
-  }
-  setInterval(checkGlobalBookingTimer, 1000);
-  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
-</script>
+    setInterval(checkGlobalBookingTimer, 1000);
+    document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+  </script>
 </body>
 </html>

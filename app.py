@@ -207,6 +207,16 @@ def refresh_states():
         db.execute("UPDATE bookings SET status='completed' WHERE status='washing' AND end_time<=?", (t,))
 
 
+@app.after_request
+def prevent_caching(response):
+    """ป้องกัน Browser BFCache ไม่ให้จำหน้าข้อมูลส่วนตัวเมื่อกดย้อนกลับหลัง Logout"""
+    if "text/html" in response.headers.get("Content-Type", ""):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 def store_open():
     n = now().strftime("%H:%M")
     o, c = get_setting("open_time", "08:00"), get_setting("close_time", "22:00")
@@ -375,7 +385,9 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login.html")
+    res = redirect("/index.html")
+    res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    return res
 
 
 @app.route("/gprofile.html")
@@ -530,7 +542,7 @@ def api_create_booking():
 
 
 # ============================================================
-#  [NEW FEATURE 1]: สแกน QR หน้าตู้แล้วยืนยัน (Confirm Check-in)
+#  สแกน QR หน้าตู้แล้วยืนยัน (Confirm Check-in)
 # ============================================================
 def normalize_code(s):
     s = (s or "").strip().upper()
@@ -543,7 +555,6 @@ def confirm_checkin_page():
     """เปิดขึ้นมาเมื่อลูกค้าใช้กล้องสแกน QR หน้าตู้"""
     u = current_user()
     if not u:
-        # จำ URL ที่สแกนค้างไว้ แล้วส่งไปหน้าล็อกอิน
         session["next_url"] = request.full_path
         flash("กรุณาเข้าสู่ระบบก่อนยืนยันการใช้บริการ", "error")
         return redirect("/login.html")
@@ -562,7 +573,6 @@ def confirm_checkin_page():
         flash("ไม่พบข้อมูลตู้ซักผ้าที่สแกน", "error")
         return redirect("/history.html")
 
-    # ตรวจสอบว่าผู้ใช้คนนี้จองตู้นี้ไว้จริงไหม และยังไม่หมดเวลา 10 นาที
     booking = db.execute("""
         SELECT b.*, m.name AS machine_name, m.code AS machine_code, m.capacity_kg 
         FROM bookings b 
@@ -692,7 +702,7 @@ def api_payment_cancel():
 
 
 # ============================================================
-#  [NEW FEATURE 2]: อัปเดตเมื่อจ่ายเงินสำเร็จ + แจ้งเตือนผู้ใช้งาน
+#  อัปเดตเมื่อจ่ายเงินสำเร็จ + แจ้งเตือนผู้ใช้งาน
 # ============================================================
 def mark_payment_success(pid):
     db = get_db()
@@ -727,12 +737,11 @@ def api_payment_simulate(pid):
 
 
 # ============================================================
-#  [NEW FEATURE 4]: API ตรวจสถานะการซักสำหรับ Global Notification
+#  API ตรวจสถานะการซักสำหรับ Global Notification
 # ============================================================
 @app.get("/api/user/active-status")
 @login_required
 def api_user_active_status():
-    """เช็กเบื้องหลังว่าผู้ใช้กำลังซักผ้าตู้ไหนอยู่ และเหลือเวลากี่วินาที"""
     u = current_user()
     db = get_db()
     b = db.execute("""
@@ -755,11 +764,10 @@ def api_user_active_status():
 
 
 # ============================================================
-#  [NEW FEATURE 3]: ESP32 IoT Integration APIs
+#  ESP32 IoT Integration APIs
 # ============================================================
 @app.get("/api/esp32/status/<machine_code>")
 def esp32_get_status(machine_code):
-    """ESP32 ยิงมาถาม Backend ทุกๆ N วินาที เพื่อเช็กว่าต้องเปิดไฟ/Relay หรือไม่"""
     code = normalize_code(machine_code)
     db = get_db()
     m = db.execute("SELECT * FROM machines WHERE code=?", (code,)).fetchone()
@@ -792,7 +800,6 @@ def esp32_get_status(machine_code):
 
 @app.post("/api/esp32/complete")
 def esp32_complete():
-    """ESP32 ยิงแจ้งเมื่อซักเสร็จ/ไฟดับ เพื่อเคลียร์ตู้และแจ้งเตือนผู้ใช้"""
     d = request.get_json(silent=True) or {}
     code = normalize_code(d.get("machine_code"))
     db = get_db()
@@ -866,7 +873,6 @@ def notify_admin(text):
 
 
 def notify_user(user_id, text):
-    """ส่งแจ้งเตือนให้ผู้ใช้งาน (Console Log + รองรับ LINE Notification)"""
     db = get_db()
     u = db.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
     if u:
