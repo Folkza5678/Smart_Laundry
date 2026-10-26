@@ -5,91 +5,96 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Afacad Flux', sans-serif;
   min-height: 100vh;
   color: #000;
 
-  /* โค้ดพื้นหลังรูปภาพ */
-  background-image: url('../images/bb.jpg'); /* ถ้ารูปอยู่ในโฟลเดอร์ images ให้ใช้ ../ นำหน้า */
-  background-size: cover;          /* ปรับรูปให้ขยายเต็มหน้าจอ */
-  background-position: center;     /* จัดวางรูปไว้ตรงกลาง */
-  background-repeat: no-repeat;    /* ไม่ให้รูปซ้ำ */
-  background-attachment: fixed;    /* ( optional ) ล็อกรูปไว้ไม่ให้เลื่อนตามเวลา Scroll หน้าจอ */
-  
-  /* สีสำรองระหว่างรอรูปโหลด */
-  background-color: #B5DEFF;
+  /* พื้นหลังท้องฟ้า + ฟองสบู่ */
+  background-image: url('../images/bb.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #6F8FD6;
 }
 
 /* =========================================================
-   Header & Navigation (Consistent Design System)
+   Container
+   ต้องครอบ .navbar, .hero-card, .main-board, .glass-board
    ========================================================= */
-.navbar {
-  background: linear-gradient(90deg, #0095FF 0%, #88EBFF 100%);
-  height: 140px;
-  padding: 0 18px 0 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  position: relative;
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
 }
 
-/* 1. ฝั่งซ้าย: โลโก้และชื่อแบรนด์ */
+/* =========================================================
+   Navbar (พื้นขาว มุมบนโค้ง)
+   ========================================================= */
+.navbar {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background: #FFFFFF;
+  border-radius: 40px 40px 0 0;
+  padding: 0 24px;
+}
+
+/* ซ้าย: โลโก้ + ชื่อ */
 .nav-brand {
   position: absolute;
-  top: 2px;
-  left: 20px;
+  top: 14px;
+  left: 24px;
   display: flex;
   align-items: center;
-  gap: 0;
-  z-index: 2;
-  text-decoration: none; /* เอาเส้นใต้ลิงก์ออก */
-  color: inherit;        /* ให้ใช้สีข้อความตามเดิม */
-  display: flex;         /* จัดโลโก้กับข้อความให้อยู่แนวนอนตามเดิม */
-  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: #000;
   cursor: pointer;
+  z-index: 2;
 }
 
 .logo {
-  width: 110px;
-  height: 110px;
-  min-width: 110px;
-  min-height: 110px;
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
   flex-shrink: 0;
   object-fit: contain;
   display: block;
-  margin-right: -30px;
+  margin: 0;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
-  border-left: 2.5px solid white;
+  border-left: 1.5px solid #000;
   padding-left: 14px;
   flex-shrink: 0;
 }
 
 .brand-en {
-  color: white;
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 28px;
-  font-weight: 600;
+  color: #000;
+  font-size: 22px;
+  font-weight: 400;
   line-height: 1.1;
   white-space: nowrap;
 }
 
 .brand-th {
-  color: white;
-  font-size: 14px;
+  color: #000;
+  font-size: 13px;
   white-space: nowrap;
 }
 
-/* 2. ส่วนเมนูตรงกลาง */
+/* กลาง: เมนู */
 .nav-menu {
   position: absolute;
   left: 50%;
-  bottom: 12px;
+  bottom: 10px;
   transform: translateX(-50%);
   display: flex;
   align-items: flex-end;
-  gap: 52px;
+  gap: 44px;
   z-index: 1;
 }
 
@@ -98,13 +103,12 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  min-width: 56px;
   text-decoration: none;
-  color: #00036C;
-  font-family: 'Afacad Flux', sans-serif;
+  color: #000;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 15px;
   transition: transform 0.2s;
-  min-width: 60px;
 }
 
 .nav-item:hover {
@@ -112,47 +116,43 @@ body {
 }
 
 .nav-item .nav-icon {
-  margin-bottom: 6px;
-}
-
-/* ปรับแต่งพิเศษสำหรับ QR Code */
-.nav-item-qr {
-  position: relative;
-  top: -2px;
-}
-
-.nav-icon-qr {
+  width: 30px;
+  height: 30px;
   margin-bottom: 4px;
-  filter: drop-shadow(0 2px 4px rgba(0, 3, 108, 0.15));
+}
+
+.nav-item svg path,
+.nav-item svg rect,
+.nav-item svg circle,
+.nav-item svg polygon {
+  fill: #000;
 }
 
 .nav-item-qr .nav-label {
-  font-size: 16px;
   font-weight: 700;
 }
 
-/* สถานะ Active */
+/* หน้าปัจจุบัน = น้ำเงินเข้ม (ไม่ใช่ขาว เพราะพื้นเป็นสีขาว) */
 .nav-item.active,
 .nav-item.active .nav-label {
-  color: #FFFFFF !important;
+  color: #00036C !important;
 }
 
 .nav-item.active svg path,
 .nav-item.active svg rect,
 .nav-item.active svg circle,
 .nav-item.active svg polygon {
-  fill: #FFFFFF !important;
+  fill: #00036C !important;
 }
 
-/* 3. ฝั่งขวา: FAQ และ LINE */
+/* ขวา: FAQ + LINE (ไอคอนสีดำ) */
 .nav-actions {
   position: absolute;
   top: 14px;
-  right: 18px;
+  right: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 10px;
   z-index: 2;
 }
@@ -171,282 +171,302 @@ body {
 }
 
 /* =========================================================
-   Container & Page Layout
+   Hero (รูปผ้าตากราว เต็มความกว้าง ไม่มีมุมโค้ง + ไล่สีขาวด้านล่าง)
    ========================================================= */
-.container {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 30px 20px 60px 20px;
-}
-
-/* Hero Section */
 .hero-card {
-  width: 100%;
-  min-height: 520px;
-  background: url('https://placehold.co/1315x783') center/cover no-repeat;
-  border-radius: 40px;
-  overflow: hidden;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  width: 100%;
+  min-height: 480px;
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: url('../images/hero.jpg') center / cover no-repeat;
+  background-color: #7FA6D9;
 }
 
-.hero-overlay {
-  background: rgba(0, 0, 0, 0.35);
-  width: 100%;
-  height: 100%;
-  padding: 60px 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+/* ไล่สีให้รูปค่อย ๆ จางเป็นสีขาวก่อนเข้าส่วน About */
+.hero-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: absolute;
+  top: 50px;
+  left: 48px;
+  max-width: 780px;
+  color: #FFFFFF;
+  z-index: 2;
 }
 
 .hero-title {
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 14px;
   color: #FFFFFF;
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 56px;
-  font-weight: 700;
-  line-height: 1.15;
-  max-width: 780px;
-  margin-bottom: 24px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.hero-subtitle {
+.hero-description {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 740px;
+  margin-bottom: 28px;
   color: #FFFFFF;
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.5;
-  max-width: 760px;
-  margin-bottom: 36px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* Dark Button Style (#181818) */
-.btn-dark {
+/* ปุ่มดำ */
+.btn-dark,
+.hero-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background-color: #181818;
   color: #FFFFFF;
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 22px;
-  font-weight: 500;
-  padding: 14px 36px;
-  border-radius: 17px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  padding: 10px 28px;
+  border-radius: 10px;
+  border: 1px solid #000;
   text-decoration: none;
-  border: 1px solid #000000;
-  transition: background-color 0.2s, transform 0.2s;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
-.btn-dark:hover {
-  background-color: #333333;
+.btn-dark:hover,
+.hero-btn:hover {
+  background-color: #333;
   transform: translateY(-2px);
 }
 
-/* Main Board Section */
+/* =========================================================
+   Board สีขาว (About) — มุมล่างโค้ง
+   ========================================================= */
 .main-board {
   background: #FFFFFF;
-  border-radius: 40px;
-  padding: 50px 60px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 40px 40px;
+  padding: 30px 97px 50px;
 }
 
+/* =========================================================
+   Section (About / How to Use)
+   HTML เดิม: .info-section > .section-side (หัวข้อ+รูป) + .vertical-line + .section-content
+   ใช้ display: contents เพื่อให้ลูกทุกตัววางลงกริดเดียวกันได้
+
+        col1 (label/รูป) | เส้น | col3 (headline / desc / ปุ่ม)
+   row1  About           |  |    Smart Laundry – ...
+   row2  [รูป]           |       desc
+   row3  [รูป]           |       [More details]
+   ========================================================= */
 .info-section {
-  display: flex;
-  align-items: flex-start;
-  gap: 40px;
-  padding: 20px 0;
+  display: grid;
+  grid-template-columns: 285px 2px 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: 28px;
+  row-gap: 0;
+  align-items: start;
+  padding: 10px 0 20px;
 }
 
-.section-side {
-  width: 260px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.section-side,
+.section-content {
+  display: contents;
 }
 
+/* label ซ้าย */
 .section-side-title {
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 40px;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  justify-self: start;
+  width: 152px;
+  text-align: center;
+  font-size: 32px;
   font-weight: 400;
-  color: #000000;
+  color: #000;
 }
 
+/* เส้นตั้ง: สูงเท่าแถวหัวข้อเท่านั้น */
+.vertical-line {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  width: 2px;
+  height: auto;
+  min-height: 0;
+  background-color: #AEA6A6;
+}
+
+/* headline ขวา */
+.headline-title {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  max-width: 620px;
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #000;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* รูปใต้ label */
 .section-img {
-  width: 260px;
-  height: 325px;
+  grid-column: 1;
+  grid-row: 2 / span 2;
+  justify-self: start;
+  width: 200px;
+  height: 315px;
+  margin-top: 56px;
   object-fit: cover;
   border-radius: 25px;
 }
 
 .section-img.tall {
-  height: 389px;
+  width: 255px;
+  height: 376px;
 }
 
-.vertical-line {
-  width: 2px;
-  min-height: 320px;
-  background-color: #AEA6A6;
-  align-self: stretch;
-  flex-shrink: 0;
-}
-
-.section-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 10px;
-}
-
-.headline-title {
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 44px;
-  font-weight: 500;
-  color: #000000;
-  line-height: 1.25;
-  margin-bottom: 24px;
-}
-
+/* ข้อความ + ปุ่ม อยู่ข้างรูป กึ่งกลางแนวตั้งของรูป */
 .headline-desc {
-  font-family: 'Afacad Flux', sans-serif;
-  font-size: 22px;
+  grid-column: 3;
+  grid-row: 2;
+  align-self: end;
+  margin: 56px 0 0;
+  max-width: 780px;
+  font-size: 20px;
   font-weight: 400;
-  color: #333333;
   line-height: 1.6;
-  margin-bottom: 32px;
-  max-width: 820px;
+  color: #000;
+}
+
+.section-content > :not(.headline-title):not(.headline-desc) {
+  grid-column: 3;
+  grid-row: 3;
+  align-self: start;
+  justify-self: start;
+  margin-top: 28px;
 }
 
 .section-divider {
   border: none;
   height: 2px;
   background-color: #AEA6A6;
-  margin: 40px 0;
+  margin: 24px auto 0;
+  width: 85%;
 }
 
-/* Responsive Adjustments */
+/* =========================================================
+   Glass board (How to Use) — กระจกฝ้าโปร่งแสงเห็นพื้นหลังฟองสบู่
+   ========================================================= */
+.glass-board {
+  margin-top: 40px;
+  padding: 50px 97px 60px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 40px;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
 @media (max-width: 1024px) {
   .hero-title {
-    font-size: 42px;
+    font-size: 34px;
   }
+
+  .main-board,
+  .glass-board {
+    padding: 30px 28px 40px;
+  }
+
   .info-section {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    row-gap: 20px;
   }
+
+  .section-side-title,
+  .headline-title,
+  .section-img,
+  .headline-desc,
+  .section-content > :not(.headline-title):not(.headline-desc) {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0;
+    align-self: start;
+  }
+
+  .section-side-title { order: 1; }
+  .headline-title { order: 2; }
+  .section-img { order: 3; }
+  .headline-desc { order: 4; }
+  .section-content > :not(.headline-title):not(.headline-desc) { order: 5; }
+
   .vertical-line {
     display: none;
   }
-  .section-side {
-    width: 100%;
-    align-items: center;
+
+  .section-label,
+  .section-side-title {
+    text-align: left;
   }
+
   .headline-title {
-    font-size: 32px;
+    font-size: 28px;
+  }
+
+  .section-img {
+    width: 100%;
+    max-width: 320px;
   }
 }
 
-/* คลาสสำหรับควบคุมขนาด SVG รูปฟองสบู่ ไม่ให้ทับเลย์เอาต์เดิม */
-.laundry-hero-svg {
-    width: 100%;
-    max-width: 350px; /* ปรับขนาดความกว้างตามความเหมาะสมของกรอบในเว็บคุณ */
-    height: auto;
-    display: block;
-}
-
-/* Styling สำหรับ Hero Banner */
-.hero-card {
-  position: relative;
-  width: 100%;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-top: 15px;
-}
-
-.hero-svg-bg {
-  width: 100%;
-  display: flex;
-}
-
-.hero-svg-bg svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* จัดวางข้อความให้อยู่ฝั่งซ้ายซ้อนทับภาพ */
-.hero-content {
-  position: absolute;
-  top: 50%;
-  left: 5%;
-  transform: translateY(-50%);
-  max-width: 500px;
-  color: #ffffff;
-  z-index: 2;
-}
-
-.hero-title {
-  font-family: 'Inter', 'Afacad Flux', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  line-height: 1.25;
-  margin-bottom: 16px;
-  color: #ffffff;
-}
-
-.hero-description {
-  font-family: 'Inter', 'ABeeZee', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 400;
-  line-height: 1.6;
-  margin-bottom: 24px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* ปุ่มกดบน Banner */
-.hero-btn {
-  display: inline-block;
-  background-color: #ffffff;
-  color: #00036C;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 12px 32px;
-  border-radius: 30px;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-}
-
-.hero-btn:hover {
-  background-color: #e8eeff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-}
-
-/* รองรับการแสดงผลบนหน้าจอมือถือ/แท็บเล็ต */
 @media (max-width: 768px) {
-  .hero-content {
-    position: relative;
-    top: 0;
-    left: 0;
+  .navbar {
+    height: auto;
+    padding: 16px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .nav-brand,
+  .nav-menu,
+  .nav-actions {
+    position: static;
     transform: none;
-    max-width: 100%;
-    padding: 24px;
-    background-color: #00036C;
+  }
+
+  .nav-menu {
+    gap: 16px;
+    margin-top: 12px;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .hero-card {
+    min-height: 380px;
+  }
+
+  .hero-content {
+    top: 24px;
+    left: 20px;
+    right: 20px;
   }
 
   .hero-title {
-    font-size: 1.6rem;
-  }
-
-  .hero-description {
-    font-size: 0.85rem;
+    font-size: 26px;
   }
 }
- 
-
-        
