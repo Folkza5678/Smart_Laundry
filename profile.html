@@ -103,14 +103,14 @@
 
     <!-- 1. ส่วนแสดงข้อมูลผู้ใช้ (ล็อกอินแล้ว) -->
     <section class="user-profile-header">
-      <div class="user-avatar">
+      <div class="user-avatar">{% if user.avatar %}<img src="/uploads/{{ user.avatar }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}
         <svg width="70" height="70" viewBox="0 0 36 35" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M18 1.92278e-10C20.3638 -1.07723e-05 22.7044 0.452631 24.8883 1.33208C27.0721 2.21153 29.0564 3.50057 30.7279 5.12559C32.3994 6.75061 33.7252 8.6798 34.6298 10.803C35.5344 12.9262 36 15.2018 36 17.5C36 27.165 27.9411 35 18 35C8.0589 35 0 27.165 0 17.5C0 7.83504 8.0589 1.92278e-10 18 1.92278e-10ZM19.8 19.25H16.2C11.7437 19.25 7.91791 21.8739 6.26779 25.6196C8.87869 29.179 13.1605 31.5 18 31.5C22.8394 31.5 27.1212 29.179 29.7322 25.6193C28.0821 21.8739 24.2563 19.25 19.8 19.25ZM18 5.25C15.0176 5.25 12.6 7.60052 12.6 10.5C12.6 13.3995 15.0176 15.75 18 15.75C20.9823 15.75 23.4 13.3995 23.4 10.5C23.4 7.60052 20.9824 5.25 18 5.25Z" fill="#00036C"/>
         </svg>
-      </div>
+      {% endif %}</div>
       <div class="user-info">
-        <h2 class="user-name">ผู้ใช้งาน</h2>
-        <p class="user-email">68030303030@gmail.com</p>
+        <h2 class="user-name">{{ user.username or user.firstname or 'ผู้ใช้งาน' }}</h2>
+        <p class="user-email">{{ user.email or '-' }}</p>
       </div>
     </section>
 
@@ -193,7 +193,7 @@
   
 
     <!-- 4. ปุ่มออกจากระบบ (สีแดงตามแบบ) -->
-    <a href="login.html" class="logout-btn">
+    <a href="/logout" class="logout-btn">
       <svg class="logout-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>

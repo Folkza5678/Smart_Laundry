@@ -106,9 +106,9 @@
       <div class="selected-program-bar">
         <div class="program-info">
           <span class="program-label">รายการที่เลือกไว้:</span>
-          <span class="program-detail">เครื่อง M-02 (14 kg) | ซักมาตรฐาน + น้ำยาปรับผ้านุ่ม</span>
+          <span class="program-detail" id="program-detail">กำลังโหลด...</span>
         </div>
-        <div class="program-price">70 บาท</div>
+        <div class="program-price" id="program-price">-</div>
       </div>
 
       <!-- กล้องสแกน (มี แท็ก video แสดง Feed กล้องจริง) -->
@@ -128,14 +128,14 @@
       <div class="manual-input-section">
         <p class="manual-title">สแกนไม่ติด? กรอกรหัสตู้หน้าร้านได้ที่นี่</p>
         <div class="input-group">
-          <input type="text" id="machine-id-input" placeholder="เช่น M-01, M-02" value="M-02">
+          <input type="text" id="machine-id-input" placeholder="เช่น M-01, M-02" value="">
           <button class="btn-primary" onclick="proceedToPayment()">ยืนยันตู้</button>
         </div>
       </div>
 
       <!-- ปุ่มจำลองการสแกนสำเร็จ -->
       <div class="demo-trigger">
-        <button class="btn-demo" onclick="proceedToPayment()">⚡ จำลองการสแกนตู้สำเร็จ</button>
+        <button class="btn-demo" onclick="simulateScan()">⚡ จำลองการสแกนตู้สำเร็จ</button>
       </div>
 
     </div>
@@ -153,7 +153,7 @@
 
       <!-- แสดง QR Code สำหรับสแกนโอนเงิน -->
       <div class="qr-code-box">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=SmartLaundry70THB" alt="PromptPay Payment QR" class="payment-qr-img">
+        <img id="payment-qr" src="" alt="PromptPay Payment QR" class="payment-qr-img">
         <p class="qr-notice">สแกนชำระเงินผ่านแอปธนาคารใดก็ได้</p>
       </div>
 
@@ -165,11 +165,11 @@
         </div>
         <div class="summary-row">
           <span>โปรแกรมการซัก</span>
-          <span>ซักมาตรฐาน (14 kg)</span>
+          <span id="confirmed-program">-</span>
         </div>
         <div class="summary-row total-row">
           <span>ยอดชำระสุทธิ</span>
-          <span class="total-price">70.00 บาท</span>
+          <span class="total-price" id="confirmed-price">-</span>
         </div>
       </div>
 
@@ -196,81 +196,115 @@
 
   <!-- JavaScript คุมกล้อง สลับสเตจ และนับเวลาถอยหลัง -->
   <script>
-    let timerInterval;
-    let videoStream = null;
+    let timerInterval, pollInterval, videoStream = null, currentPaymentId = null, pendingMachine = null;
 
-    // เปิดกล้องอัตโนมัติ
+    async function api(url, body) {
+      const res = await fetch(url, {
+        method: body === undefined ? 'GET' : 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: body === undefined ? undefined : JSON.stringify(body)
+      });
+      if (res.status === 401) { location.href = 'login.html'; throw new Error('login'); }
+      return { ok: res.ok, data: await res.json().catch(() => ({})) };
+    }
+
+    // ดึงรายการที่จองไว้ มาแสดงในแถบด้านบน
+    async function loadPendingBooking() {
+      const { data } = await api('/api/bookings/pending');
+      const b = data.booking;
+      pendingMachine = b ? b.machine_code : null;
+      document.getElementById('program-detail').textContent = b
+        ? 'เครื่อง ' + b.machine_code + ' (' + b.capacity_kg + ' kg) | ' + b.program
+        : 'ยังไม่มีรายการจอง — กรุณาไปที่หน้า Booking ก่อน';
+      document.getElementById('program-price').textContent = b ? b.price + ' บาท' : '-';
+    }
+
     async function startCamera() {
       try {
-        const videoElement = document.getElementById('webcam-preview');
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
-        if (videoElement) {
-          videoElement.srcObject = videoStream;
-        }
-      } catch (err) {
-        console.error("ไม่สามารถเปิดกล้องได้: ", err);
-      }
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        document.getElementById('webcam-preview').srcObject = videoStream;
+      } catch (err) { console.error('ไม่สามารถเปิดกล้องได้: ', err); }
     }
-
-    // ปิดกล้องเมื่อย้ายสเตจ
     function stopCamera() {
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-        videoStream = null;
-      }
+      if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
     }
 
-    function proceedToPayment() {
-      const machineInput = document.getElementById('machine-id-input').value.trim();
-      if (!machineInput) {
-        alert('กรุณากรอกรหัสตู้');
-        return;
-      }
-      stopCamera(); // ปิดกล้อง
-      document.getElementById('confirmed-machine').innerText = machineInput;
+    // ปุ่ม "จำลองการสแกนตู้สำเร็จ" = ใส่รหัสตู้ที่จองไว้ให้อัตโนมัติ
+    function simulateScan() {
+      if (pendingMachine) document.getElementById('machine-id-input').value = pendingMachine;
+      proceedToPayment();
+    }
+
+    // ยืนยันตู้ -> ขอ QR ชำระเงินจาก backend
+    async function proceedToPayment() {
+      const code = document.getElementById('machine-id-input').value.trim();
+      if (!code) { alert('กรุณากรอกรหัสตู้'); return; }
+      const { ok, data } = await api('/api/payment/start', { machine_code: code });
+      if (!ok) { alert(data.error || 'เกิดข้อผิดพลาด'); return; }
+      stopCamera();
+      currentPaymentId = data.payment_id;
+      document.getElementById('confirmed-machine').innerText = data.machine_code;
+      document.getElementById('confirmed-program').innerText = data.program + ' (' + data.capacity_kg + ' kg)';
+      document.getElementById('confirmed-price').innerText = data.amount.toFixed(2) + ' บาท';
+      document.getElementById('payment-qr').src =
+        'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(data.qr_payload);
       document.getElementById('scan-stage').classList.add('hidden');
       document.getElementById('payment-stage').classList.remove('hidden');
-      startTimer(300); // 5 นาที
+      startTimer(data.expires_in);
+      startPolling();
     }
 
-    function cancelPayment() {
-      clearInterval(timerInterval);
+    function resetToScan() {
+      clearInterval(timerInterval); clearInterval(pollInterval);
       document.getElementById('payment-stage').classList.add('hidden');
       document.getElementById('scan-stage').classList.remove('hidden');
-      startCamera(); // เปิดกล้องใหม่
+      loadPendingBooking();
+      startCamera();
+    }
+
+    async function cancelPayment() {
+      await api('/api/payment/cancel', {});
+      resetToScan();
+    }
+
+    // ถามสถานะการจ่ายเงินทุก 3 วินาที -> ถ้าจ่ายแล้วไปหน้า History อัตโนมัติ
+    function startPolling() {
+      clearInterval(pollInterval);
+      pollInterval = setInterval(async () => {
+        const { data } = await api('/api/payment/' + currentPaymentId + '/status');
+        if (data.status === 'success') {
+          clearInterval(pollInterval); clearInterval(timerInterval);
+          alert('ชำระเงินสำเร็จ! กำลังพาคุณไปที่หน้า History เพื่อติดตามสถานะ...');
+          location.href = 'history1.html';
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval);
+          alert('QR Code หมดอายุหรือรายการถูกยกเลิก กรุณาเริ่มรายการใหม่');
+          resetToScan();
+        }
+      }, 3000);
     }
 
     function startTimer(duration) {
-      let timer = duration, minutes, seconds;
+      let timer = duration;
       clearInterval(timerInterval);
-      
-      timerInterval = setInterval(function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        document.getElementById('countdown').textContent = minutes + ":" + seconds;
-
-        if (--timer < 0) {
-          clearInterval(timerInterval);
-          alert('QR Code หมดอายุแล้ว กรุณาเริ่มรายการใหม่');
-          cancelPayment();
-        }
-      }, 1000);
+      const tick = () => {
+        const m = String(Math.floor(timer / 60)).padStart(2, '0');
+        const s = String(timer % 60).padStart(2, '0');
+        document.getElementById('countdown').textContent = m + ':' + s;
+        if (--timer < 0) { clearInterval(timerInterval); }
+      };
+      tick();
+      timerInterval = setInterval(tick, 1000);
     }
 
-    function simulateSuccess() {
-      clearInterval(timerInterval);
-      alert('ชำระเงินสำเร็จ! กำลังพาคุณไปที่หน้า History เพื่อติดตามสถานะ...');
-      window.location.href = 'history.html';
+    // (โหมดทดสอบ DEMO_MODE) จำลองว่าธนาคารแจ้งว่าได้รับเงินแล้ว
+    async function simulateSuccess() {
+      const { ok, data } = await api('/api/payment/' + currentPaymentId + '/simulate-success', {});
+      if (!ok) { alert(data.error || 'ทำรายการไม่ได้'); return; }
+      // polling จะพาไปหน้า History เอง
     }
 
-    // เรียกกล้องทันทีที่เปิดหน้า
-    window.addEventListener('DOMContentLoaded', startCamera);
+    window.addEventListener('DOMContentLoaded', () => { loadPendingBooking(); startCamera(); });
   </script>
 
 </body>

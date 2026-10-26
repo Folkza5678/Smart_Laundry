@@ -79,17 +79,17 @@
           <div class="time-inputs">
             <div class="input-group">
               <label>เวลาเปิดร้าน</label>
-              <input type="time" value="08:00" class="time-control">
+              <input type="time" id="openTime" value="{{ open_time }}" class="time-control">
             </div>
             <div class="input-group">
               <label>เวลาปิดร้าน</label>
-              <input type="time" value="22:00" class="time-control">
+              <input type="time" id="closeTime" value="{{ close_time }}" class="time-control">
             </div>
           </div>
 
           <div class="card-footer-action">
-            <span class="status-label">สถานะร้านปัจจุบัน: <strong class="text-green">เปิดให้บริการ</strong></span>
-            <button class="btn-save">บันทึกเวลา</button>
+            <span class="status-label">สถานะร้านปัจจุบัน: <strong class="{{ 'text-green' if is_open else 'text-red' }}">{{ 'เปิดให้บริการ' if is_open else 'ปิดให้บริการ' }}</strong></span>
+            <button class="btn-save" onclick="saveTimes()">บันทึกเวลา</button>
           </div>
         </div>
 
@@ -104,19 +104,19 @@
           <div class="toggle-row">
             <span>ส่งการแจ้งเตือนอัตโนมัติ</span>
             <label class="switch">
-              <input type="checkbox" checked>
+              <input type="checkbox" id="lineEnabled" {% if line_enabled %}checked{% endif %}>
               <span class="slider round"></span>
             </label>
           </div>
 
           <div class="token-input-group">
-            <label>LINE Notify Token</label>
-            <input type="password" value="************************" class="text-control" readonly>
+            <label>LINE Channel Access Token</label>
+            <input type="password" id="lineToken" autocomplete="off" placeholder="{{ 'ตั้งค่าแล้ว (เว้นว่างเพื่อใช้ค่าเดิม)' if has_token else 'วาง Channel access token' }}" class="text-control">
           </div>
 
           <div class="card-footer-action">
-            <button class="btn-secondary">ทดสอบส่งแจ้งเตือน</button>
-            <button class="btn-save">บันทึกการตั้งค่า</button>
+            <button class="btn-secondary" onclick="testLine()">ทดสอบส่งแจ้งเตือน</button>
+            <button class="btn-save" onclick="saveLine()">บันทึกการตั้งค่า</button>
           </div>
         </div>
 
@@ -132,8 +132,7 @@
           
           <!-- Search Box -->
           <div class="search-box">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7D7D7D" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="ค้นหา ชื่อ, อีเมล หรือ เบอร์โทรศัพท์...">
+            <form method="get" style="margin:0"><input type="text" name="q" value="{{ q }}" placeholder="ค้นหา ชื่อ หรือ อีเมล..."></form>
           </div>
         </div>
 
@@ -151,69 +150,58 @@
               </tr>
             </thead>
             <tbody>
+              {% for u in users %}
               <tr>
-                <td>1</td>
-                <td><strong>สมชาย ใจดี</strong></td>
-                <td>somchai.j@gmail.com</td>
-                <td>24 ครั้ง</td>
-                <td><span class="badge-status status-normal">ปกติ</span></td>
+                <td>{{ offset + loop.index }}</td>
+                <td><strong>{{ ((u.firstname or '') ~ ' ' ~ (u.lastname or ''))|trim or u.username or '-' }}</strong></td>
+                <td>{{ u.email or u.username }}</td>
+                <td>{{ u.uses }} ครั้ง</td>
+                <td>{% if u.status == 'banned' %}<span class="badge-status status-banned">ระงับ</span>
+                    {% elif u.status == 'warning' %}<span class="badge-status status-warning">ผิดปกติ / เฝ้าระวัง</span>
+                    {% else %}<span class="badge-status status-normal">ปกติ</span>{% endif %}</td>
                 <td class="action-cell">
-                  <button class="btn-action-sm btn-edit">แก้ไข</button>
-                  <button class="btn-action-sm btn-ban">ระงับ</button>
+                  <button class="btn-action-sm btn-edit" onclick="setStatus({{ u.id }}, '{{ 'normal' if u.status == 'warning' else 'warning' }}')">{{ 'ยกเลิกเฝ้าระวัง' if u.status == 'warning' else 'เฝ้าระวัง' }}</button>
+                  {% if u.status == 'banned' %}<button class="btn-action-sm btn-ban active-ban" onclick="setStatus({{ u.id }}, 'normal')">ปลดระงับ</button>
+                  {% else %}<button class="btn-action-sm btn-ban" onclick="if(confirm('ระงับบัญชีนี้?')) setStatus({{ u.id }}, 'banned')">ระงับ</button>{% endif %}
                 </td>
               </tr>
-              <tr>
-                <td>2</td>
-                <td><strong>กมลวรรณ สุขเสริฐ</strong></td>
-                <td>kamon.k@gmail.com</td>
-                <td>12 ครั้ง</td>
-                <td><span class="badge-status status-normal">ปกติ</span></td>
-                <td class="action-cell">
-                  <button class="btn-action-sm btn-edit">แก้ไข</button>
-                  <button class="btn-action-sm btn-ban">ระงับ</button>
-                </td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td><strong>รายงานพฤติกรรมไม่เหมาะสม</strong></td>
-                <td>Stalker69@gmail.com</td>
-                <td>2 ครั้ง</td>
-                <td><span class="badge-status status-warning">ผิดปกติ / เฝ้าระวัง</span></td>
-                <td class="action-cell">
-                  <button class="btn-action-sm btn-edit">ตรวจสอบ</button>
-                  <button class="btn-action-sm btn-ban active-ban">ปลดระงับ</button>
-                </td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td><strong>วิชัย รักชาติ</strong></td>
-                <td>wichai.r@gmail.com</td>
-                <td>45 ครั้ง</td>
-                <td><span class="badge-status status-normal">ปกติ</span></td>
-                <td class="action-cell">
-                  <button class="btn-action-sm btn-edit">แก้ไข</button>
-                  <button class="btn-action-sm btn-ban">ระงับ</button>
-                </td>
-              </tr>
+              {% else %}
+              <tr><td colspan="6" style="text-align:center;color:#888">ไม่พบสมาชิก</td></tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
 
         <!-- Table Footer -->
         <div class="table-footer">
-          <span class="pagination-info">แสดงรายการที่ 1 - 4 จากทั้งหมด 158 สมาชิก</span>
+          <span class="pagination-info">แสดงรายการที่ {{ first }} - {{ last }} จากทั้งหมด {{ total }} สมาชิก</span>
           <div class="pagination-buttons">
-            <button class="page-btn">Prev</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">Next</button>
+            {% set s = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center' %}
+            {% if page > 1 %}<a class="page-btn" style="{{ s }}" href="?page={{ page - 1 }}&q={{ q|urlencode }}">Prev</a>{% endif %}
+            {% for n in range([1, page - 2]|max, [pages, page + 2]|min + 1) %}
+            <a class="page-btn{% if n == page %} active{% endif %}" style="{{ s }}" href="?page={{ n }}&q={{ q|urlencode }}">{{ n }}</a>
+            {% endfor %}
+            {% if page < pages %}<a class="page-btn" style="{{ s }}" href="?page={{ page + 1 }}&q={{ q|urlencode }}">Next</a>{% endif %}
           </div>
         </div>
       </div>
 
     </main>
-
   </div>
-
+  <script>
+    async function post(url, body) {
+      const r = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาด');
+      return d;
+    }
+    async function run(fn, okMsg) { try { await fn(); if (okMsg) alert(okMsg); location.reload(); } catch (e) { alert(e.message); } }
+    const saveTimes = () => run(() => post('/admin/api/settings', {
+      open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value }), 'บันทึกเวลาแล้ว');
+    const saveLine = () => run(() => post('/admin/api/settings', {
+      line_enabled: document.getElementById('lineEnabled').checked, line_token: document.getElementById('lineToken').value }), 'บันทึกแล้ว');
+    async function testLine() { try { await post('/admin/api/line-test'); alert('ส่งข้อความทดสอบแล้ว'); } catch (e) { alert(e.message); } }
+    const setStatus = (id, status) => run(() => post('/admin/api/users/' + id + '/status', {status: status}));
+  </script>
 </body>
 </html>

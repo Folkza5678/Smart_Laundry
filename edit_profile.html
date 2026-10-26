@@ -84,17 +84,17 @@
       
       <!-- Profile Image Section -->
       <div class="avatar-section">
-        <div class="avatar-preview">
+        <div class="avatar-preview">{% if user.avatar %}<img src="/uploads/{{ user.avatar }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}
           <!-- ไอคอนผู้ใช้เริ่มต้น -->
           <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </div>
+        {% endif %}</div>
         <div class="avatar-actions">
           <span class="avatar-label">ภาพโปรไฟล์</span>
           <label class="btn-choose-file">
             <!-- กล้องจิ๋ว -->
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             <span>เลือกรูปภาพ</span>
-            <input type="file" accept="image/*" class="file-input-hidden">
+            <input type="file" name="avatar" form="editForm" accept="image/*" class="file-input-hidden">
           </label>
         </div>
       </div>
@@ -102,23 +102,24 @@
       <hr class="card-divider">
 
       <!-- Form Section -->
-      <form class="edit-form" action="#" method="POST">
+      {% include "_flash.html" %}
+<form id="editForm" class="edit-form" action="#" method="POST" enctype="multipart/form-data">
         
         <!-- ชื่อผู้ใช้งาน -->
         <div class="form-group full-width">
           <label for="username">ชื่อผู้ใช้งาน</label>
-          <input type="text" id="username" name="username" placeholder="ระบุชื่อผู้ใช้งาน...">
+          <input type="text" id="username" name="username" value="{{ user.username or '' }}" placeholder="ระบุชื่อผู้ใช้งาน...">
         </div>
 
         <!-- ชื่อจริง - นามสกุล (2 คอลัมน์) -->
         <div class="form-row">
           <div class="form-group">
             <label for="firstname">ชื่อจริง</label>
-            <input type="text" id="firstname" name="firstname" placeholder="ระบุชื่อจริง...">
+            <input type="text" id="firstname" name="firstname" value="{{ user.firstname or '' }}" placeholder="ระบุชื่อจริง...">
           </div>
           <div class="form-group">
             <label for="lastname">นามสกุล</label>
-            <input type="text" id="lastname" name="lastname" placeholder="ระบุนามสกุล...">
+            <input type="text" id="lastname" name="lastname" value="{{ user.lastname or '' }}" placeholder="ระบุนามสกุล...">
           </div>
         </div>
 
@@ -126,7 +127,7 @@
         <div class="form-group medium-width">
           <label for="birthdate">วันเกิด</label>
           <div class="input-with-icon">
-            <input type="text" id="birthdate" name="birthdate" placeholder="dd/mm/yyyy">
+            <input type="text" id="birthdate" name="birthdate" value="{{ birthdate }}" placeholder="dd/mm/yyyy">
             <!-- ไอคอนปฏิทิน -->
             <svg class="calendar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </div>
@@ -137,15 +138,15 @@
           <label>เพศ</label>
           <div class="gender-selector">
             <label class="gender-btn">
-              <input type="radio" name="gender" value="male">
+              <input type="radio" name="gender" value="male" {% if user.gender == 'male' %}checked{% endif %}>
               <span>ชาย</span>
             </label>
             <label class="gender-btn">
-              <input type="radio" name="gender" value="female">
+              <input type="radio" name="gender" value="female" {% if user.gender == 'female' %}checked{% endif %}>
               <span>หญิง</span>
             </label>
             <label class="gender-btn">
-              <input type="radio" name="gender" value="unspecified" checked>
+              <input type="radio" name="gender" value="unspecified" {% if (user.gender or 'unspecified') == 'unspecified' %}checked{% endif %}>
               <span>ไม่ระบุ</span>
             </label>
           </div>

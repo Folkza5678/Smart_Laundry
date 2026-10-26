@@ -61,6 +61,7 @@
       
       <!-- Page Title -->
       <h1 class="page-title">สรุปสถานะตู้ (Machine Management)</h1>
+      <button class="btn-action" style="max-width:220px;margin-bottom:16px" onclick="editPrices()">ตั้งราคา/เวลาโปรแกรม</button>
 
       <!-- Summary Top Cards -->
       <div class="summary-grid">
@@ -71,7 +72,7 @@
           </div>
           <div class="summary-info">
             <span class="summary-label">ตู้ทั้งหมด</span>
-            <span class="summary-count">4 เครื่อง</span>
+            <span class="summary-count">{{ total }} เครื่อง</span>
           </div>
         </div>
 
@@ -82,7 +83,7 @@
           </div>
           <div class="summary-info">
             <span class="summary-label">พร้อมใช้งาน</span>
-            <span class="summary-count text-green">2 เครื่อง</span>
+            <span class="summary-count text-green">{{ available }} เครื่อง</span>
           </div>
         </div>
 
@@ -93,78 +94,65 @@
           </div>
           <div class="summary-info">
             <span class="summary-label">ชำรุด/ปิดการใช้งาน</span>
-            <span class="summary-count text-red">0 เครื่อง</span>
+            <span class="summary-count text-red">{{ broken }} เครื่อง</span>
           </div>
         </div>
       </div>
 
       <!-- Machines Grid (4 Cards) -->
       <div class="machines-grid">
-
-        <!-- Machine 01 -->
+        {% for m in machines %}
         <div class="machine-card">
           <div class="machine-header">
-            <h3 class="machine-title">เครื่อง 01</h3>
-            <span class="badge badge-available">ว่าง</span>
+            <h3 class="machine-title">{{ m.name }}</h3>
+            {% if m.state == 'free' %}<span class="badge badge-available">ว่าง</span>
+            {% elif m.state == 'busy' %}<span class="badge badge-busy">ไม่ว่าง</span>
+            {% elif m.state == 'reserved' %}<span class="badge badge-reserved">จอง</span>
+            {% else %}<span class="badge badge-busy">ปิดใช้งาน</span>{% endif %}
           </div>
-          <div class="machine-illustration">
+          <div class="machine-illustration">{% if m.state == 'reserved' %}
+            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#D4B200" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#ECF000" fill-opacity="0.5"/><circle cx="7" cy="6" r="1" fill="#D4B200"/><circle cx="10" cy="6" r="1" fill="#D4B200"/></svg>
+          {% elif m.state == 'free' %}
             <!-- SVG Icon เครื่องซักผ้า -->
             <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#2859C5" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#50C3FF" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#2859C5"/><circle cx="10" cy="6" r="1" fill="#2859C5"/></svg>
-          </div>
-          <div class="machine-details">
-            <span class="detail-text">ขนาด : 10 kg</span>
-          </div>
-          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
-        </div>
-
-        <!-- Machine 02 -->
-        <div class="machine-card">
-          <div class="machine-header">
-            <h3 class="machine-title">เครื่อง 02</h3>
-            <span class="badge badge-busy">ไม่ว่าง</span>
-          </div>
-          <div class="machine-illustration">
+          {% else %}
             <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#FE9616" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#FE9616" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#FE9616"/><circle cx="10" cy="6" r="1" fill="#FE9616"/></svg>
-          </div>
+          {% endif %}</div>
           <div class="machine-details">
-            <span class="detail-text">เหลือเวลา : 18.22 นาที</span>
+            <span class="detail-text">{% if m.state == 'busy' %}เหลือเวลา : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'reserved' %}เหลือเวลาจอง : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'offline' %}ปิดการใช้งาน{% else %}ขนาด : {{ m.capacity_kg }} kg{% endif %}</span>
           </div>
-          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
+          <button class="btn-action" data-id="{{ m.id }}" data-name="{{ m.name }}" data-kg="{{ m.capacity_kg }}" data-enabled="{{ m.enabled }}" onclick="editMachine(this)">แก้ไข/ตั้งค่า</button>
         </div>
-
-        <!-- Machine 03 -->
-        <div class="machine-card">
-          <div class="machine-header">
-            <h3 class="machine-title">เครื่อง 03</h3>
-            <span class="badge badge-reserved">จอง</span>
-          </div>
-          <div class="machine-illustration">
-            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#D4B200" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#ECF000" fill-opacity="0.5"/><circle cx="7" cy="6" r="1" fill="#D4B200"/><circle cx="10" cy="6" r="1" fill="#D4B200"/></svg>
-          </div>
-          <div class="machine-details">
-            <span class="detail-text">เหลือเวลาจอง : 10.23 นาที</span>
-          </div>
-          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
-        </div>
-
-        <!-- Machine 04 -->
-        <div class="machine-card">
-          <div class="machine-header">
-            <h3 class="machine-title">เครื่อง 04</h3>
-            <span class="badge badge-available">ว่าง</span>
-          </div>
-          <div class="machine-illustration">
-            <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#2859C5" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#50C3FF" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#2859C5"/><circle cx="10" cy="6" r="1" fill="#2859C5"/></svg>
-          </div>
-          <div class="machine-details">
-            <span class="detail-text">ขนาด : 10 kg</span>
-          </div>
-          <button class="btn-action">แก้ไข/ตั้งค่าราคา</button>
-        </div>
-
+        {% endfor %}
       </div>
-
     </main>
+    <script>
+    async function post(url, body) {
+      const r = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาด');
+      return d;
+    }
+    async function editMachine(btn) {
+      const d = btn.dataset;
+      const name = prompt('ชื่อเครื่อง', d.name); if (name === null) return;
+      const kg = prompt('ขนาด (กก.)', d.kg); if (kg === null) return;
+      const enabled = confirm('เปิดใช้งานเครื่องนี้หรือไม่?\nOK = เปิดใช้งาน, Cancel = ปิด (ชำรุด)');
+      try { await post('/admin/api/machines/' + d.id, {name: name, capacity_kg: kg, enabled: enabled}); location.reload(); }
+      catch (e) { alert(e.message); }
+    }
+    async function editPrices() {
+      const services = {{ services|tojson }};
+      try {
+        for (const s of services) {
+          const price = prompt('ราคา "' + s.name + '" (บาท)', s.price); if (price === null) return;
+          const minutes = prompt('เวลา "' + s.name + '" (นาที)', s.minutes); if (minutes === null) return;
+          await post('/admin/api/services/' + s.key, {price: price, minutes: minutes});
+        }
+        alert('บันทึกราคาเรียบร้อย'); location.reload();
+      } catch (e) { alert(e.message); }
+    }
+    </script>
 
   </div>
 

@@ -12,6 +12,7 @@
   
   <!-- CSS Link -->
   <link rel="stylesheet" href="../template/dashboard.css">
+  <meta http-equiv="refresh" content="30"><!-- รีเฟรชทุก 30 วินาที (Real-time) -->
 </head>
 <body class="admin-body">
 
@@ -60,13 +61,13 @@
         
         <div class="content-card">
           <div class="card-title">ยอดขายรายวัน</div>
-          <div class="card-value">฿ 2,450</div>
+          <div class="card-value">฿ {{ '{:,}'.format(daily) }}</div>
           <div class="card-subtitle">อัปเดตวันนี้ล่าสุด</div>
         </div>
 
         <div class="content-card">
           <div class="card-title">ยอดขายรายเดือน</div>
-          <div class="card-value">฿ 68,200</div>
+          <div class="card-value">฿ {{ '{:,}'.format(monthly) }}</div>
           <div class="card-subtitle">ประจำเดือนนี้</div>
         </div>
 
@@ -78,34 +79,12 @@
         
         <div class="chart-wrapper">
           <div class="chart-bars">
+            {% for b in bars %}
             <div class="bar-col">
-              <div class="bar" style="height: 40%;"></div>
-              <span class="bar-text">จ.</span>
+              <div class="bar{% if b.active %} bar-active{% endif %}" style="height: {{ b.height }}%;" title="{{ b.count }} รายการ"></div>
+              <span class="bar-text">{{ b.label }}</span>
             </div>
-            <div class="bar-col">
-              <div class="bar" style="height: 65%;"></div>
-              <span class="bar-text">อ.</span>
-            </div>
-            <div class="bar-col">
-              <div class="bar" style="height: 50%;"></div>
-              <span class="bar-text">พ.</span>
-            </div>
-            <div class="bar-col">
-              <div class="bar" style="height: 85%;"></div>
-              <span class="bar-text">พฤ.</span>
-            </div>
-            <div class="bar-col">
-              <div class="bar bar-active" style="height: 95%;"></div>
-              <span class="bar-text">ศ.</span>
-            </div>
-            <div class="bar-col">
-              <div class="bar" style="height: 70%;"></div>
-              <span class="bar-text">ส.</span>
-            </div>
-            <div class="bar-col">
-              <div class="bar" style="height: 80%;"></div>
-              <span class="bar-text">อา.</span>
-            </div>
+            {% endfor %}
           </div>
         </div>
       </section>
@@ -115,26 +94,15 @@
         <h2 class="section-title">สถานะตู้ซัก-อบ ทั้งหมดแบบ Real-time</h2>
         
         <div class="status-grid">
-          
+          {% for m in machines %}
           <div class="status-box">
-            <span class="machine-name">เครื่องที่ 01 (ซัก)</span>
-            <span class="status-badge badge-busy">กำลังใช้งาน (เหลือ 15 นาที)</span>
+            <span class="machine-name">{{ m.name }} ({{ 'อบ' if m.kind == 'dry' else 'ซัก' }})</span>
+            {% if m.state == 'free' %}<span class="status-badge badge-available">ว่าง</span>
+            {% elif m.state == 'busy' %}<span class="status-badge badge-busy">กำลังใช้งาน (เหลือ {{ m.left|round|int }} นาที)</span>
+            {% elif m.state == 'reserved' %}<span class="status-badge badge-busy">จอง (เหลือ {{ m.left|round|int }} นาที)</span>
+            {% else %}<span class="status-badge badge-offline">งดให้บริการ</span>{% endif %}
           </div>
-
-          <div class="status-box">
-            <span class="machine-name">เครื่องที่ 02 (ซัก)</span>
-            <span class="status-badge badge-available">ว่าง</span>
-          </div>
-
-          <div class="status-box">
-            <span class="machine-name">เครื่องที่ 03 (อบ)</span>
-            <span class="status-badge badge-available">ว่าง</span>
-          </div>
-
-          <div class="status-box">
-            <span class="machine-name">เครื่องที่ 04 (ซัก)</span>
-            <span class="status-badge badge-offline">งดให้บริการ</span>
-          </div>
+          {% endfor %}
 
         </div>
       </section>

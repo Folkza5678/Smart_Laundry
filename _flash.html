@@ -1,0 +1,4 @@
+{% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}
+<div style="max-width:560px;margin:12px auto;">{% for c, m in msgs %}
+<div style="padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:14px;background:{{ '#e6f6ec' if c == 'success' else '#fdecec' }};color:{{ '#1e7a3c' if c == 'success' else '#b42318' }};">{{ m }}</div>
+{% endfor %}</div>{% endif %}{% endwith %}

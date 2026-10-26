@@ -70,26 +70,27 @@
         
         <div class="stat-box">
           <span class="stat-title">Total Transactions</span>
-          <span class="stat-value">฿50,000</span>
+          <span class="stat-value">฿{{ '{:,}'.format(stats.revenue) }}</span>
         </div>
 
         <div class="stat-box">
           <span class="stat-title">Total Scans</span>
-          <span class="stat-value">1,250 ครั้ง</span>
+          <span class="stat-value">{{ '{:,}'.format(stats.scans) }} ครั้ง</span>
         </div>
 
         <div class="stat-box">
           <span class="stat-title">Success Rate</span>
-          <span class="stat-value">98.5%</span>
+          <span class="stat-value">{{ stats.rate }}%</span>
         </div>
 
         <div class="stat-box">
           <span class="stat-title">Pending Issues</span>
-          <span class="stat-value">3 ครั้ง</span>
+          <span class="stat-value">{{ stats.issues }} ครั้ง</span>
         </div>
 
       </div>
 
+      <form id="filterForm" method="get"></form>
       <!-- Filter Controls Bar -->
       <div class="filters-bar">
         
@@ -98,28 +99,28 @@
     <span class="filter-label">Search</span>
     <div class="search-input-wrapper">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7D7D7D" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" placeholder="Search..." class="filter-input search-input">
+      <input type="text" name="q" value="{{ q }}" form="filterForm" placeholder="ค้นหา รหัสรายการ / เครื่อง / อีเมล" class="filter-input search-input">
     </div>
   </div>
 
         <!-- Date Range Select -->
         <div class="select-wrapper">
           <span class="filter-label">Date Range</span>
-          <select class="filter-select">
-            <option>Today | 7 Days | Custom</option>
-            <option>Today</option>
-            <option>Last 7 Days</option>
-            <option>Last 30 Days</option>
+          <select class="filter-select" name="range" form="filterForm" onchange="this.form.submit()">
+            <option value="">All dates</option>
+            <option value="today" {% if rng == 'today' %}selected{% endif %}>Today</option>
+            <option value="7" {% if rng == '7' %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if rng == '30' %}selected{% endif %}>Last 30 Days</option>
           </select>
         </div>
 
         <!-- Machine Group Select -->
         <div class="select-wrapper">
           <span class="filter-label">Machine Group</span>
-          <select class="filter-select">
-            <option>Washing | Drying</option>
-            <option>Washing</option>
-            <option>Drying</option>
+          <select class="filter-select" name="group" form="filterForm" onchange="this.form.submit()">
+            <option value="">Washing | Drying</option>
+            <option value="wash" {% if grp == 'wash' %}selected{% endif %}>Washing</option>
+            <option value="dry" {% if grp == 'dry' %}selected{% endif %}>Drying</option>
           </select>
         </div>
 
@@ -140,90 +141,34 @@
             </tr>
           </thead>
           <tbody>
-
+            {% for r in rows %}
             <tr>
-              <td>2000399331</td>
-              <td>23/02-2024, 25:20</td>
-              <td>WASH-01</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$50,000</td>
-              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
+              <td>{{ r.tx_id }}</td>
+              <td>{{ r.created_at|short_dt }}</td>
+              <td>{{ r.machine_code }}</td>
+              <td><span class="badge-payment">{{ r.method }}</span></td>
+              <td>฿{{ '{:,}'.format(r.amount) }}</td>
+              <td>{% if r.status == 'success' %}<span class="status-pill status-success"> SUCCESS เรียบร้อยแล้ว</span>
+                  {% elif r.status == 'pending' %}<span class="status-pill status-pending"> PENDING รอตรวจสอบ</span>
+                  {% else %}<span class="status-pill status-failed"> FAILED ล้มเหลว</span>{% endif %}</td>
+              <td><button class="btn-detail" title="{{ r.user_email }}">Details ▾</button></td>
             </tr>
-
-            <tr>
-              <td>2000399332</td>
-              <td>23/02-2024, 25:20</td>
-              <td>DRY-02</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$15,000</td>
-              <td><span class="status-pill status-failed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> FAILED ล้มเหลว</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
-            <tr>
-              <td>2000399333</td>
-              <td>22/02-2024, 25:20</td>
-              <td>DRY-02</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$50,000</td>
-              <td><span class="status-pill status-pending"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> PENDING รอตรวจสอบ</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
-            <tr>
-              <td>2000399334</td>
-              <td>23/02-2024, 25:20</td>
-              <td>WASH-01</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$50,000</td>
-              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
-            <tr>
-              <td>2000399335</td>
-              <td>23/02-2024, 25:20</td>
-              <td>DRY-02</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$50,000</td>
-              <td><span class="status-pill status-failed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> FAILED ล้มเหลว</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
-            <tr>
-              <td>2000399337</td>
-              <td>23/02-2024, 25:20</td>
-              <td>DRY-02</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$50,000</td>
-              <td><span class="status-pill status-pending"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> PENDING รอตรวจสอบ</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
-            <tr>
-              <td>2000399338</td>
-              <td>23/02-2024, 25:20</td>
-              <td>WASH-01</td>
-              <td><span class="badge-payment">PromptPay</span></td>
-              <td>$15,000</td>
-              <td><span class="status-pill status-success"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> SUCCESS เรียบร้อยแล้ว</span></td>
-              <td><button class="btn-detail">Details ▾</button></td>
-            </tr>
-
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:#888">ไม่พบรายการ</td></tr>
+            {% endfor %}
           </tbody>
         </table>
 
         <!-- Table Footer & Pagination -->
         <div class="table-footer">
-          <span class="pagination-info">Showing 1 to 11 of 48 transactions</span>
+          <span class="pagination-info">Showing {{ first }} to {{ last }} of {{ total }} transactions</span>
           <div class="pagination-buttons">
-            <button class="page-btn">Prev</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <span class="page-dots">...</span>
-            <button class="page-btn">Next</button>
+            {% set s = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center' %}
+            {% if page > 1 %}<a class="page-btn" style="{{ s }}" href="?page={{ page - 1 }}&q={{ q|urlencode }}&range={{ rng }}&group={{ grp }}">Prev</a>{% endif %}
+            {% for n in range([1, page - 2]|max, [pages, page + 2]|min + 1) %}
+            <a class="page-btn{% if n == page %} active{% endif %}" style="{{ s }}" href="?page={{ n }}&q={{ q|urlencode }}&range={{ rng }}&group={{ grp }}">{{ n }}</a>
+            {% endfor %}
+            {% if page < pages %}<a class="page-btn" style="{{ s }}" href="?page={{ page + 1 }}&q={{ q|urlencode }}&range={{ rng }}&group={{ grp }}">Next</a>{% endif %}
           </div>
         </div>
       </div>

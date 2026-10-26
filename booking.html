@@ -100,16 +100,19 @@
   <!-- Main Content -->
   <main class="container">
     <h1 class="page-title">เลือกเครื่องซักผ้า</h1>
+    {% if not store_open %}<p style="text-align:center;color:#b42318">ขณะนี้ร้านปิดให้บริการ</p>{% endif %}
 
     <div class="machine-grid">
-      
-      <!-- เครื่อง 01 (ว่าง) -->
+      {% for m in machines %}
       <div class="machine-card">
         <div class="card-header">
-          <h2 class="machine-title">เครื่อง 01</h2>
-          <span class="badge badge-available">ว่าง</span>
+          <h2 class="machine-title">{{ m.name }}</h2>
+          {% if m.state == 'free' %}<span class="badge badge-available">ว่าง</span>
+          {% elif m.state == 'reserved' %}<span class="badge badge-reserved">จอง</span>
+          {% elif m.state == 'busy' %}<span class="badge badge-busy">ไม่ว่าง</span>
+          {% else %}<span class="badge badge-busy">ปิดใช้งาน</span>{% endif %}
         </div>
-        <div class="machine-icon">
+        <div class="machine-icon">{% if m.state == 'free' %}
           <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
             <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
             <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
@@ -117,56 +120,7 @@
             <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
             <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
           </svg>
-        </div>
-        <p class="machine-info">ขนาด : 10 kg</p>
-        <button class="btn btn-primary" onclick="openBookingModal('เครื่อง 01')">จองและเลือกโปรแกรมการซัก</button>
-      </div>
-
-      <!-- เครื่อง 02 (ไม่ว่าง) -->
-      <div class="machine-card">
-        <div class="card-header">
-          <h2 class="machine-title">เครื่อง 02</h2>
-          <span class="badge badge-busy">ไม่ว่าง</span>
-        </div>
-        <div class="machine-icon">
-          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
-            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
-            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
-            <circle cx="15" cy="17.5" r="3" fill="black"/>
-            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
-            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/>
-          </svg>
-        </div>
-        <p class="machine-info">เหลือเวลา : 18.22 นาที</p>
-        <button class="btn btn-disabled" disabled>ไม่ว่าง</button>
-      </div>
-
-      <!-- เครื่อง 03 (ไม่ว่าง) -->
-      <div class="machine-card">
-        <div class="card-header">
-          <h2 class="machine-title">เครื่อง 03</h2>
-          <span class="badge badge-busy">ไม่ว่าง</span>
-        </div>
-        <div class="machine-icon">
-          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
-            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
-            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
-            <circle cx="15" cy="17.5" r="3" fill="black"/>
-            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
-            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/>
-          </svg>
-        </div>
-        <p class="machine-info">เหลือเวลา : 6.09 นาที</p>
-        <button class="btn btn-disabled" disabled>ไม่ว่าง</button>
-      </div>
-
-      <!-- เครื่อง 04 (ติดจอง) -->
-      <div class="machine-card">
-        <div class="card-header">
-          <h2 class="machine-title">เครื่อง 04</h2>
-          <span class="badge badge-reserved">จอง</span>
-        </div>
-        <div class="machine-icon">
+        {% elif m.state == 'reserved' %}
           <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
             <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
             <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
@@ -174,49 +128,26 @@
             <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
             <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#ECF000"/>
           </svg>
-        </div>
-        <p class="machine-info">เหลือเวลาจอง : 10.23 นาที</p>
-        <button class="btn btn-disabled" disabled>ติดจอง</button>
-      </div>
-
-      <!-- เครื่อง 05 (ว่าง) -->
-      <div class="machine-card">
-        <div class="card-header">
-          <h2 class="machine-title">เครื่อง 05</h2>
-          <span class="badge badge-available">ว่าง</span>
-        </div>
-        <div class="machine-icon">
+        {% else %}
           <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
             <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
             <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
             <circle cx="15" cy="17.5" r="3" fill="black"/>
             <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
-            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
+            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/>
           </svg>
-        </div>
-        <p class="machine-info">ขนาด : 10 kg</p>
-        <button class="btn btn-primary" onclick="openBookingModal('เครื่อง 05')">จองและเลือกโปรแกรมการซัก</button>
+        {% endif %}</div>
+        {% if m.state == 'free' %}<p class="machine-info">ขนาด : {{ m.capacity_kg }} kg</p>
+        {% elif m.state == 'busy' %}<p class="machine-info">เหลือเวลา : {{ '%.2f'|format(m.left) }} นาที</p>
+        {% elif m.state == 'reserved' %}<p class="machine-info">เหลือเวลาจอง : {{ '%.2f'|format(m.left) }} นาที</p>
+        {% else %}<p class="machine-info">งดให้บริการ</p>{% endif %}
+        {% if m.state == 'free' and store_open %}
+        <button class="btn btn-primary" onclick="openBookingModal({{ m.id }}, {{ m.name|tojson|forceescape }})">จองและเลือกโปรแกรมการซัก</button>
+        {% else %}
+        <button class="btn btn-disabled" disabled>{{ 'ติดจอง' if m.state == 'reserved' else ('ไม่ว่าง' if m.state == 'busy' else 'ปิดบริการ') }}</button>
+        {% endif %}
       </div>
-
-      <!-- เครื่อง 06 (ว่าง) -->
-      <div class="machine-card">
-        <div class="card-header">
-          <h2 class="machine-title">เครื่อง 06</h2>
-          <span class="badge badge-available">ว่าง</span>
-        </div>
-        <div class="machine-icon">
-          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
-            <rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/>
-            <rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/>
-            <circle cx="15" cy="17.5" r="3" fill="black"/>
-            <circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/>
-            <path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/>
-          </svg>
-        </div>
-        <p class="machine-info">ขนาด : 10 kg</p>
-        <button class="btn btn-primary" onclick="openBookingModal('เครื่อง 06')">จองและเลือกโปรแกรมการซัก</button>
-      </div>
-
+      {% endfor %}
     </div>
   </main>
 
@@ -236,51 +167,34 @@
       <p class="section-label">เลือกโปรแกรมการซัก</p>
       <div class="program-list">
         
+        {% for p in programs %}
         <label class="program-option">
-          <input type="radio" name="wash_program" value="quick" data-time="15" data-price="40" onchange="calculateSummary()">
+          <input type="radio" name="wash_program" value="{{ p.key }}" data-time="{{ p.minutes }}" data-price="{{ p.price }}" {% if p.key == 'standard' %}checked{% endif %} onchange="calculateSummary()">
           <div class="program-box">
             <span class="radio-custom"></span>
-            <span class="p-name">ซักด่วน</span>
-            <span class="p-details">15 min 40฿</span>
+            <span class="p-name">{{ p.name }}</span>
+            <span class="p-details">{{ p.minutes }} min {{ p.price }}฿</span>
           </div>
         </label>
-
-        <label class="program-option">
-          <input type="radio" name="wash_program" value="standard" data-time="30" data-price="50" checked onchange="calculateSummary()">
-          <div class="program-box">
-            <span class="radio-custom"></span>
-            <span class="p-name">ซักมาตรฐาน</span>
-            <span class="p-details">30 min 50฿</span>
-          </div>
-        </label>
-
-        <label class="program-option">
-          <input type="radio" name="wash_program" value="special" data-time="45" data-price="60" onchange="calculateSummary()">
-          <div class="program-box">
-            <span class="radio-custom"></span>
-            <span class="p-name">ซักสะอาดพิเศษ</span>
-            <span class="p-details">45 min 60฿</span>
-          </div>
-        </label>
-
-      </div>
+        {% endfor %}
+        </div>
 
       <!-- ส่วนที่ 2: ตัวเลือกเพิ่มเติม -->
       <p class="section-label">ตัวเลือกเพิ่มเติม</p>
       <div class="addon-list">
         
         <label class="addon-item">
-          <input type="checkbox" id="addonDry" data-time="20" data-price="20" checked onchange="calculateSummary()">
+          <input type="checkbox" id="addonDry" data-time="{{ dry.minutes }}" data-price="{{ dry.price }}" checked onchange="calculateSummary()">
           <span class="checkbox-custom"></span>
           <span class="addon-name">อบแห้ง</span>
-          <span class="addon-details">20 min +20฿</span>
+          <span class="addon-details">{{ dry.minutes }} min +{{ dry.price }}฿</span>
         </label>
 
         <label class="addon-item">
-          <input type="checkbox" id="addonSoftener" data-time="0" data-price="10" onchange="calculateSummary()">
+          <input type="checkbox" id="addonSoftener" data-time="{{ softener.minutes }}" data-price="{{ softener.price }}" onchange="calculateSummary()">
           <span class="checkbox-custom"></span>
           <span class="addon-name">ปรับผ้านุ่ม</span>
-          <span class="addon-details">+10฿</span>
+          <span class="addon-details">+{{ softener.price }}฿</span>
         </label>
 
       </div>
@@ -309,7 +223,9 @@
   <!-- JavaScript สำหรับเปิด-ปิด และคำนวณราคา/เวลา -->
   <script>
     // เปิดหน้าต่าง Modal พร้อมเปลี่ยนชื่อเครื่อง
-    function openBookingModal(machineName) {
+    let selectedMachineId = null;
+    function openBookingModal(machineId, machineName) {
+      selectedMachineId = machineId;
       document.getElementById('modalMachineName').innerText = 'จอง' + machineName;
       document.getElementById('bookingModal').classList.add('show');
       calculateSummary();
@@ -358,12 +274,21 @@
       document.getElementById('summaryPrice').innerText = totalPrice + ' บาท';
     }
 
-    // ฟังก์ชันกดยืนยันการจอง
-    function confirmBooking() {
-      const name = document.getElementById('modalMachineName').innerText;
-      const price = document.getElementById('summaryPrice').innerText;
-      alert('ยืนยัน' + name + ' เรียบร้อยแล้ว! (ยอดชำระ ' + price + ')');
-      closeBookingModal();
+    // ยืนยันการจอง -> ส่งไป backend (ราคา/เวลา เซิร์ฟเวอร์คำนวณเองอีกครั้ง)
+    async function confirmBooking() {
+      const program = document.querySelector('input[name="wash_program"]:checked').value;
+      const res = await fetch('/api/bookings', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          machine_id: selectedMachineId, program: program,
+          dry: document.getElementById('addonDry').checked,
+          softener: document.getElementById('addonSoftener').checked })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) { location.href = 'login.html'; return; }
+      if (!res.ok) { alert(data.error || 'จองไม่สำเร็จ'); location.reload(); return; }
+      alert('จองเรียบร้อย! กรุณาสแกนตู้และชำระเงินภายใน ' + data.hold_minutes + ' นาที (ยอด ' + data.price + ' บาท)');
+      location.href = 'qrcode.html';
     }
   </script>
 
