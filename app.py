@@ -556,24 +556,47 @@ def api_create_booking():
 #  สแกน QR หน้าตู้แล้วยืนยัน (Confirm Check-in)
 # ============================================================
 def normalize_code(s):
-    """แปลงและสกัดรหัสตู้จากข้อความหรือ URL (เช่น 'http://.../confirm-checkin?code=M-01' -> 'M-01')"""
-    s = (s or "").strip().upper()
-    
-    # หากเป็น URL หรือ query string ให้ดึงค่าจาก CODE=... หรือ MACHINE_ID=...
-    if "CODE=" in s:
-        match = re.search(r"CODE=([^&]+)", s)
-        if match:
-            s = match.group(1)
-    elif "MACHINE_ID=" in s:
-        match = re.search(r"MACHINE_ID=([^&]+)", s)
-        if match:
-            s = match.group(1)
-            
-    # ดึงเฉพาะรูปแบบ M-1, M01, M-01 หรือตัวเลขตู้
-    m = re.search(r"M-?(\d+)", s)
-    if m:
-        return f"M-{int(m.group(1)):02d}"
-    return f"M-{int(s):02d}" if s.isdigit() else s
+    """สกัดและแปลงรหัสตู้จากข้อความ URL หรือหมายเลขใดๆ ให้กลายเป็นรูปแบบ M-01 ถึง M-99"""
+    if not s:
+        return ""
+    raw = str(s).strip()
+    s_upper = raw.upper()
+
+    # 📌 ดักจับลิงก์ย่อหน้าตู้ https://qrco.de/bh4hgQ ให้แปลงเป็น M-01 ทันที
+    if "QRCO.DE/BH4HGQ" in s_upper:
+        return "M-01"
+
+    # 1. ถ้าระบุ code=M-01 หรือ machine_id=1 ใน URL Query
+    m_param = re.search(r"(?:code|machine_id|machine|id)=([^&]+)", raw, re.I)
+    if m_param:
+        val = m_param.group(1)
+        m_num = re.search(r"\d+", val)
+        if m_num and 1 <= int(m_num.group()) <= 99:
+            return f"M-{int(m_num.group()):02d}"
+
+    # 2. ถ้าระบุ M-01, M01, M1, Machine 1, ตู้ 1, เครื่อง 1
+    m_code = re.search(r"(?:M|MACHINE|ตู้|เครื่อง)[-_\s]?(\d{1,2})\b", raw, re.I)
+    if m_code:
+        num = int(m_code.group(1))
+        if 1 <= num <= 99:
+            return f"M-{num:02d}"
+
+    # 3. ตัดส่วน Domain / IP / Port ออก เช่น http://127.0.0.1:5000/
+    s_clean = re.sub(r"https?://[^/]+", "", raw)
+
+    # 4. หาตัวเลข 1-2 หลักจากเส้นทาง URL เช่น /confirm-checkin/1
+    nums = re.findall(r"\b\d{1,2}\b", s_clean)
+    if nums:
+        for n in reversed(nums):
+            val = int(n)
+            if 1 <= val <= 99:
+                return f"M-{val:02d}"
+
+    # 5. กรณีเป็นตัวเลขล้วน 1-2 หลัก เช่น "1" -> "M-01"
+    if raw.isdigit() and 1 <= int(raw) <= 99:
+        return f"M-{int(raw):02d}"
+
+    return raw.upper()
 
 
 @app.route("/confirm-checkin.html")
