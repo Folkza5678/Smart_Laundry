@@ -12,6 +12,7 @@
   <!-- ลิงก์ไฟล์ CSS (ตัดคำว่า template/ ออกเพราะไฟล์อยู่ในโฟลเดอร์เดียวกัน) -->
   <link rel="stylesheet" href="template/booking.css">
   <link rel="stylesheet" href="template/faq.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="page-faq">
 
@@ -231,6 +232,29 @@
       faqItem.classList.toggle('open');
     }
   </script>
+  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
+<script>
+  function checkGlobalBookingTimer() {
+    const expiresAt = localStorage.getItem('booking_expires_at');
+    if (!expiresAt) return;
 
+    if (Date.now() >= parseInt(expiresAt)) {
+      localStorage.removeItem('booking_expires_at');
+      Swal.fire({
+        icon: 'warning',
+        title: 'หมดเวลาการจอง!',
+        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง / ไปหน้าจอง',
+        confirmButtonColor: '#00036C',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        window.location.href = 'booking.html';
+      });
+    }
+  }
+  setInterval(checkGlobalBookingTimer, 1000);
+  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+</script>
 </body>
 </html>

@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,900;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="template/qrcode.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -306,6 +307,29 @@
 
     window.addEventListener('DOMContentLoaded', () => { loadPendingBooking(); startCamera(); });
   </script>
+  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
+<script>
+  function checkGlobalBookingTimer() {
+    const expiresAt = localStorage.getItem('booking_expires_at');
+    if (!expiresAt) return;
 
+    if (Date.now() >= parseInt(expiresAt)) {
+      localStorage.removeItem('booking_expires_at');
+      Swal.fire({
+        icon: 'warning',
+        title: 'หมดเวลาการจอง!',
+        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง / ไปหน้าจอง',
+        confirmButtonColor: '#00036C',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        window.location.href = 'booking.html';
+      });
+    }
+  }
+  setInterval(checkGlobalBookingTimer, 1000);
+  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+</script>
 </body>
 </html>
