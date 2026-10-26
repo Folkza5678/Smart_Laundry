@@ -191,7 +191,7 @@
       <div class="qr-box">
         <img id="qrImage" src="" alt="PromptPay QR Code" class="qr-img">
         <div class="amount-display" id="amountText">0.00 บาท</div>
-        <div class="timer-text" id="timerText">กรุณาชำระภายใน 05:00 นาที</div>
+        <div class="timer-text" id="timerText">กรุณาชำระภายใน 03:00 นาที</div>
       </div>
 
       <div class="details-list">
@@ -277,6 +277,10 @@
           if (data.status === 'success') {
             clearInterval(pollInterval);
             clearInterval(timerInterval);
+
+            // 📌 [จุดที่แก้ไข] ลบตัวนับเวลาจองค้างใน LocalStorage ออกทันทีเมื่อจ่ายเงินสำเร็จ
+            localStorage.removeItem('booking_expires_at');
+
             Swal.fire({
               title: 'ชำระเงินสำเร็จ!',
               text: 'กำลังส่งสัญญาณเปิดตู้ซักผ้า...',
@@ -308,6 +312,10 @@
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
           clearInterval(pollInterval);
+
+          // 📌 [จุดที่แก้ไข] ลบเวลาจองออกเมื่อหมดเวลาชำระเงิน
+          localStorage.removeItem('booking_expires_at');
+
           Swal.fire('หมดเวลาชำระเงิน', 'คิวจองของคุณหมดอายุแล้ว', 'warning')
             .then(() => window.location.href = 'history.html');
           return;
@@ -322,6 +330,10 @@
     // 5. ยกเลิกการชำระเงิน
     async function cancelPayment() {
       await fetch('/api/payment/cancel', { method: 'POST' });
+
+      // 📌 [จุดที่แก้ไข] ลบเวลาจองออกเมื่อผู้ใช้กดยกเลิก
+      localStorage.removeItem('booking_expires_at');
+
       window.location.href = 'history.html';
     }
 

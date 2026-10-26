@@ -26,8 +26,8 @@ DB_PATH = os.path.join(BASE, "smartlaundry.db")
 UPLOAD_DIR = os.path.join(BASE, "uploads")          # รูปโปรไฟล์ที่ผู้ใช้อัปโหลด
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-RESERVE_MINUTES = 10          # ถือจองเครื่องไว้กี่นาที (ก่อนสแกนหน้าตู้/จ่ายเงิน)
-PAY_MINUTES = 5               # QR ชำระเงินหมดอายุกี่นาที
+RESERVE_MINUTES = 3           # ถือจองเครื่องไว้ 3 นาที (โหมดทดสอบ)
+PAY_MINUTES = 3               # QR ชำระเงินหมดอายุ 3 นาที (โหมดทดสอบ)
 DEMO_MODE = os.getenv("DEMO_MODE", "1") == "1"      # เปิดปุ่ม "จำลองจ่ายเงินสำเร็จ"
 PROMPTPAY_ID = os.getenv("PROMPTPAY_ID", "0812345678")  # เบอร์/เลขบัตร ปชช. ผู้รับเงิน
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@smartlaundry.local")
@@ -114,13 +114,24 @@ def parse_ts(s):
 def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
+    
+    # 📌 ปรับเวลาการซักและอบแห้งสำหรับโหมดทดสอบ (1-3 นาที)
     if not db.execute("SELECT 1 FROM services").fetchone():
         db.executemany("INSERT INTO services VALUES(?,?,?,?,?)", [
-            ("quick", "ซักด่วน", "program", 15, 40),
-            ("standard", "ซักมาตรฐาน", "program", 30, 50),
-            ("special", "ซักสะอาดพิเศษ", "program", 45, 60),
-            ("dry", "อบแห้ง", "addon", 20, 20),
+            ("quick", "ซักด่วน", "program", 1, 40),
+            ("standard", "ซักมาตรฐาน", "program", 2, 50),
+            ("special", "ซักสะอาดพิเศษ", "program", 3, 60),
+            ("dry", "อบแห้ง", "addon", 1, 20),
             ("softener", "ปรับผ้านุ่ม", "addon", 0, 10)])
+    else:
+        # อัปเดตเวลาทดสอบลงในฐานข้อมูลเดิมทันที
+        db.executemany("UPDATE services SET minutes=? WHERE key=?", [
+            (1, "quick"),
+            (2, "standard"),
+            (3, "special"),
+            (1, "dry")
+        ])
+
     if not db.execute("SELECT 1 FROM machines").fetchone():
         db.executemany("INSERT INTO machines(code,name,kind,capacity_kg) VALUES(?,?,?,?)",
                        [(f"M-{i:02d}", f"เครื่อง {i:02d}", "wash", 10) for i in range(1, 7)])
@@ -197,7 +208,7 @@ def err(msg, code=400):
 
 @app.before_request
 def refresh_states():
-    """อัปเดตสถานะแบบ lazy: จองหมดเวลา (10 นาที) / QR หมดอายุ / ซักเสร็จ"""
+    """อัปเดตสถานะแบบ lazy: จองหมดเวลา / QR หมดอายุ / ซักเสร็จ"""
     if request.endpoint in (None, "assets"):
         return
     db, t = get_db(), ts(now())
@@ -545,7 +556,23 @@ def api_create_booking():
 #  สแกน QR หน้าตู้แล้วยืนยัน (Confirm Check-in)
 # ============================================================
 def normalize_code(s):
+    """แปลงและสกัดรหัสตู้จากข้อความหรือ URL (เช่น 'http://.../confirm-checkin?code=M-01' -> 'M-01')"""
     s = (s or "").strip().upper()
+    
+    # หากเป็น URL หรือ query string ให้ดึงค่าจาก CODE=... หรือ MACHINE_ID=...
+    if "CODE=" in s:
+        match = re.search(r"CODE=([^&]+)", s)
+        if match:
+            s = match.group(1)
+    elif "MACHINE_ID=" in s:
+        match = re.search(r"MACHINE_ID=([^&]+)", s)
+        if match:
+            s = match.group(1)
+            
+    # ดึงเฉพาะรูปแบบ M-1, M01, M-01 หรือตัวเลขตู้
+    m = re.search(r"M-?(\d+)", s)
+    if m:
+        return f"M-{int(m.group(1)):02d}"
     return f"M-{int(s):02d}" if s.isdigit() else s
 
 
@@ -581,7 +608,7 @@ def confirm_checkin_page():
     """, (u["id"], machine["id"], ts(now()))).fetchone()
 
     if not booking:
-        flash(f"คุณไม่ได้จองตู้ {machine['name']} ไว้ หรือการจองหมดอายุแล้ว (เกิน 10 นาที)", "error")
+        flash(f"คุณไม่ได้จองตู้ {machine['name']} ไว้ หรือการจองหมดอายุแล้ว", "error")
         return redirect("/history.html")
 
     return render_template("confirm-checkin.html", booking=booking, machine=machine, user=u)
@@ -742,25 +769,52 @@ def api_payment_simulate(pid):
 @app.get("/api/user/active-status")
 @login_required
 def api_user_active_status():
+    """เช็กเบื้องหลังว่าผู้ใช้กำลังซักผ้าตู้ไหนอยู่ หรือมีตู้ที่เพิ่งซักเสร็จหรือไม่"""
     u = current_user()
     db = get_db()
-    b = db.execute("""
+    
+    # 1. เช็กรายการที่กำลังซักอยู่ (status = 'washing')
+    b_washing = db.execute("""
         SELECT b.*, m.name AS machine_name, m.code AS machine_code 
         FROM bookings b
         JOIN machines m ON m.id = b.machine_id
         WHERE b.user_id = ? AND b.status = 'washing'
     """, (u["id"],)).fetchone()
 
-    if not b:
-        return jsonify(has_active=False)
+    if b_washing:
+        sec_left = max(0, int((parse_ts(b_washing["end_time"]) - now()).total_seconds()))
+        return jsonify(
+            has_active=True,
+            status="washing",
+            booking_id=b_washing["id"],
+            machine_name=b_washing["machine_name"],
+            machine_code=b_washing["machine_code"],
+            seconds_left=sec_left
+        )
 
-    sec_left = max(0, int((parse_ts(b["end_time"]) - now()).total_seconds()))
-    return jsonify(
-        has_active=True,
-        booking_id=b["id"],
-        machine_name=b["machine_name"],
-        seconds_left=sec_left
-    )
+    # 2. เช็กรายการที่เพิ่งซักเสร็จ (status = 'completed' ไม่เกิน 5 นาที)
+    b_completed = db.execute("""
+        SELECT b.*, m.name AS machine_name, m.code AS machine_code 
+        FROM bookings b
+        JOIN machines m ON m.id = b.machine_id
+        WHERE b.user_id = ? AND b.status = 'completed'
+        ORDER BY b.id DESC LIMIT 1
+    """, (u["id"],)).fetchone()
+
+    if b_completed and b_completed["end_time"]:
+        sec_since_done = int((now() - parse_ts(b_completed["end_time"])).total_seconds())
+        # หากซักเสร็จมาไม่เกิน 5 นาที (300 วินาที)
+        if 0 <= sec_since_done <= 300:
+            return jsonify(
+                has_active=True,
+                status="just_completed",
+                booking_id=b_completed["id"],
+                machine_name=b_completed["machine_name"],
+                machine_code=b_completed["machine_code"],
+                seconds_left=0
+            )
+
+    return jsonify(has_active=False)
 
 
 # ============================================================

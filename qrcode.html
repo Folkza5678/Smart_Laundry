@@ -132,7 +132,7 @@
       <div class="manual-input-section">
         <p class="manual-title">สแกนไม่ติด? กรอกรหัสตู้หน้าร้านได้ที่นี่</p>
         <div class="input-group">
-          <input type="text" id="machine-id-input" placeholder="เช่น M-01, M-02" value="">
+          <input type="text" id="machine-id-input" placeholder="เช่น M-01, M-02 หรือเลขตู้ 1" value="">
           <button class="btn-primary" onclick="proceedToPayment()">ยืนยันตู้</button>
         </div>
       </div>
@@ -151,7 +151,7 @@
         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/PromptPay-logo.png" alt="PromptPay Logo" class="promptpay-logo">
         <div class="timer-badge">
           <span>หมดอายุใน</span>
-          <span id="countdown">05:00</span>
+          <span id="countdown">03:00</span>
         </div>
       </div>
 
@@ -165,7 +165,7 @@
       <div class="payment-summary">
         <div class="summary-row">
           <span>หมายเลขตู้</span>
-          <strong id="confirmed-machine">M-02</strong>
+          <strong id="confirmed-machine">M-01</strong>
         </div>
         <div class="summary-row">
           <span>โปรแกรมการซัก</span>
@@ -204,6 +204,37 @@
     let isScanning = false;
     const canvasElement = document.createElement("canvas");
     const canvasContext = canvasElement.getContext("2d");
+
+    /**
+     * ฟังก์ชันสกัดและแปลงรหัสตู้จากข้อความหรือ URL ใดๆ ให้เป็นรูปแบบ M-01
+     */
+    function parseMachineCode(text) {
+      if (!text) return '';
+      let str = text.trim();
+      
+      // กรณีเป็น URL ให้ดึงค่าจาก query parameter code=... หรือ machine_id=...
+      if (str.includes('?')) {
+        try {
+          const urlObj = new URL(str.startsWith('http') ? str : 'http://dummy/' + str);
+          const param = urlObj.searchParams.get('code') || urlObj.searchParams.get('machine_id');
+          if (param) str = param;
+        } catch (e) {}
+      }
+      
+      // ดึงรูปแบบ M-1, M01, M-01
+      const match = str.match(/M-?(\d+)/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        return `M-${num < 10 ? '0' + num : num}`;
+      }
+      
+      // กรณีพิมพ์แค่ตัวเลข เช่น 1 -> M-01
+      if (/^\d+$/.test(str)) {
+        const num = parseInt(str, 10);
+        return `M-${num < 10 ? '0' + num : num}`;
+      }
+      return str;
+    }
 
     async function api(url, body) {
       const res = await fetch(url, {
@@ -254,14 +285,9 @@
         });
 
         if (code && code.data) {
-          let scannedResult = code.data.trim();
-          
-          if (scannedResult.includes('code=')) {
-            const urlParams = new URLSearchParams(scannedResult.split('?')[1]);
-            scannedResult = urlParams.get('code') || scannedResult;
-          }
-
-          document.getElementById('machine-id-input').value = scannedResult;
+          // สกัด URL ให้กลายเป็น M-01 ทันทีที่สแกนเจอ
+          const cleanCode = parseMachineCode(code.data);
+          document.getElementById('machine-id-input').value = cleanCode;
           isScanning = false;
           proceedToPayment();
           return;
@@ -282,12 +308,16 @@
     }
 
     function simulateScan() {
-      if (pendingMachine) document.getElementById('machine-id-input').value = pendingMachine;
+      if (pendingMachine) {
+        document.getElementById('machine-id-input').value = parseMachineCode(pendingMachine);
+      }
       proceedToPayment();
     }
 
     async function proceedToPayment() {
-      const code = document.getElementById('machine-id-input').value.trim();
+      const rawInput = document.getElementById('machine-id-input').value.trim();
+      const code = parseMachineCode(rawInput);
+
       if (!code) { 
         Swal.fire({
           icon: 'warning',
@@ -414,7 +444,7 @@
         Swal.fire({
           icon: 'warning',
           title: 'หมดเวลาการจอง!',
-          text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+          text: 'รายการจองของคุณหมดเวลาชำระเงิน ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
           confirmButtonText: 'ตกลง / ไปหน้าจอง',
           confirmButtonColor: '#00036C',
           allowOutsideClick: false,
