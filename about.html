@@ -188,5 +188,79 @@
   setInterval(checkGlobalBookingTimer, 1000);
   document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
 </script>
+<!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    (function () {
+      let activeCheckInterval = null;
+
+      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
+      async function checkActiveStatus() {
+        try {
+          const res = await fetch('/api/user/active-status');
+          if (!res.ok) return;
+          const data = await res.json();
+
+          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
+          if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
+            localStorage.removeItem('booking_expires_at');
+          }
+
+          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
+          if (data.has_active && data.status === 'just_completed') {
+            const notifiedKey = 'notified_completed_' + data.booking_id;
+
+            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
+            if (!sessionStorage.getItem(notifiedKey)) {
+              sessionStorage.setItem(notifiedKey, 'true');
+              localStorage.removeItem('booking_expires_at');
+
+              Swal.fire({
+                icon: 'success',
+                title: '🧺 ผ้าซักเสร็จเรียบร้อยแล้ว!',
+                text: `ผ้าของคุณที่ตู้ ${data.machine_name || ''} (${data.machine_code || ''}) ซักเสร็จเรียบร้อยแล้ว กรุณามารับผ้าด้วยครับ`,
+                confirmButtonText: 'ไปที่หน้าประวัติ',
+                confirmButtonColor: '#00036C',
+                allowOutsideClick: false
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = 'history1.html';
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.error('Error checking active status:', e);
+        }
+      }
+
+      // 2. ตรวจสอบหมดเวลาจองค้าง
+      function checkBookingTimer() {
+        const expiresAt = localStorage.getItem('booking_expires_at');
+        if (!expiresAt) return;
+
+        if (Date.now() >= parseInt(expiresAt)) {
+          localStorage.removeItem('booking_expires_at');
+          Swal.fire({
+            icon: 'warning',
+            title: 'หมดเวลาการจอง!',
+            text: 'รายการจองของคุณหมดเวลาชำระเงิน ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+            confirmButtonText: 'ตกลง / ไปหน้าจอง',
+            confirmButtonColor: '#00036C',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          }).then(() => {
+            window.location.href = 'booking.html';
+          });
+        }
+      }
+
+      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
+      checkActiveStatus();
+      checkBookingTimer();
+      setInterval(checkActiveStatus, 3000);
+      setInterval(checkBookingTimer, 1000);
+    })();
+  </script>
 </body>
 </html>
