@@ -1,4 +1,5 @@
-"""Smart Laundry backend  (Python Flask + SQLite)
+"""
+Smart Laundry backend (Python Flask + SQLite + ESP32 Integration)
 
 รัน:  pip install flask
       python app.py        ->  http://127.0.0.1:5000/index.html
@@ -25,7 +26,7 @@ DB_PATH = os.path.join(BASE, "smartlaundry.db")
 UPLOAD_DIR = os.path.join(BASE, "uploads")          # รูปโปรไฟล์ที่ผู้ใช้อัปโหลด
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-RESERVE_MINUTES = 10          # ถือจองเครื่องไว้กี่นาที (ก่อนจ่ายเงิน)
+RESERVE_MINUTES = 10          # ถือจองเครื่องไว้กี่นาที (ก่อนสแกนหน้าตู้/จ่ายเงิน)
 PAY_MINUTES = 5               # QR ชำระเงินหมดอายุกี่นาที
 DEMO_MODE = os.getenv("DEMO_MODE", "1") == "1"      # เปิดปุ่ม "จำลองจ่ายเงินสำเร็จ"
 PROMPTPAY_ID = os.getenv("PROMPTPAY_ID", "0812345678")  # เบอร์/เลขบัตร ปชช. ผู้รับเงิน
@@ -43,7 +44,6 @@ def _secret_key():
     return open(path).read().strip()
 
 
-# ใช้โครงโฟลเดอร์เดิม: ไฟล์ .html อยู่ข้าง app.py, css อยู่ template/, รูปอยู่ images/
 app = Flask(__name__, static_folder=None, template_folder=BASE)
 app.config.update(
     SECRET_KEY=_secret_key(),
@@ -57,7 +57,7 @@ THAI_MONTHS = ["มกราคม", "กุมภาพันธ์", "มี�
                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
 
 # ============================================================
-#  DATABASE  (SQLite)
+#  DATABASE (SQLite)
 # ============================================================
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users(
@@ -161,7 +161,7 @@ def set_setting(key, value):
 
 
 # ============================================================
-#  ตัวช่วยกลาง: เวลา / สถานะเครื่อง / auth
+#  ตัวช่วยกลาง: เวลา / สถานะเครื่อง / Auth
 # ============================================================
 @app.template_filter("thai_dt")
 def thai_dt(s):
@@ -177,7 +177,6 @@ def short_dt(s):
 
 @app.template_filter("format_mmss")
 def format_mmss(seconds):
-    """แปลงจำนวนวินาทีเป็น นาที:วินาที เช่น 120 -> 2:00"""
     if not seconds or seconds <= 0:
         return "0:00"
     m = int(seconds) // 60
@@ -198,7 +197,7 @@ def err(msg, code=400):
 
 @app.before_request
 def refresh_states():
-    """อัปเดตสถานะแบบ lazy: จองหมดเวลา / QR หมดอายุ / ซักเสร็จ"""
+    """อัปเดตสถานะแบบ lazy: จองหมดเวลา (10 นาที) / QR หมดอายุ / ซักเสร็จ"""
     if request.endpoint in (None, "assets"):
         return
     db, t = get_db(), ts(now())
@@ -284,7 +283,7 @@ def admin_required(f):
 
 
 # ============================================================
-#  ไฟล์ static (css / รูป / รูปโปรไฟล์)
+#  ไฟล์ Static (CSS / Images / Uploads)
 # ============================================================
 @app.route("/<any(template,images,uploads):folder>/<path:filename>")
 def assets(folder, filename):
@@ -292,7 +291,7 @@ def assets(folder, filename):
 
 
 # ============================================================
-#  หน้า: index.html / about.html / howtouse.html / faq.html / privacy.html
+#  หน้าเว็บทั่วไป
 # ============================================================
 @app.route("/")
 def home():
@@ -305,7 +304,7 @@ def static_page(page):
 
 
 # ============================================================
-#  หน้า: register.html   (สมัครสมาชิก)
+#  สมัครสมาชิก / ล็อกอิน / ล็อกเอาต์ / โปรไฟล์
 # ============================================================
 @app.route("/register.html", methods=["GET", "POST"])
 def register():
@@ -315,19 +314,18 @@ def register():
         confirm = request.form.get("confirm_password", "")
         email = username = None
         errors = []
-        flash = lambda m, c="error": errors.append(m)
         if "@" in ident:
             if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", ident):
-                flash("รูปแบบอีเมลไม่ถูกต้อง", "error")
+                errors.append("รูปแบบอีเมลไม่ถูกต้อง")
             email = ident.lower()
         elif re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", ident):
             username = ident
         else:
-            flash("Username ต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว หรือใช้อีเมล", "error")
+            errors.append("Username ต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว หรือใช้อีเมล")
         if len(pw) < 6:
-            flash("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร", "error")
+            errors.append("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร")
         if pw != confirm:
-            flash("รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน", "error")
+            errors.append("รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน")
         if not errors:
             try:
                 with get_db() as db:
@@ -338,16 +336,13 @@ def register():
                 session["uid"] = cur.lastrowid
                 return redirect("/index.html")
             except sqlite3.IntegrityError:
-                flash("Username / อีเมลนี้ถูกใช้งานแล้ว", "error")
+                errors.append("Username / อีเมลนี้ถูกใช้งานแล้ว")
         for m in errors:
             flask_flash(m, "error")
         return render_template("register.html"), 400
     return render_template("register.html")
 
 
-# ============================================================
-#  หน้า: login.html / logout
-# ============================================================
 @app.route("/login.html", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -374,9 +369,6 @@ def logout():
     return redirect("/login.html")
 
 
-# ============================================================
-#  หน้า: gprofile.html / profile.html
-# ============================================================
 @app.route("/gprofile.html")
 def gprofile():
     return redirect("/profile.html") if current_user() else render_template("gprofile.html")
@@ -389,9 +381,6 @@ def profile():
     return render_template("profile.html")
 
 
-# ============================================================
-#  หน้า: edit_profile.html
-# ============================================================
 ALLOWED_IMG = {"png", "jpg", "jpeg", "gif", "webp"}
 
 
@@ -402,24 +391,23 @@ def edit_profile():
     if request.method == "POST":
         f = request.form
         errors = []
-        flash = lambda m, c="error": errors.append(m)
         username = f.get("username", "").strip() or None
         if username and not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
-            flash("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @)", "error")
+            errors.append("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @)")
         birth = None
         if f.get("birthdate", "").strip():
             try:
                 d, m, y = map(int, f["birthdate"].strip().split("/"))
                 birth = datetime(y - 543 if y > 2400 else y, m, d).strftime("%Y-%m-%d")
             except ValueError:
-                flash("วันเกิดไม่ถูกต้อง (รูปแบบ dd/mm/yyyy)", "error")
+                errors.append("วันเกิดไม่ถูกต้อง (รูปแบบ dd/mm/yyyy)")
         gender = f.get("gender") if f.get("gender") in ("male", "female", "unspecified") else "unspecified"
         avatar = u["avatar"]
         up = request.files.get("avatar")
         if up and up.filename:
             ext = up.filename.rsplit(".", 1)[-1].lower() if "." in up.filename else ""
             if ext not in ALLOWED_IMG:
-                flash("รองรับเฉพาะไฟล์รูป png, jpg, gif, webp", "error")
+                errors.append("รองรับเฉพาะไฟล์รูป png, jpg, gif, webp")
             else:
                 avatar = f"{u['id']}_{secrets.token_hex(6)}.{ext}"
                 up.save(os.path.join(UPLOAD_DIR, avatar))
@@ -442,9 +430,6 @@ def edit_profile():
     return render_template("edit_profile.html", birthdate=b.strftime("%d/%m/%Y") if b else "")
 
 
-# ============================================================
-#  หน้า: password.html
-# ============================================================
 @app.route("/password.html", methods=["GET", "POST"])
 @login_required
 def change_password():
@@ -468,9 +453,6 @@ def change_password():
     return render_template("password.html")
 
 
-# ============================================================
-#  หน้า: report.html
-# ============================================================
 @app.route("/report.html", methods=["GET", "POST"])
 def report():
     if request.method == "POST":
@@ -492,7 +474,7 @@ def report():
 
 
 # ============================================================
-#  หน้า: booking.html   (เลือกเครื่อง + จอง)
+#  การจองเครื่อง (Booking Page & API)
 # ============================================================
 def services_dict():
     return {r["key"]: dict(r) for r in get_db().execute("SELECT * FROM services")}
@@ -539,7 +521,53 @@ def api_create_booking():
 
 
 # ============================================================
-#  หน้า: qrcode.html   (สแกนตู้ + ชำระเงิน PromptPay)
+#  [NEW FEATURE 1]: สแกน QR หน้าตู้แล้วยืนยัน (Confirm Check-in)
+# ============================================================
+def normalize_code(s):
+    s = (s or "").strip().upper()
+    return f"M-{int(s):02d}" if s.isdigit() else s
+
+
+@app.route("/confirm-checkin.html")
+@app.route("/confirm-checkin")
+def confirm_checkin_page():
+    """เปิดขึ้นมาเมื่อลูกค้าใช้กล้องสแกน QR หน้าตู้"""
+    u = current_user()
+    if not u:
+        flash("กรุณาเข้าสู่ระบบก่อนยืนยันการใช้บริการ", "error")
+        return redirect("/login.html")
+    
+    mid = request.args.get("machine_id")
+    code = request.args.get("code")
+    db = get_db()
+    
+    machine = None
+    if mid:
+        machine = db.execute("SELECT * FROM machines WHERE id=?", (to_int(mid),)).fetchone()
+    elif code:
+        machine = db.execute("SELECT * FROM machines WHERE code=?", (normalize_code(code),)).fetchone()
+
+    if not machine:
+        flash("ไม่พบข้อมูลตู้ซักผ้าที่สแกน", "error")
+        return redirect("/history.html")
+
+    # ตรวจสอบว่าผู้ใช้คนนี้จองตู้นี้ไว้จริงไหม และยังไม่หมดเวลา 10 นาที
+    booking = db.execute("""
+        SELECT b.*, m.name AS machine_name, m.code AS machine_code, m.capacity_kg 
+        FROM bookings b 
+        JOIN machines m ON m.id = b.machine_id 
+        WHERE b.user_id = ? AND b.machine_id = ? AND b.status = 'reserved' AND b.reserve_expires > ?
+    """, (u["id"], machine["id"], ts(now()))).fetchone()
+
+    if not booking:
+        flash(f"คุณไม่ได้จองตู้ {machine['name']} ไว้ หรือการจองหมดอายุแล้ว (เกิน 10 นาที)", "error")
+        return redirect("/history.html")
+
+    return render_template("confirm-checkin.html", booking=booking, machine=machine, user=u)
+
+
+# ============================================================
+#  ชำระเงิน PromptPay (QR Code Payment)
 # ============================================================
 def crc16(s):
     crc = 0xFFFF
@@ -568,11 +596,6 @@ def promptpay_payload(target_id, amount):
     return body + crc16(body)
 
 
-def normalize_code(s):
-    s = (s or "").strip().upper()
-    return f"M-{int(s):02d}" if s.isdigit() else s
-
-
 def pending_booking(uid):
     return get_db().execute("""SELECT b.*, m.code AS machine_code, m.name AS machine_name, m.capacity_kg
                                FROM bookings b JOIN machines m ON m.id=b.machine_id
@@ -580,6 +603,7 @@ def pending_booking(uid):
 
 
 @app.route("/qrcode.html")
+@app.route("/payment.html")
 def qrcode_page():
     return render_template("qrcode.html")
 
@@ -651,10 +675,16 @@ def api_payment_cancel():
     return jsonify(ok=True)
 
 
+# ============================================================
+#  [NEW FEATURE 2]: อัปเดตเมื่อจ่ายเงินสำเร็จ + แจ้งเตือนผู้ใช้งาน
+# ============================================================
 def mark_payment_success(pid):
     db = get_db()
-    p = db.execute("""SELECT p.*, b.minutes, b.machine_id FROM payments p
-                      JOIN bookings b ON b.id=p.booking_id WHERE p.id=?""", (pid,)).fetchone()
+    p = db.execute("""SELECT p.*, b.minutes, b.machine_id, m.code AS machine_code, m.name AS machine_name, b.user_id
+                      FROM payments p
+                      JOIN bookings b ON b.id=p.booking_id 
+                      JOIN machines m ON m.id=b.machine_id
+                      WHERE p.id=?""", (pid,)).fetchone()
     if not p or p["status"] != "pending":
         return False
     t = now()
@@ -664,7 +694,9 @@ def mark_payment_success(pid):
         if not n:
             return False
         db.execute("UPDATE payments SET status='success', paid_at=? WHERE id=?", (ts(t), pid))
-    notify_admin(f"💰 ได้รับชำระเงิน {p['amount']} บาท (รหัส {p['tx_id']})")
+    
+    notify_admin(f"💰 ได้รับชำระเงิน {p['amount']} บาท (รหัส {p['tx_id']}) - ตู้ {p['machine_name']} เริ่มทำงาน")
+    notify_user(p["user_id"], f"💳 การชำระเงินสำเร็จ! ตู้ {p['machine_name']} เริ่มทำงานแล้ว ({p['minutes']} นาที)")
     return True
 
 
@@ -679,7 +711,71 @@ def api_payment_simulate(pid):
 
 
 # ============================================================
-#  หน้า: history1.html  (และ history.html)
+#  [NEW FEATURE 3]: ESP32 IoT Integration APIs
+# ============================================================
+@app.get("/api/esp32/status/<machine_code>")
+def esp32_get_status(machine_code):
+    """ESP32 ยิงมาถาม Backend ทุกๆ N วินาที เพื่อเช็กว่าต้องเปิดไฟ/Relay หรือไม่"""
+    code = normalize_code(machine_code)
+    db = get_db()
+    m = db.execute("SELECT * FROM machines WHERE code=?", (code,)).fetchone()
+    if not m:
+        return jsonify(error="Machine not found"), 404
+        
+    b = db.execute("""
+        SELECT * FROM bookings 
+        WHERE machine_id = ? AND status = 'washing' AND end_time > ?
+    """, (m["id"], ts(now()))).fetchone()
+    
+    if b:
+        sec_left = max(0, int((parse_ts(b["end_time"]) - now()).total_seconds()))
+        return jsonify({
+            "machine_code": code,
+            "status": "washing",
+            "relay": "ON",
+            "seconds_left": sec_left,
+            "booking_id": b["id"]
+        })
+    else:
+        return jsonify({
+            "machine_code": code,
+            "status": "free",
+            "relay": "OFF",
+            "seconds_left": 0,
+            "booking_id": None
+        })
+
+
+@app.post("/api/esp32/complete")
+def esp32_complete():
+    """ESP32 ยิงแจ้งเมื่อซักเสร็จ/ไฟดับ เพื่อเคลียร์ตู้และแจ้งเตือนผู้ใช้"""
+    d = request.get_json(silent=True) or {}
+    code = normalize_code(d.get("machine_code"))
+    db = get_db()
+    m = db.execute("SELECT * FROM machines WHERE code=?", (code,)).fetchone()
+    if not m:
+        return err("Machine not found", 404)
+        
+    b = db.execute("""
+        SELECT b.*, u.username, u.email 
+        FROM bookings b 
+        JOIN users u ON u.id = b.user_id
+        WHERE b.machine_id = ? AND b.status = 'washing'
+    """, (m["id"],)).fetchone()
+    
+    if b:
+        with db:
+            db.execute("UPDATE bookings SET status='completed' WHERE id=?", (b["id"],))
+        
+        notify_admin(f"✅ ตู้ {m['name']} ({code}) ซักผ้าเสร็จสิ้นแล้วสำหรับคุณ {b['username']}")
+        notify_user(b["user_id"], f"🧺 ผ้าของคุณที่ตู้ {m['name']} ({code}) ซักเสร็จเรียบร้อยแล้ว! กรุณามารับผ้าด้วยครับ")
+        return jsonify(ok=True, message="Status updated to completed")
+    
+    return jsonify(ok=True, message="No active washing booking found")
+
+
+# ============================================================
+#  ประวัติการใช้งาน
 # ============================================================
 @app.route("/history1.html")
 @app.route("/history.html")
@@ -702,7 +798,7 @@ def history():
 
 
 # ============================================================
-#  LINE แจ้งเตือนผู้ดูแล
+#  ระบบแจ้งเตือน (LINE Notify & User Notification)
 # ============================================================
 def line_push(token, to, text):
     req = urllib.request.Request(
@@ -725,8 +821,16 @@ def notify_admin(text):
     threading.Thread(target=run, daemon=True).start()
 
 
+def notify_user(user_id, text):
+    """ส่งแจ้งเตือนให้ผู้ใช้งาน (Console Log + รองรับ LINE Notification)"""
+    db = get_db()
+    u = db.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+    if u:
+        app.logger.info(f"[NOTIFY USER #{user_id} ({u['username']})]: {text}")
+
+
 # ============================================================
-#  ADMIN: admin_dashboard.html
+#  ADMIN DASHBOARD & MANAGEMENT
 # ============================================================
 @app.route("/admin/admin_dashboard.html")
 @admin_required
@@ -750,9 +854,6 @@ def admin_dashboard():
                            bars=bars, machines=machine_states())
 
 
-# ============================================================
-#  ADMIN: manage.html
-# ============================================================
 @app.route("/admin/manage.html")
 @admin_required
 def admin_manage():
@@ -793,9 +894,6 @@ def admin_update_service(key):
     return jsonify(ok=True) if n else err("not found", 404)
 
 
-# ============================================================
-#  ADMIN: admin_transactions.html
-# ============================================================
 @app.route("/admin/admin_transactions.html")
 @admin_required
 def admin_transactions():
@@ -825,9 +923,6 @@ def admin_transactions():
                            first=(page - 1) * per + 1 if total else 0, last=min(page * per, total))
 
 
-# ============================================================
-#  ADMIN: admin_settings.html
-# ============================================================
 @app.route("/admin/admin_settings.html")
 @admin_required
 def admin_settings():
@@ -894,4 +989,4 @@ def admin_user_status(uid):
 init_db()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

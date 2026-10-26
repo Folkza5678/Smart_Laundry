@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Laundry - ยืนยันการเข้าใช้บริการ</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Afacad Flux', sans-serif;
+    }
+
+    body {
+      background-color: #F4F6F9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navbar Minimal */
+    .navbar {
+      background-color: #ffffff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo {
+      height: 40px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-en {
+      font-weight: 700;
+      color: #00036C;
+      font-size: 1.1rem;
+    }
+
+    .brand-th {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 0 20px;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Confirm Card */
+    .confirm-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 32px 24px;
+      box-shadow: 0 10px 30px rgba(0, 3, 108, 0.08);
+      text-align: center;
+      border: 1px solid #EAEFF8;
+    }
+
+    .machine-icon-wrapper {
+      width: 90px;
+      height: 90px;
+      background: #EBF3FF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .machine-icon-wrapper svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      background: #FFF3E0;
+      color: #E65100;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .confirm-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #00036C;
+      margin-bottom: 8px;
+    }
+
+    .confirm-subtitle {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    /* Details Box */
+    .details-box {
+      background: #F8FAFC;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 24px;
+      border: 1px solid #E2E8F0;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed #CBD5E1;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: #64748B;
+    }
+
+    .detail-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0F172A;
+    }
+
+    .detail-value.price {
+      font-size: 1.15rem;
+      color: #00036C;
+      font-weight: 700;
+    }
+
+    /* Action Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-confirm {
+      background-color: #00036C;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 3, 108, 0.25);
+    }
+
+    .btn-confirm:hover {
+      background-color: #1A1D8F;
+      transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+      background-color: #F1F5F9;
+      color: #64748B;
+    }
+
+    .btn-cancel:hover {
+      background-color: #E2E8F0;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="index.html" class="nav-brand">
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="confirm-card">
+      
+      <!-- Icon -->
+      <div class="machine-icon-wrapper">
+        <svg viewBox="0 0 49 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.9688 24.6938V17.9438L6.75 20.25L0 8.55L14.85 0H17.7188C18.3188 1.8 19.0312 3.375 19.8562 4.725C20.6812 6.075 22.2188 6.75 24.4688 6.75C26.7188 6.75 28.2563 6.075 29.0813 4.725C29.9062 3.375 30.6187 1.8 31.2188 0H34.0875L48.8813 8.60625L42.1875 20.25L37.9688 17.9438V28.7437L34.425 31.8375C34.1625 32.0625 33.8625 32.241 33.525 32.373C33.1875 32.505 32.85 32.5703 32.5125 32.5688C32.2875 32.5688 32.025 32.4938 31.725 32.3438C31.425 32.1937 31.125 32.0062 30.825 31.7812L24.8625 26.6625C23.6625 25.6125 22.3125 24.8438 20.8125 24.3562C19.3125 23.8687 17.7938 23.625 16.2563 23.625C15.3563 23.625 14.4653 23.7097 13.5833 23.8792C12.7013 24.0487 11.8298 24.3203 10.9688 24.6938Z" fill="#00036C"/>
+        </svg>
+      </div>
+
+      <span class="status-badge">ยืนยันตำแหน่ง ณ ตู้ซักผ้า</span>
+      
+      <h1 class="confirm-title">ยืนยันการใช้บริการ{{ booking.machine_name }}</h1>
+      <p class="confirm-subtitle">กรุณาตรวจสอบรายการก่อนดำเนินการชำระเงิน</p>
+
+      <!-- Machine Details Box -->
+      <div class="details-box">
+        <div class="detail-row">
+          <span class="detail-label">หมายเลขตู้</span>
+          <span class="detail-value">{{ booking.machine_name }} (ขนาด {{ booking.capacity_kg }} กก.)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">โปรแกรมการซัก</span>
+          <span class="detail-value">โปรแกรม{{ booking.program_name }} ({{ booking.minutes }} นาที)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">ผู้จอง</span>
+          <span class="detail-value">{{ user.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">ยอดชำระทั้งสิ้น</span>
+          <span class="detail-value price">{{ booking.price }} บาท</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-confirm" onclick="proceedToPayment()">
+          ยืนยันและไปชำระเงิน
+        </button>
+        <button type="button" class="btn btn-cancel" onclick="cancelCheckin()">
+          ยกเลิก
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ส่งต่อไปหน้าชำระเงิน (payment.html)
+    function proceedToPayment() {
+      // สามารถแนบ booking_id หรือ machine_id ไปตาม URL ได้
+      window.location.href = "payment.html?booking_id={{ booking.id }}";
+    }
+
+    // กรณีกดยกเลิก
+    function cancelCheckin() {
+      Swal.fire({
+        title: 'ยกเลิกการยืนยัน?',
+        text: 'คุณต้องการยกเลิกการทำรายการและกลับสู่หน้าประวัติหรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#00036C',
+        cancelButtonColor: '#64748B',
+        confirmButtonText: 'ใช่, กลับหน้าประวัติ',
+        cancelButtonText: 'อยู่หน้านี้ต่อ'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = 'history.html';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
