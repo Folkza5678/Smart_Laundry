@@ -10,8 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=Afacad+Flux:wght@400;500;600;700&family=Hanuman:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- CSS Links (ใช้ ../ ถอยออกไปเรียกโฟลเดอร์ template) -->
+  <!-- CSS Links -->
   <link rel="stylesheet" href="../template/manage.css">
+  <!-- SweetAlert2 CDN สำหรับ Popup สวยงาม -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="admin-body">
 
@@ -30,25 +32,21 @@
       <hr class="sidebar-separator">
 
       <nav class="sidebar-menu">
-        <!-- Dashboard -->
         <a href="admin_dashboard.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           <span class="menu-label">Dashboard</span>
         </a>
 
-        <!-- Management (Active) -->
         <a href="manage.html" class="menu-item active">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span class="menu-label">Management</span>
         </a>
 
-        <!-- Transaction History -->
         <a href="admin_transactions.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           <span class="menu-label">Transaction History</span>
         </a>
 
-        <!-- Settings / Use Management -->
         <a href="admin_settings.html" class="menu-item">
           <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span class="menu-label">Settings /<br/>Use Management</span>
@@ -56,16 +54,19 @@
       </nav>
     </aside>
 
-    <!-- Main Content Content -->
+    <!-- Main Content -->
     <main class="management-content">
       
-      <!-- Page Title -->
       <h1 class="page-title">สรุปสถานะตู้ (Machine Management)</h1>
-      <button class="btn-action" style="max-width:220px;margin-bottom:16px" onclick="editPrices()">ตั้งราคา/เวลาโปรแกรม</button>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button class="btn-action" style="max-width:200px; background-color:#28a745;" onclick="addMachineModal()">➕ เพิ่มเครื่องใหม่</button>
+        <button class="btn-action" style="max-width:220px; background-color:#00036C;" onclick="editPrices()">⚙️ ตั้งราคา/เวลาโปรแกรม</button>
+      </div>
 
       <!-- Summary Top Cards -->
       <div class="summary-grid">
-        <!-- Card 1: ตู้ทั้งหมด -->
         <div class="summary-card">
           <div class="card-icon icon-dark">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="8" y1="6" x2="8.01" y2="6"/><line x1="12" y1="6" x2="12.01" y2="6"/></svg>
@@ -76,7 +77,6 @@
           </div>
         </div>
 
-        <!-- Card 2: พร้อมใช้งาน -->
         <div class="summary-card">
           <div class="card-icon icon-green">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -87,7 +87,6 @@
           </div>
         </div>
 
-        <!-- Card 3: ชำรุด/ปิดการใช้งาน -->
         <div class="summary-card">
           <div class="card-icon icon-red">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
@@ -99,58 +98,218 @@
         </div>
       </div>
 
-      <!-- Machines Grid (4 Cards) -->
+      <!-- Machines Grid -->
       <div class="machines-grid">
         {% for m in machines %}
         <div class="machine-card">
           <div class="machine-header">
-            <h3 class="machine-title">{{ m.name }}</h3>
+            <h3 class="machine-title">{{ m.name }} <small style="font-size:12px; color:#888;">({{ m.code }})</small></h3>
             {% if m.state == 'free' %}<span class="badge badge-available">ว่าง</span>
             {% elif m.state == 'busy' %}<span class="badge badge-busy">ไม่ว่าง</span>
             {% elif m.state == 'reserved' %}<span class="badge badge-reserved">จอง</span>
-            {% else %}<span class="badge badge-busy">ปิดใช้งาน</span>{% endif %}
+            {% else %}<span class="badge badge-busy" style="background-color:#dc3545; color:white;">ชำรุด</span>{% endif %}
           </div>
-          <div class="machine-illustration">{% if m.state == 'reserved' %}
+          <div class="machine-illustration">
+          {% if m.state == 'reserved' %}
             <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#D4B200" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#ECF000" fill-opacity="0.5"/><circle cx="7" cy="6" r="1" fill="#D4B200"/><circle cx="10" cy="6" r="1" fill="#D4B200"/></svg>
           {% elif m.state == 'free' %}
-            <!-- SVG Icon เครื่องซักผ้า -->
             <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#2859C5" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#50C3FF" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#2859C5"/><circle cx="10" cy="6" r="1" fill="#2859C5"/></svg>
           {% else %}
             <svg width="90" height="110" viewBox="0 0 24 24" fill="none" stroke="#FE9616" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="3"/><circle cx="12" cy="13" r="5"/><circle cx="12" cy="13" r="3" fill="#FE9616" fill-opacity="0.4"/><circle cx="7" cy="6" r="1" fill="#FE9616"/><circle cx="10" cy="6" r="1" fill="#FE9616"/></svg>
-          {% endif %}</div>
-          <div class="machine-details">
-            <span class="detail-text">{% if m.state == 'busy' %}เหลือเวลา : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'reserved' %}เหลือเวลาจอง : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'offline' %}ปิดการใช้งาน{% else %}ขนาด : {{ m.capacity_kg }} kg{% endif %}</span>
+          {% endif %}
           </div>
-          <button class="btn-action" data-id="{{ m.id }}" data-name="{{ m.name }}" data-kg="{{ m.capacity_kg }}" data-enabled="{{ m.enabled }}" onclick="editMachine(this)">แก้ไข/ตั้งค่า</button>
+          <div class="machine-details">
+            <span class="detail-text">{% if m.state == 'busy' %}เหลือเวลา : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'reserved' %}เหลือเวลาจอง : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'offline' %}ปิดการใช้งาน (ชำรุด){% else %}ขนาด : {{ m.capacity_kg }} kg{% endif %}</span>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-action" style="flex:1;" 
+                    data-id="{{ m.id }}" 
+                    data-code="{{ m.code }}" 
+                    data-name="{{ m.name }}" 
+                    data-kg="{{ m.capacity_kg }}" 
+                    data-enabled="{{ m.enabled }}" 
+                    onclick="editMachineModal(this)">✏️ แก้ไข</button>
+            <button class="btn-action" style="flex:0.4; background-color:#dc3545;" 
+                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">🗑️ ลบ</button>
+          </div>
         </div>
         {% endfor %}
       </div>
     </main>
+
     <script>
-    async function post(url, body) {
-      const r = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
+    async function apiRequest(url, method = 'POST', body = null) {
+      const options = {
+        method: method,
+        headers: {'Content-Type': 'application/json'}
+      };
+      if (body) options.body = JSON.stringify(body);
+
+      const r = await fetch(url, options);
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาด');
+      if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
       return d;
     }
-    async function editMachine(btn) {
-      const d = btn.dataset;
-      const name = prompt('ชื่อเครื่อง', d.name); if (name === null) return;
-      const kg = prompt('ขนาด (กก.)', d.kg); if (kg === null) return;
-      const enabled = confirm('เปิดใช้งานเครื่องนี้หรือไม่?\nOK = เปิดใช้งาน, Cancel = ปิด (ชำรุด)');
-      try { await post('/admin/api/machines/' + d.id, {name: name, capacity_kg: kg, enabled: enabled}); location.reload(); }
-      catch (e) { alert(e.message); }
+
+    // 1. ป๊อปอัปเพิ่มเครื่องใหม่
+    async function addMachineModal() {
+      const { value: formValues } = await Swal.fire({
+        title: '➕ เพิ่มเครื่องซักผ้าใหม่',
+        html: `
+          <div style="text-align:left; font-size:14px;">
+            <label style="display:block; margin-top:8px;">ชื่อเครื่อง (เช่น เครื่อง 07):</label>
+            <input id="swal-name" class="swal2-input" placeholder="ระบุชื่อเครื่อง" style="width:100%; margin:4px 0 12px 0;">
+            
+            <label style="display:block;">รหัสเครื่อง (เช่น M-07):</label>
+            <input id="swal-code" class="swal2-input" placeholder="ปล่อยว่างเพื่อสร้างอัตโนมัติ" style="width:100%; margin:4px 0 12px 0;">
+
+            <label style="display:block;">ขนาดความจุ (กก.):</label>
+            <input id="swal-kg" type="number" value="10" class="swal2-input" style="width:100%; margin:4px 0 12px 0;">
+
+            <label style="display:block;">สถานะเริ่มต้น:</label>
+            <select id="swal-enabled" class="swal2-select" style="width:100%; margin:4px 0;">
+              <option value="1">🟢 ว่าง / พร้อมใช้งาน</option>
+              <option value="0">🔴 ชำรุด / ปิดใช้งาน</option>
+            </select>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#28a745',
+        preConfirm: () => {
+          const name = document.getElementById('swal-name').value.trim();
+          if (!name) {
+            Swal.showValidationMessage('กรุณากรอกชื่อเครื่อง');
+            return false;
+          }
+          return {
+            name: name,
+            code: document.getElementById('swal-code').value.trim(),
+            capacity_kg: parseInt(document.getElementById('swal-kg').value) || 10,
+            enabled: document.getElementById('swal-enabled').value === "1"
+          };
+        }
+      });
+
+      if (formValues) {
+        try {
+          const res = await apiRequest('/admin/api/machines', 'POST', formValues);
+          Swal.fire({ icon: 'success', title: 'สำเร็จ', text: res.message, timer: 1500, showConfirmButton: false });
+          setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+          Swal.fire('ข้อผิดพลาด', e.message, 'error');
+        }
+      }
     }
+
+    // 2. ป๊อปอัปแก้ไขข้อมูลเครื่อง / ปรับสถานะชำรุด
+    async function editMachineModal(btn) {
+      const d = btn.dataset;
+      const isEnabled = d.enabled === "1" || d.enabled === "true";
+
+      const { value: formValues } = await Swal.fire({
+        title: `✏️ แก้ไข ${d.name}`,
+        html: `
+          <div style="text-align:left; font-size:14px;">
+            <label style="display:block; margin-top:8px;">ชื่อเครื่อง:</label>
+            <input id="swal-edit-name" class="swal2-input" value="${d.name}" style="width:100%; margin:4px 0 12px 0;">
+            
+            <label style="display:block;">รหัสเครื่อง (Code):</label>
+            <input id="swal-edit-code" class="swal2-input" value="${d.code || ''}" style="width:100%; margin:4px 0 12px 0;">
+
+            <label style="display:block;">ขนาดความจุ (กก.):</label>
+            <input id="swal-edit-kg" type="number" value="${d.kg}" class="swal2-input" style="width:100%; margin:4px 0 12px 0;">
+
+            <label style="display:block;">สถานะเครื่อง:</label>
+            <select id="swal-edit-enabled" class="swal2-select" style="width:100%; margin:4px 0;">
+              <option value="1" ${isEnabled ? 'selected' : ''}>🟢 ว่าง / พร้อมใช้งาน</option>
+              <option value="0" ${!isEnabled ? 'selected' : ''}>🔴 ชำรุด / ปิดการใช้งาน</option>
+            </select>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึกการแก้ไข',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#00036C',
+        preConfirm: () => {
+          return {
+            name: document.getElementById('swal-edit-name').value.trim(),
+            code: document.getElementById('swal-edit-code').value.trim(),
+            capacity_kg: parseInt(document.getElementById('swal-edit-kg').value) || 10,
+            enabled: document.getElementById('swal-edit-enabled').value === "1"
+          };
+        }
+      });
+
+      if (formValues) {
+        try {
+          const res = await apiRequest('/admin/api/machines/' + d.id, 'POST', formValues);
+          Swal.fire({ icon: 'success', title: 'สำเร็จ', text: res.message, timer: 1500, showConfirmButton: false });
+          setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+          Swal.fire('ข้อผิดพลาด', e.message, 'error');
+        }
+      }
+    }
+
+    // 3. ยืนยันการลบเครื่อง
+    async function deleteMachineConfirm(id, name) {
+      const result = await Swal.fire({
+        title: `ต้องการลบ "${name}" หรือไม่?`,
+        text: 'หากลบแล้วข้อมูลตู้จะหายไปจากระบบทันที',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ใช่, ลบเครื่องนี้',
+        cancelButtonText: 'ยกเลิก'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const res = await apiRequest('/admin/api/machines/' + id, 'DELETE');
+          Swal.fire({ icon: 'success', title: 'ลบเรียบร้อย', text: res.message, timer: 1500, showConfirmButton: false });
+          setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+          Swal.fire('ไม่สามารถลบได้', e.message, 'error');
+        }
+      }
+    }
+
+    // 4. ตั้งค่าราคาโปรแกรม
     async function editPrices() {
       const services = {{ services|tojson }};
       try {
         for (const s of services) {
-          const price = prompt('ราคา "' + s.name + '" (บาท)', s.price); if (price === null) return;
-          const minutes = prompt('เวลา "' + s.name + '" (นาที)', s.minutes); if (minutes === null) return;
-          await post('/admin/api/services/' + s.key, {price: price, minutes: minutes});
+          const { value: price } = await Swal.fire({
+            title: `ราคา "${s.name}"`,
+            input: 'number',
+            inputValue: s.price,
+            inputLabel: 'บาท',
+            showCancelButton: true
+          });
+          if (price === undefined) return;
+
+          const { value: minutes } = await Swal.fire({
+            title: `เวลา "${s.name}"`,
+            input: 'number',
+            inputValue: s.minutes,
+            inputLabel: 'นาที',
+            showCancelButton: true
+          });
+          if (minutes === undefined) return;
+
+          await apiRequest('/admin/api/services/' + s.key, 'POST', { price: price, minutes: minutes });
         }
-        alert('บันทึกราคาเรียบร้อย'); location.reload();
-      } catch (e) { alert(e.message); }
+        Swal.fire('สำเร็จ', 'บันทึกราคาและเวลาเรียบร้อยแล้ว', 'success');
+        setTimeout(() => location.reload(), 1200);
+      } catch (e) {
+        Swal.fire('ข้อผิดพลาด', e.message, 'error');
+      }
     }
     </script>
 

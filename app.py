@@ -115,7 +115,7 @@ def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
     
-    # 📌 ปรับเวลาการซักและอบแห้งสำหรับโหมดทดสอบ (1-3 นาที)
+    # ปรับเวลาการซักและอบแห้งสำหรับโหมดทดสอบ (1-3 นาที)
     if not db.execute("SELECT 1 FROM services").fetchone():
         db.executemany("INSERT INTO services VALUES(?,?,?,?,?)", [
             ("quick", "ซักด่วน", "program", 1, 40),
@@ -124,7 +124,6 @@ def init_db():
             ("dry", "อบแห้ง", "addon", 1, 20),
             ("softener", "ปรับผ้านุ่ม", "addon", 0, 10)])
     else:
-        # อัปเดตเวลาทดสอบลงในฐานข้อมูลเดิมทันที
         db.executemany("UPDATE services SET minutes=? WHERE key=?", [
             (1, "quick"),
             (2, "standard"),
@@ -265,7 +264,6 @@ def machine_states():
 def current_user():
     if "user" not in g:
         g.user = None
-        # รองรับทั้งคีย์ 'uid' และ 'user_id'
         uid = session.get("uid") or session.get("user_id")
         if uid:
             u = get_db().execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
@@ -380,7 +378,6 @@ def login():
             flash("บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ", "error")
             return render_template("login.html"), 403
         
-        # ดึง next_url ที่บันทึกไว้จากการสแกน QR Code ก่อน clear session
         next_url = session.get("next_url")
 
         session.clear()
@@ -388,7 +385,6 @@ def login():
         session["user_id"] = u["id"]
         session.permanent = True
         
-        # ถ้ามี next_url ค้างอยู่ ให้เด้งไปหน้ายืนยันตู้ที่สแกนไว้ทันที
         if next_url:
             return redirect(next_url)
 
@@ -399,7 +395,6 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    # 📌 รับค่าปลายทางจาก query string ?next=... หากระบุไว้จะเปลี่ยนไปหน้านั้นทันที
     next_page = request.args.get("next", "/index.html")
     res = redirect(next_page)
     res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
@@ -567,11 +562,9 @@ def normalize_code(s):
     raw = str(s).strip()
     s_upper = raw.upper()
 
-    # 📌 ดักจับลิงก์ย่อหน้าตู้ https://qrco.de/bh4hgQ ให้แปลงเป็น M-01 ทันที
     if "QRCO.DE/BH4HGQ" in s_upper:
         return "M-01"
 
-    # 1. ถ้าระบุ code=M-01 หรือ machine_id=1 ใน URL Query
     m_param = re.search(r"(?:code|machine_id|machine|id)=([^&]+)", raw, re.I)
     if m_param:
         val = m_param.group(1)
@@ -579,17 +572,13 @@ def normalize_code(s):
         if m_num and 1 <= int(m_num.group()) <= 99:
             return f"M-{int(m_num.group()):02d}"
 
-    # 2. ถ้าระบุ M-01, M01, M1, Machine 1, ตู้ 1, เครื่อง 1
     m_code = re.search(r"(?:M|MACHINE|ตู้|เครื่อง)[-_\s]?(\d{1,2})\b", raw, re.I)
     if m_code:
         num = int(m_code.group(1))
         if 1 <= num <= 99:
             return f"M-{num:02d}"
 
-    # 3. ตัดส่วน Domain / IP / Port ออก เช่น http://127.0.0.1:5000/
     s_clean = re.sub(r"https?://[^/]+", "", raw)
-
-    # 4. หาตัวเลข 1-2 หลักจากเส้นทาง URL เช่น /confirm-checkin/1
     nums = re.findall(r"\b\d{1,2}\b", s_clean)
     if nums:
         for n in reversed(nums):
@@ -597,7 +586,6 @@ def normalize_code(s):
             if 1 <= val <= 99:
                 return f"M-{val:02d}"
 
-    # 5. กรณีเป็นตัวเลขล้วน 1-2 หลัก เช่น "1" -> "M-01"
     if raw.isdigit() and 1 <= int(raw) <= 99:
         return f"M-{int(raw):02d}"
 
@@ -607,7 +595,6 @@ def normalize_code(s):
 @app.route("/confirm-checkin.html")
 @app.route("/confirm-checkin")
 def confirm_checkin_page():
-    """เปิดขึ้นมาเมื่อลูกค้าใช้กล้องสแกน QR หน้าตู้"""
     u = current_user()
     if not u:
         session["next_url"] = request.full_path
@@ -797,11 +784,9 @@ def api_payment_simulate(pid):
 @app.get("/api/user/active-status")
 @login_required
 def api_user_active_status():
-    """เช็กเบื้องหลังว่าผู้ใช้กำลังซักผ้าตู้ไหนอยู่ หรือมีตู้ที่เพิ่งซักเสร็จหรือไม่"""
     u = current_user()
     db = get_db()
     
-    # 1. เช็กรายการที่กำลังซักอยู่ (status = 'washing')
     b_washing = db.execute("""
         SELECT b.*, m.name AS machine_name, m.code AS machine_code 
         FROM bookings b
@@ -820,7 +805,6 @@ def api_user_active_status():
             seconds_left=sec_left
         )
 
-    # 2. เช็กรายการที่เพิ่งซักเสร็จ (status = 'completed' ไม่เกิน 5 นาที)
     b_completed = db.execute("""
         SELECT b.*, m.name AS machine_name, m.code AS machine_code 
         FROM bookings b
@@ -831,7 +815,6 @@ def api_user_active_status():
 
     if b_completed and b_completed["end_time"]:
         sec_since_done = int((now() - parse_ts(b_completed["end_time"])).total_seconds())
-        # หากซักเสร็จมาไม่เกิน 5 นาที (300 วินาที)
         if 0 <= sec_since_done <= 300:
             return jsonify(
                 has_active=True,
@@ -962,7 +945,7 @@ def notify_user(user_id, text):
 
 
 # ============================================================
-#  ADMIN DASHBOARD & MANAGEMENT
+#  ADMIN DASHBOARD & MACHINE MANAGEMENT
 # ============================================================
 @app.route("/admin/admin_dashboard.html")
 @admin_required
@@ -996,22 +979,92 @@ def admin_manage():
                            services=list(services_dict().values()))
 
 
+# 1. API เพิ่มเครื่องซักผ้าใหม่
+@app.post("/admin/api/machines")
+@admin_required
+def admin_add_machine():
+    d = request.get_json(silent=True) or {}
+    name = d.get("name", "").strip()
+    capacity_kg = to_int(d.get("capacity_kg"), 10)
+    kind = d.get("kind", "wash")
+    enabled = 1 if d.get("enabled", True) else 0
+
+    if not name:
+        return err("กรุณาระบุชื่อเครื่อง")
+
+    db = get_db()
+    last_id = db.execute("SELECT MAX(id) FROM machines").fetchone()[0] or 0
+    code = d.get("code", "").strip() or f"M-{(last_id + 1):02d}"
+
+    try:
+        with db:
+            db.execute(
+                "INSERT INTO machines(code, name, kind, capacity_kg, enabled) VALUES(?,?,?,?,?)",
+                (code, name, kind, capacity_kg, enabled)
+            )
+        return jsonify(ok=True, message="เพิ่มเครื่องใหม่เรียบร้อยแล้ว")
+    except sqlite3.IntegrityError:
+        return err("รหัสเครื่อง (Code) นี้มีในระบบแล้ว", 409)
+
+
+# 2. API แก้ไขข้อมูลเครื่อง
 @app.post("/admin/api/machines/<int:mid>")
 @admin_required
 def admin_update_machine(mid):
     d = request.get_json(silent=True) or {}
     fields, args = [], []
-    if d.get("name"):
+    if "name" in d and d["name"]:
         fields.append("name=?"); args.append(str(d["name"])[:50])
+    if "code" in d and d["code"]:
+        fields.append("code=?"); args.append(str(d["code"])[:20])
     if "capacity_kg" in d:
         fields.append("capacity_kg=?"); args.append(max(1, to_int(d["capacity_kg"], 10)))
     if "enabled" in d:
         fields.append("enabled=?"); args.append(int(bool(d["enabled"])))
     if not fields:
         return err("ไม่มีข้อมูลให้แก้ไข")
-    with get_db() as db:
-        db.execute(f"UPDATE machines SET {','.join(fields)} WHERE id=?", (*args, mid))
-    return jsonify(ok=True)
+    
+    try:
+        with get_db() as db:
+            db.execute(f"UPDATE machines SET {','.join(fields)} WHERE id=?", (*args, mid))
+        return jsonify(ok=True, message="บันทึกข้อมูลเรียบร้อยแล้ว")
+    except sqlite3.IntegrityError:
+        return err("รหัสเครื่อง (Code) ซ้ำกับเครื่องอื่นในระบบ", 409)
+
+
+# 3. API ลบเครื่องซักผ้า
+# 3. API ลบเครื่องซักผ้า (ลบประวัติที่เกี่ยวข้องเพื่อไม่ให้ติด Foreign Key Constraint)
+@app.delete("/admin/api/machines/<int:mid>")
+@admin_required
+def admin_delete_machine(mid):
+    db = get_db()
+    
+    # 1. เช็กว่าเครื่องกำลังทำงานหรือถูกจองค้างอยู่หรือไม่
+    active = db.execute(
+        "SELECT 1 FROM bookings WHERE machine_id=? AND status IN ('reserved','washing')",
+        (mid,)
+    ).fetchone()
+    if active:
+        return err("ไม่สามารถลบได้ เนื่องจากเครื่องกำลังทำงานหรือถูกจองอยู่", 409)
+
+    try:
+        with db:
+            # 2. ลบประวัติการชำระเงิน (payments) ที่ผูกกับรายการจองของเครื่องนี้
+            db.execute("""
+                DELETE FROM payments WHERE booking_id IN (
+                    SELECT id FROM bookings WHERE machine_id=?
+                )
+            """, (mid,))
+            
+            # 3. ลบประวัติการจอง (bookings) ทั้งหมดของเครื่องนี้
+            db.execute("DELETE FROM bookings WHERE machine_id=?", (mid,))
+            
+            # 4. ลบเครื่องซักผ้าออกจากตาราง machines
+            db.execute("DELETE FROM machines WHERE id=?", (mid,))
+
+        return jsonify(ok=True, message="ลบเครื่องและประวัติที่เกี่ยวข้องเรียบร้อยแล้ว")
+    except Exception as e:
+        return err(f"เกิดข้อผิดพลาดในการลบ: {str(e)}", 500)
 
 
 @app.post("/admin/api/services/<key>")
