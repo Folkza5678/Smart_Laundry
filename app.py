@@ -265,7 +265,8 @@ def machine_states():
 def current_user():
     if "user" not in g:
         g.user = None
-        uid = session.get("uid")
+        # รองรับทั้งคีย์ 'uid' และ 'user_id'
+        uid = session.get("uid") or session.get("user_id")
         if uid:
             u = get_db().execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
             if u and u["status"] != "banned":
@@ -355,6 +356,7 @@ def register():
                         (email, username, generate_password_hash(pw), ts(now())))
                 session.clear()
                 session["uid"] = cur.lastrowid
+                session["user_id"] = cur.lastrowid
                 return redirect("/index.html")
             except sqlite3.IntegrityError:
                 errors.append("Username / อีเมลนี้ถูกใช้งานแล้ว")
@@ -383,6 +385,7 @@ def login():
 
         session.clear()
         session["uid"] = u["id"]
+        session["user_id"] = u["id"]
         session.permanent = True
         
         # ถ้ามี next_url ค้างอยู่ ให้เด้งไปหน้ายืนยันตู้ที่สแกนไว้ทันที
@@ -396,7 +399,9 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    res = redirect("/index.html")
+    # 📌 รับค่าปลายทางจาก query string ?next=... หากระบุไว้จะเปลี่ยนไปหน้านั้นทันที
+    next_page = request.args.get("next", "/index.html")
+    res = redirect(next_page)
     res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     return res
 
