@@ -16,16 +16,15 @@
 
   <!-- Navbar Header -->
   <header class="navbar">
-    <!-- ฝั่งซ้าย: โลโก้และชื่อแบรนด์ -->
     <a href="index.html" class="nav-brand">
-  <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
-  <div class="brand-text">
-    <span class="brand-en">Smart Laundry</span>
-    <span class="brand-th">สมาร์ท ลอนดรี</span>
-  </div>
-</a>
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
 
-    <!-- เมนูตรงกลาง (ครบทั้ง 7 เมนู) -->
+    <!-- เมนูตรงกลาง -->
     <nav class="nav-menu">
       <a href="index.html" class="nav-item">
         <svg class="nav-icon" width="34" height="34" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +70,7 @@
         <span class="nav-label">How to use</span>
       </a>
 
-      <!-- 7. Profile (Active) -->
+      <!-- Profile (Active) -->
       <a href="profile.html" class="nav-item active">
         <svg class="nav-icon" width="30" height="30" viewBox="0 0 36 35" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M18 1.92278e-10C20.3638 -1.07723e-05 22.7044 0.452631 24.8883 1.33208C27.0721 2.21153 29.0564 3.50057 30.7279 5.12559C32.3994 6.75061 33.7252 8.6798 34.6298 10.803C35.5344 12.9262 36 15.2018 36 17.5C36 27.165 27.9411 35 18 35C8.0589 35 0 27.165 0 17.5C0 7.83504 8.0589 1.92278e-10 18 1.92278e-10ZM19.8 19.25H16.2C11.7437 19.25 7.91791 21.8739 6.26779 25.6196C8.87869 29.179 13.1605 31.5 18 31.5C22.8394 31.5 27.1212 29.179 29.7322 25.6193C28.0821 21.8739 24.2563 19.25 19.8 19.25ZM18 5.25C15.0176 5.25 12.6 7.60052 12.6 10.5C12.6 13.3995 15.0176 15.75 18 15.75C20.9823 15.75 23.4 13.3995 23.4 10.5C23.4 7.60052 20.9824 5.25 18 5.25Z" fill="#00036C"/>
@@ -103,7 +102,7 @@
   <main class="container">
     <h1 class="page-title">โปรไฟล์</h1>
 
-    <!-- 1. ส่วนแสดงข้อมูลผู้ใช้ (ล็อกอินแล้ว) -->
+    <!-- 1. ส่วนแสดงข้อมูลผู้ใช้ -->
     <section class="user-profile-header">
       <div class="user-avatar">{% if user.avatar %}<img src="/uploads/{{ user.avatar }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}
         <svg width="70" height="70" viewBox="0 0 36 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,10 +115,10 @@
       </div>
     </section>
 
-    <!-- 2. ตารางเมนูการใช้งาน (ล็อกอินแล้ว) -->
+    <!-- 2. ตารางเมนูการใช้งาน -->
     <div class="profile-grid">
       
-      <!-- การ์ดฝั่งซ้าย: เมนูส่วนตัว (ใช้งานได้ปกติ) -->
+      <!-- การ์ดฝั่งซ้าย: เมนูส่วนตัว -->
       <div class="profile-card">
         <a href="edit_profile.html" class="menu-item">
           <div class="menu-label">
@@ -134,7 +133,6 @@
 </clipPath>
 </defs>
 </svg>
-
             </span>
             <span>แก้ไขโปรไฟล์</span>
           </div>
@@ -147,7 +145,6 @@
               <svg width="25" height="25" viewBox="0 0 43 43" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M34.9375 13.7734H15.7891V9.40625C15.7891 7.89162 16.3907 6.43902 17.4618 5.36801C18.5328 4.297 19.9854 3.69531 21.5 3.69531C24.2379 3.69531 26.707 5.65887 27.2311 8.26238C27.2878 8.52069 27.4437 8.74639 27.6652 8.89078C27.8868 9.03517 28.1562 9.0867 28.4154 9.03424C28.6746 8.98178 28.9028 8.82955 29.0508 8.61037C29.1987 8.39119 29.2546 8.12263 29.2064 7.86262C28.4791 4.27984 25.239 1.67969 21.5 1.67969C19.4516 1.68235 17.4879 2.49726 16.0394 3.94569C14.591 5.39412 13.7761 7.35786 13.7734 9.40625V13.7734H8.0625C7.43883 13.7734 6.8407 14.0212 6.39969 14.4622C5.95869 14.9032 5.71094 15.5013 5.71094 16.125V34.9375C5.71094 35.5612 5.95869 36.1593 6.39969 36.6003C6.8407 37.0413 7.43883 37.2891 8.0625 37.2891H34.9375C35.5612 37.2891 36.1593 37.0413 36.6003 36.6003C37.0413 36.1593 37.2891 35.5612 37.2891 34.9375V16.125C37.2891 15.5013 37.0413 14.9032 36.6003 14.4622C36.1593 14.0212 35.5612 13.7734 34.9375 13.7734ZM35.2734 34.9375C35.2734 35.0266 35.238 35.112 35.175 35.175C35.112 35.238 35.0266 35.2734 34.9375 35.2734H8.0625C7.9734 35.2734 7.88796 35.238 7.82496 35.175C7.76196 35.112 7.72656 35.0266 7.72656 34.9375V16.125C7.72656 16.0359 7.76196 15.9505 7.82496 15.8875C7.88796 15.8245 7.9734 15.7891 8.0625 15.7891H34.9375C35.0266 15.7891 35.112 15.8245 35.175 15.8875C35.238 15.9505 35.2734 16.0359 35.2734 16.125V34.9375ZM21.5 19.1484C20.4306 19.1499 19.3989 19.5436 18.6005 20.255C17.8021 20.9664 17.2924 21.9461 17.1682 23.0082C17.0439 24.0703 17.3137 25.1412 17.9264 26.0176C18.539 26.8941 19.452 27.5154 20.4922 27.7636V30.9062C20.4922 31.1735 20.5984 31.4299 20.7874 31.6189C20.9764 31.8079 21.2327 31.9141 21.5 31.9141C21.7673 31.9141 22.0236 31.8079 22.2126 31.6189C22.4016 31.4299 22.5078 31.1735 22.5078 30.9062V27.7636C23.548 27.5154 24.461 26.8941 25.0736 26.0176C25.6863 25.1412 25.9561 24.0703 25.8318 23.0082C25.7076 21.9461 25.1979 20.9664 24.3995 20.255C23.6011 19.5436 22.5694 19.1499 21.5 19.1484ZM21.5 25.8672C21.0349 25.8672 20.5803 25.7293 20.1935 25.4709C19.8068 25.2125 19.5054 24.8452 19.3274 24.4155C19.1495 23.9858 19.1029 23.513 19.1936 23.0569C19.2844 22.6007 19.5083 22.1817 19.8372 21.8528C20.1661 21.5239 20.5851 21.3 21.0412 21.2092C21.4974 21.1185 21.9702 21.1651 22.3999 21.3431C22.8296 21.521 23.1969 21.8225 23.4553 22.2092C23.7136 22.5959 23.8516 23.0505 23.8516 23.5156C23.8516 24.1393 23.6038 24.7374 23.1628 25.1784C22.7218 25.6194 22.1237 25.8672 21.5 25.8672Z" fill="black"/>
 </svg>
-
             </span>
             <span>เปลี่ยนรหัสผ่าน</span>
           </div>
@@ -164,7 +161,6 @@
               <svg width="25" height="25" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M24.3664 32.0333C24.7331 31.6653 24.9165 31.2098 24.9165 30.6667V24.9167C24.9165 24.3737 24.7325 23.9188 24.3645 23.552C23.9965 23.1853 23.5416 23.0013 22.9998 23C22.4581 22.9988 22.0032 23.1828 21.6352 23.552C21.2672 23.9213 21.0832 24.3762 21.0832 24.9167V30.6667C21.0832 31.2098 21.2672 31.6653 21.6352 32.0333C22.0032 32.4013 22.4581 32.5847 22.9998 32.5834C23.5416 32.5821 23.9971 32.4 24.3664 32.0333ZM24.3664 18.6147C24.7331 18.248 24.9165 17.7931 24.9165 17.25C24.9165 16.707 24.7325 16.2521 24.3645 15.8854C23.9965 15.5187 23.5416 15.3347 22.9998 15.3334C22.4581 15.3321 22.0032 15.5161 21.6352 15.8854C21.2672 16.2547 21.0832 16.7095 21.0832 17.25C21.0832 17.7905 21.2672 18.2461 21.6352 18.6166C22.0032 18.9872 22.4581 19.1705 22.9998 19.1667C23.5416 19.1629 23.9971 18.9789 24.3664 18.6147ZM11.4998 40.25C10.4457 40.25 9.54356 39.875 8.7935 39.125C8.04345 38.3749 7.66778 37.4722 7.6665 36.4167V19.1667C7.6665 18.5598 7.80259 17.9848 8.07475 17.4417C8.34692 16.8987 8.72195 16.4514 9.19984 16.1L20.6998 7.47504C21.3707 6.96393 22.1373 6.70837 22.9998 6.70837C23.8623 6.70837 24.629 6.96393 25.2998 7.47504L36.7998 16.1C37.279 16.4514 37.6547 16.8987 37.9268 17.4417C38.199 17.9848 38.3344 18.5598 38.3332 19.1667V36.4167C38.3332 37.4709 37.9575 38.3736 37.2062 39.125C36.4548 39.8763 35.5527 40.2513 34.4998 40.25H11.4998Z" fill="black"/>
 </svg>
-
             </span>
             <span>FAQ</span>
           </div>
@@ -183,7 +179,6 @@
 <path d="M12.1459 26.522C12.1238 25.4841 12.2342 24.4241 12.4771 23.4304C12.4771 23.4304 7.50837 19.6099 7.55254 19.5658L10.9975 13.6033C11.0417 13.5591 16.8055 15.922 16.8055 15.922C17.5563 15.2374 18.4175 14.6191 19.345 14.0891" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="black"/>
 <path d="M19.3008 14.0892C20.1841 13.5592 21.1558 13.1175 22.1495 12.8304C22.1495 12.8304 22.9666 6.625 23.0329 6.625H29.9229C29.9891 6.64708 30.8283 12.8083 30.8283 12.8083C31.7999 13.1175 32.7716 13.5592 33.6991 14.0892" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="black"/>
 </svg>
-
             </span>
             <span>แจ้งปัญหา</span>
           </div>
@@ -194,8 +189,8 @@
     </div>
   
 
-    <!-- 4. ปุ่มออกจากระบบ (สีแดงตามแบบ) -->
-    <a href="/logout" class="logout-btn">
+    <!-- 4. ปุ่มออกจากระบบ (เพิ่ม onclick) -->
+    <a href="/logout" class="logout-btn" onclick="confirmLogout(event)">
       <svg class="logout-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
@@ -205,61 +200,77 @@
     </a>
 
   </main>
-  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
-<script>
-  function checkGlobalBookingTimer() {
-    const expiresAt = localStorage.getItem('booking_expires_at');
-    if (!expiresAt) return;
 
-    if (Date.now() >= parseInt(expiresAt)) {
-      localStorage.removeItem('booking_expires_at');
+  <script>
+    // ฟังก์ชัน Popup ยืนยันก่อนออกจากระบบ
+    function confirmLogout(event) {
+      event.preventDefault();
+
       Swal.fire({
-        icon: 'warning',
-        title: 'หมดเวลาการจอง!',
-        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง / ไปหน้าจอง',
-        confirmButtonColor: '#00036C',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then(() => {
-        window.location.href = 'booking.html';
+        title: 'ออกจากระบบ?',
+        text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/logout';
+        }
       });
     }
-  }
-  setInterval(checkGlobalBookingTimer, 1000);
-  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
-</script>
-<script>
-  // บังคับโหลดหน้าใหม่ทันทีหากพบว่าเป็นการกดย้อนกลับ (Back/Forward Navigation)
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-      window.location.reload();
+  </script>
+
+  <script>
+    function checkGlobalBookingTimer() {
+      const expiresAt = localStorage.getItem('booking_expires_at');
+      if (!expiresAt) return;
+
+      if (Date.now() >= parseInt(expiresAt)) {
+        localStorage.removeItem('booking_expires_at');
+        Swal.fire({
+          icon: 'warning',
+          title: 'หมดเวลาการจอง!',
+          text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง / ไปหน้าจอง',
+          confirmButtonColor: '#00036C',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        }).then(() => {
+          window.location.href = 'booking.html';
+        });
+      }
     }
-  });
-</script>
-<!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    setInterval(checkGlobalBookingTimer, 1000);
+    document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+  </script>
+
+  <script>
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+      }
+    });
+  </script>
+
   <script>
     (function () {
-      let activeCheckInterval = null;
-
-      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
           if (!res.ok) return;
           const data = await res.json();
 
-          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
           if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
             localStorage.removeItem('booking_expires_at');
           }
 
-          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
           if (data.has_active && data.status === 'just_completed') {
             const notifiedKey = 'notified_completed_' + data.booking_id;
 
-            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
             if (!sessionStorage.getItem(notifiedKey)) {
               sessionStorage.setItem(notifiedKey, 'true');
               localStorage.removeItem('booking_expires_at');
@@ -283,7 +294,6 @@
         }
       }
 
-      // 2. ตรวจสอบหมดเวลาจองค้าง
       function checkBookingTimer() {
         const expiresAt = localStorage.getItem('booking_expires_at');
         if (!expiresAt) return;
@@ -304,7 +314,6 @@
         }
       }
 
-      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
       checkActiveStatus();
       checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
