@@ -115,6 +115,35 @@
       </div>
     </section>
 
+    <!-- 🟢 1.5 ส่วนแสดงสถานะและการผูกบัญชี LINE Official Account -->
+    <section class="line-status-card" style="background:#fff; border-radius:16px; padding:20px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.05); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="background:#06C755; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg width="28" height="28" viewBox="0 0 39 39" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M29.6225 0H8.6275C3.8675 0 0 3.8675 0 8.6275V29.6225C0 34.3825 3.8675 38.25 8.6275 38.25H29.6225C34.3825 38.25 38.25 34.3825 38.25 29.6225V8.6275C38.25 3.8675 34.3825 0 29.6225 0ZM29.1337 23.6937C26.4562 26.775 20.485 30.515 19.1038 31.0887C17.7437 31.6625 17.935 30.7275 17.9988 30.4087C18.0413 30.2175 18.19 29.325 18.19 29.325C18.2325 29.0062 18.275 28.4963 18.1475 28.1775C17.9988 27.8162 17.4463 27.6462 17.0212 27.54C10.9012 26.7325 6.35375 22.44 6.35375 17.34C6.35375 11.6237 12.07 6.99125 19.1038 6.99125C26.1375 6.99125 31.8538 11.6237 31.8538 17.34C31.8538 19.6138 30.9613 21.675 29.1125 23.715L29.1337 23.6937Z" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <h3 style="margin:0 0 4px 0; font-size:1.1rem; color:#00036C; font-weight:600;">แจ้งเตือนผ่าน LINE OA</h3>
+          {% if user.line_user_id %}
+            <span style="display:inline-block; padding:4px 12px; background:#e6f9ed; color:#06C755; border-radius:20px; font-size:0.85rem; font-weight:600;">
+              ✅ ผูกบัญชี LINE เรียบร้อยแล้ว
+            </span>
+          {% else %}
+            <span style="display:inline-block; padding:4px 12px; background:#fff1f0; color:#ff4d4f; border-radius:20px; font-size:0.85rem; font-weight:600;">
+              ❌ ยังไม่ได้ผูกบัญชี LINE
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <button type="button" onclick="requestLineOTP()" style="background:#06C755; color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:600; font-family:inherit; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.95rem;">
+          <span>{% if user.line_user_id %}ขอรหัส OTP ใหม่{% else %}ขอรหัส OTP ผูกบัญชี LINE{% endif %}</span>
+        </button>
+      </div>
+    </section>
+
     <!-- 2. ตารางเมนูการใช้งาน -->
     <div class="profile-grid">
       
@@ -200,6 +229,48 @@
     </a>
 
   </main>
+
+  <!-- 🟢 JavaScript สำหรับขอรหัส OTP ผูกบัญชี LINE OA -->
+  <script>
+    async function requestLineOTP() {
+      try {
+        Swal.fire({
+          title: 'กำลังสร้างรหัส OTP...',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        const res = await fetch('/api/user/generate-line-otp', { method: 'POST' });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          Swal.fire({
+            icon: 'info',
+            title: 'รหัส OTP สำหรับผูกบัญชี LINE',
+            html: `
+              <div style="font-size: 2.2rem; font-weight: bold; letter-spacing: 6px; color: #06C755; margin: 15px 0; background: #f4f6f8; padding: 12px; border-radius: 10px;">
+                ${data.otp_code}
+              </div>
+              <p style="color: #666; font-size: 0.95rem; margin-bottom: 15px;">
+                นำรหัส 6 หลักนี้ไปพิมพ์ส่งในแชท <b>LINE Official Account</b> ของเราเพื่อเปิดใช้งานการแจ้งเตือน<br>
+                <small style="color: #ff4d4f;">(รหัสหมดอายุภายใน 5 นาที)</small>
+              </p>
+              <a href="https://lin.ee/tUkZrjm" target="_blank" style="display: inline-block; background: #06C755; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                💬 เปิดแชท LINE OA
+              </a>
+            `,
+            showConfirmButton: true,
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#00036C'
+          });
+        } else {
+          Swal.fire('เกิดข้อผิดพลาด', data.error || 'ไม่สามารถสร้างรหัส OTP ได้', 'error');
+        }
+      } catch (err) {
+        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+      }
+    }
+  </script>
 
   <script>
     // ฟังก์ชัน Popup ยืนยันก่อนออกจากระบบ

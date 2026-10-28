@@ -27,9 +27,24 @@
     .details-list { background: #F8FAFC; border-radius: 12px; padding: 16px; text-align: left; font-size: 0.9rem; margin-bottom: 20px; }
     .detail-item { display: flex; justify-content: space-between; padding: 6px 0; color: #475569; }
     .detail-item strong { color: #0F172A; }
-    .btn-demo { width: 100%; padding: 14px; background-color: #10B981; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.2s; margin-bottom: 10px; }
+    
+    /* ส่วนกล่องอัปโหลดสลิป */
+    .upload-box { background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center; transition: all 0.2s; }
+    .upload-box:hover { border-color: #00036C; background: #F1F5F9; }
+    .upload-label { display: block; font-size: 0.9rem; font-weight: 600; color: #334155; margin-bottom: 8px; }
+    .file-input { display: none; }
+    .btn-select-file { background: #E2E8F0; color: #1E293B; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; border: none; }
+    .btn-select-file:hover { background: #CBD5E1; }
+    .file-name { font-size: 0.8rem; color: #64748B; margin-top: 6px; word-break: break-all; }
+    .preview-img { max-width: 140px; max-height: 180px; object-fit: contain; border-radius: 8px; margin: 10px auto 0; display: none; border: 1px solid #CBD5E1; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    .btn-upload-slip { width: 100%; padding: 14px; background-color: #00036C; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 3, 108, 0.25); transition: all 0.2s; margin-bottom: 10px; }
+    .btn-upload-slip:hover { background-color: #00024A; transform: translateY(-1px); }
+
+    .btn-demo { width: 100%; padding: 12px; background-color: #10B981; color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.2s; margin-bottom: 10px; }
     .btn-demo:hover { background-color: #059669; transform: translateY(-1px); }
     .btn-cancel { width: 100%; padding: 12px; background: transparent; color: #64748B; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { background: #F1F5F9; }
   </style>
 </head>
 <body>
@@ -60,6 +75,21 @@
         <div class="detail-item"><span>รหัสอ้างอิง:</span><strong id="txText">-</strong></div>
       </div>
 
+      <!-- 📌 ส่วนอัปโหลดรูปภาพสลิป -->
+      <div class="upload-box">
+        <span class="upload-label">📷 แนบรูปภาพสลิปโอนเงิน (เช็กสลิปอัตโนมัติ)</span>
+        <label for="slipInput" class="btn-select-file">
+          📁 เลือกรูปสลิป
+        </label>
+        <input type="file" id="slipInput" class="file-input" accept="image/*" onchange="previewSlip(event)">
+        <div id="fileNameDisplay" class="file-name">ยังไม่ได้เลือกไฟล์</div>
+        <img id="slipPreview" class="preview-img" alt="สลิปโอนเงิน">
+      </div>
+
+      <!-- ปุ่มส่งสลิปตรวจสอบ -->
+      <button class="btn-upload-slip" onclick="uploadSlip()">🚀 ส่งสลิปตรวจสอบ & เริ่มทำงาน</button>
+      
+      <!-- ปุ่มทดสอบระบบเดิม -->
       <button class="btn-demo" onclick="simulateSuccess()">⚡ จำลองการชำระเงินสำเร็จ (Demo)</button>
       <button class="btn-cancel" onclick="cancelPayment()">ยกเลิกรายการ</button>
     </div>
@@ -100,6 +130,77 @@
       } catch (err) { console.error(err); }
     }
 
+    // ฟังก์ชันพรีวิวรูปสลิปเมื่อเลือกไฟล์
+    function previewSlip(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById('slipPreview');
+      const filenameDisplay = document.getElementById('fileNameDisplay');
+      
+      if (file) {
+        filenameDisplay.innerText = file.name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        filenameDisplay.innerText = 'ยังไม่ได้เลือกไฟล์';
+        preview.style.display = 'none';
+      }
+    }
+
+    // ฟังก์ชันยิงรูปสลิปไปตรวจสอบที่ Backend (SlipOK API)
+    async function uploadSlip() {
+      const fileInput = document.getElementById('slipInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกรูปภาพสลิปโอนเงินก่อนครับ', 'warning');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('slip_image', file);
+
+      Swal.fire({
+        title: 'กำลังตรวจสอบสลิป...',
+        text: 'กรุณารอสักครู่ ระบบกำลังเช็กยอดเงินกับ SlipOK',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      try {
+        const res = await fetch('/api/payment/upload-slip', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+          localStorage.removeItem('booking_expires_at');
+
+          Swal.fire({
+            icon: 'success',
+            title: 'ตรวจสอบสลิปสำเร็จ!',
+            text: data.message || 'ตู้ซักผ้าเริ่มทำงานแล้ว',
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = 'history1.html';
+          });
+        } else {
+          Swal.fire('ตรวจสอบสลิปไม่ผ่าน', data.error || 'สลิปไม่ถูกต้อง หรือถูกใช้งานไปแล้ว', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+      }
+    }
+
     function startPolling() {
       pollInterval = setInterval(async () => {
         if (!currentPaymentId) return;
@@ -110,7 +211,6 @@
             clearInterval(pollInterval);
             clearInterval(timerInterval);
             
-            // 📌 ลบเวลาจองทิ้งทันทีเมื่อจ่ายสำเร็จ
             localStorage.removeItem('booking_expires_at');
 
             Swal.fire({
@@ -163,29 +263,25 @@
 
     window.onload = initPayment;
   </script>
-  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะการซัก -->
   <script>
     (function () {
       let activeCheckInterval = null;
 
-      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
           if (!res.ok) return;
           const data = await res.json();
 
-          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
           if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
             localStorage.removeItem('booking_expires_at');
           }
 
-          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
           if (data.has_active && data.status === 'just_completed') {
             const notifiedKey = 'notified_completed_' + data.booking_id;
 
-            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
             if (!sessionStorage.getItem(notifiedKey)) {
               sessionStorage.setItem(notifiedKey, 'true');
               localStorage.removeItem('booking_expires_at');
@@ -209,7 +305,6 @@
         }
       }
 
-      // 2. ตรวจสอบหมดเวลาจองค้าง
       function checkBookingTimer() {
         const expiresAt = localStorage.getItem('booking_expires_at');
         if (!expiresAt) return;
@@ -230,7 +325,6 @@
         }
       }
 
-      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
       checkActiveStatus();
       checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
