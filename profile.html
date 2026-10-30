@@ -273,27 +273,31 @@
   </script>
 
   <script>
-    // ฟังก์ชัน Popup ยืนยันก่อนออกจากระบบ
-    function confirmLogout(event) {
-      event.preventDefault();
+  // ฟังก์ชัน Popup ยืนยันก่อนออกจากระบบ
+  function confirmLogout(event) {
+    event.preventDefault();
 
-      Swal.fire({
-        title: 'ออกจากระบบ?',
-        text: 'คุณต้องการออกจากระบบใช่หรือไม่',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'ใช่, ออกจากระบบ',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = '/logout';
-        }
-      });
-    }
-  </script>
+    Swal.fire({
+      title: 'ออกจากระบบ?',
+      text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'ใช่, ออกจากระบบ',
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 🧹 ล้างข้อมูลการจองและค่าค้างในเบราว์เซอร์ทิ้งทั้งหมดทันทีก่อนเปลี่ยนหน้า
+        localStorage.clear();
+        sessionStorage.clear();
+
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
 
   <script>
     function checkGlobalBookingTimer() {

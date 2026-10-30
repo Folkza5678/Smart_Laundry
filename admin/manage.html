@@ -33,7 +33,7 @@
 
       <nav class="sidebar-menu">
         <a href="admin_dashboard.html" class="menu-item">
-          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="14" height="7" rx="1"/></svg>
           <span class="menu-label">Dashboard</span>
         </a>
 
@@ -129,7 +129,17 @@
           {% endif %}
           </div>
           <div class="machine-details">
-            <span class="detail-text">{% if m.state == 'busy' %}เหลือเวลา : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'reserved' %}เหลือเวลาจอง : {{ '%.2f'|format(m.left) }} นาที{% elif m.state == 'offline' %}ปิดการใช้งาน (ชำรุด){% else %}ขนาด : {{ m.capacity_kg }} kg{% endif %}</span>
+            <span class="detail-text">
+              {% if m.state == 'busy' %}
+                เหลือเวลา : <strong class="timer-countdown" data-seconds="{{ m.left_seconds }}">--:--</strong> นาที
+              {% elif m.state == 'reserved' %}
+                เหลือเวลาจอง : <strong class="timer-countdown" data-seconds="{{ m.left_seconds }}">--:--</strong> นาที
+              {% elif m.state == 'offline' %}
+                ปิดการใช้งาน (ชำรุด)
+              {% else %}
+                ขนาด : {{ m.capacity_kg }} kg
+              {% endif %}
+            </span>
           </div>
 
           <div style="display: flex; gap: 8px; margin-top: 12px;">
@@ -161,6 +171,35 @@
       if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
       return d;
     }
+
+    // ⏱️ สคริปต์นับถอยหลัง Real-time หน้า Manage (นาที:วินาที)
+    function startRealtimeTimers() {
+      document.querySelectorAll('.timer-countdown').forEach(el => {
+        let sec = parseInt(el.getAttribute('data-seconds') || '0', 10);
+        function updateText() {
+          if (sec <= 0) {
+            el.textContent = "0:00";
+            return;
+          }
+          const m = Math.floor(sec / 60);
+          const s = sec % 60;
+          el.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+        updateText();
+        const interval = setInterval(() => {
+          sec--;
+          if (sec <= 0) {
+            sec = 0;
+            updateText();
+            clearInterval(interval);
+            setTimeout(() => location.reload(), 2000);
+          } else {
+            updateText();
+          }
+        }, 1000);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', startRealtimeTimers);
 
     // 1. ป๊อปอัปเพิ่มเครื่องใหม่
     async function addMachineModal() {
@@ -290,7 +329,7 @@
       }
     }
 
-    // 4. ⚙️ ตั้งค่าราคาและเวลาโปรแกรม (รูปแบบรวมหน้าเดียวตามเลเอาต์ Booking)
+    // 4. ⚙️ ตั้งค่าราคาและเวลาโปรแกรม
     async function editPrices() {
       const services = {{ services|tojson }};
       
@@ -395,24 +434,28 @@
 
   <script>
   // 1. Popup ยืนยันก่อนออกจากระบบ
-  function confirmAdminLogout(event) {
-    event.preventDefault();
-    Swal.fire({
-      title: 'ออกจากระบบแอดมิน?',
-      text: 'คุณต้องการออกจากระบบใช่หรือไม่',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'ใช่, ออกจากระบบ',
-      cancelButtonText: 'ยกเลิก',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.replace('/admin/logout');
-      }
-    });
-  }
+ function confirmAdminLogout(event) {
+  event.preventDefault();
+  Swal.fire({
+    title: 'ออกจากระบบแอดมิน?',
+    text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'ใช่, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 🧹 ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
+      localStorage.clear();
+      sessionStorage.clear();
+
+      window.location.replace('/admin/logout');
+    }
+  });
+}
 
   // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
   window.addEventListener('pageshow', function (event) {

@@ -249,23 +249,27 @@
 
     // 1. Popup ยืนยันก่อนออกจากระบบ
     function confirmAdminLogout(event) {
-      event.preventDefault();
-      Swal.fire({
-        title: 'ออกจากระบบแอดมิน?',
-        text: 'คุณต้องการออกจากระบบใช่หรือไม่',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'ใช่, ออกจากระบบ',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.replace('/admin/logout');
-        }
-      });
+  event.preventDefault();
+  Swal.fire({
+    title: 'ออกจากระบบแอดมิน?',
+    text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'ใช่, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 🧹 ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
+      localStorage.clear();
+      sessionStorage.clear();
+
+      window.location.replace('/admin/logout');
     }
+  });
+}
 
     // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
     window.addEventListener('pageshow', function (event) {

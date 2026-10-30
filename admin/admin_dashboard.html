@@ -27,6 +27,17 @@
       transform-origin: bottom;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    /* 🟡 สไตล์ป้ายและกล่องสถานะ "จอง" เปลี่ยนเป็นสีเหลืองอ่อนนุ่มนวล */
+    .badge-reserved-yellow {
+      background-color: #fef3c7 !important;
+      color: #92400e !important;
+      border: 1px solid #fde68a !important;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body class="admin-body">
@@ -120,10 +131,16 @@
           {% for m in machines %}
           <div class="status-box">
             <span class="machine-name">{{ m.name }} ({{ 'อบ' if m.kind == 'dry' else 'ซัก' }})</span>
-            {% if m.state == 'free' %}<span class="status-badge badge-available">ว่าง</span>
-            {% elif m.state == 'busy' %}<span class="status-badge badge-busy">กำลังใช้งาน (เหลือ {{ m.left|round|int }} นาที)</span>
-            {% elif m.state == 'reserved' %}<span class="status-badge badge-busy">จอง (เหลือ {{ m.left|round|int }} นาที)</span>
-            {% else %}<span class="status-badge badge-offline">งดให้บริการ</span>{% endif %}
+            {% if m.state == 'free' %}
+              <span class="status-badge badge-available">ว่าง</span>
+            {% elif m.state == 'busy' %}
+              <span class="status-badge badge-busy">กำลังใช้งาน (เหลือ <span class="dash-timer" data-seconds="{{ m.left_seconds }}">--:--</span>)</span>
+            {% elif m.state == 'reserved' %}
+              <!-- 🟡 ปรับสถานะ "จอง" เป็นสีเหลือง และนับถอยหลัง Real-time (M:SS) -->
+              <span class="status-badge badge-reserved-yellow">จอง (เหลือ <span class="dash-timer" data-seconds="{{ m.left_seconds }}">--:--</span>)</span>
+            {% else %}
+              <span class="status-badge badge-offline">งดให้บริการ</span>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -134,6 +151,35 @@
   </div>
 
 <script>
+  // ⏱️ สคริปต์นับถอยหลัง Real-time หน้า Dashboard (นาที:วินาที)
+  function startDashboardTimers() {
+    document.querySelectorAll('.dash-timer').forEach(el => {
+      let sec = parseInt(el.getAttribute('data-seconds') || '0', 10);
+      function updateText() {
+        if (sec <= 0) {
+          el.textContent = "0:00";
+          return;
+        }
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        el.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+      updateText();
+      const interval = setInterval(() => {
+        sec--;
+        if (sec <= 0) {
+          sec = 0;
+          updateText();
+          clearInterval(interval);
+          setTimeout(() => location.reload(), 2000);
+        } else {
+          updateText();
+        }
+      }, 1000);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", startDashboardTimers);
+
   // 📊 ฟังก์ชันคลิกแท่งกราฟ เพื่อเปิด Pop-up รายละเอียดประจำวัน
   function showDayDetails(dateStr, dayLabel) {
     Swal.fire({
@@ -223,24 +269,28 @@
   }
 
   // Popup ยืนยันก่อนออกจากระบบ
-  function confirmAdminLogout(event) {
-    event.preventDefault();
-    Swal.fire({
-      title: 'ออกจากระบบแอดมิน?',
-      text: 'คุณต้องการออกจากระบบใช่หรือไม่',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'ใช่, ออกจากระบบ',
-      cancelButtonText: 'ยกเลิก',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.replace('/admin/logout');
-      }
-    });
-  }
+ function confirmAdminLogout(event) {
+  event.preventDefault();
+  Swal.fire({
+    title: 'ออกจากระบบแอดมิน?',
+    text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'ใช่, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 🧹 ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
+      localStorage.clear();
+      sessionStorage.clear();
+
+      window.location.replace('/admin/logout');
+    }
+  });
+}
 
   // ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
   window.addEventListener('pageshow', function (event) {

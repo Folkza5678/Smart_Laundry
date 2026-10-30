@@ -182,5 +182,10 @@
   setInterval(checkGlobalBookingTimer, 1000);
   document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
 </script>
+<script>
+  // เมื่อเด้งมาหน้า Login ให้เคลียร์ค่าในเครื่องทิ้งทันที
+  localStorage.clear();
+  sessionStorage.clear();
+</script>
 </body>
 </html>
