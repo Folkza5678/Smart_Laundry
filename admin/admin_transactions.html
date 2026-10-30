@@ -186,6 +186,35 @@
     </main>
 
   </div>
+  <script>
+  // 1. Popup ยืนยันก่อนออกจากระบบ
+  function confirmAdminLogout(event) {
+    event.preventDefault();
+    Swal.fire({
+      title: 'ออกจากระบบแอดมิน?',
+      text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'ใช่, ออกจากระบบ',
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // ใช้ location.replace เพื่อลบประวัติหน้าเดิม ไม่ให้กด ย้อนกลับ (Back) ได้
+        window.location.replace('/admin/logout');
+      }
+    });
+  }
 
+  // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+      // โหลดหน้าใหม่ทันที หากดึงมาจาก Cache (จะส่งผลให้ติดเช็ก Session แล้วเด้งไปหน้า Login)
+      window.location.reload();
+    }
+  });
+</script>
 </body>
 </html>

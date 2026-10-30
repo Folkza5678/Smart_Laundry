@@ -27,7 +27,7 @@ DB_PATH = os.path.join(BASE, "smartlaundry.db")
 UPLOAD_DIR = os.path.join(BASE, "uploads")          # รูปโปรไฟล์ที่ผู้ใช้อัปโหลด
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# 🔑 [ระบุ Channel Access Token จาก LINE Developers ตรงนี้]
+# 🔑 [Channel Access Token จาก LINE Developers]
 LINE_CHANNEL_ACCESS_TOKEN = "qCNm9TRkOKh2BR9H8DxZC0x4UxFo+pAl47zSksC/Yq5Twc1aUF2fvbfdhsUAczT+Ly94W4m0xK4spIKl9oUgyHz9kyAjBwXB5wF6D2UZEmCO/L7sLmn8PG/k87ijCFVcAaktTxfGLAKKc8MCr0O9CwdB04t89/1O/w1cDnyilFU="
 
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
@@ -271,12 +271,14 @@ def refresh_states():
         db.execute("UPDATE payments SET status='failed' WHERE status='pending' AND expires_at<?", (t,))
         db.execute("UPDATE bookings SET status='completed' WHERE status='washing' AND end_time<=?", (t,))
 
+
+# 🛡️ ป้องกัน Browser Cache หน้าแอดมิน เพื่อไม่ให้กดย้อนกลับ (Back) มาดูหน้าล็อกอินค้างได้
 @app.after_request
 def prevent_caching(response):
-    if "text/html" in response.headers.get("Content-Type", ""):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    if request.path.startswith('/admin') or "text/html" in response.headers.get("Content-Type", ""):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
         response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
+        response.headers["Expires"] = "-1"
     return response
 
 
@@ -563,6 +565,17 @@ def logout():
     next_page = request.args.get("next", "/index.html")
     res = redirect(next_page)
     res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    return res
+
+
+# 🚪 ล็อกเอาต์ฝั่งแอดมิน (เคลียร์ Session + สั่งล้าง Cache)
+@app.route("/admin/logout")
+def admin_logout():
+    session.clear()
+    res = redirect("/login.html")
+    res.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    res.headers["Pragma"] = "no-cache"
+    res.headers["Expires"] = "0"
     return res
 
 
