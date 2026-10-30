@@ -53,14 +53,14 @@
         </a>
 
         <!-- ปุ่ม ออกจากระบบ (Logout) -->
-<a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-    <polyline points="16 17 21 12 16 7"></polyline>
-    <line x1="21" y1="12" x2="9" y2="12"></line>
-  </svg>
-  <span>ออกจากระบบ</span>
-</a>
+        <a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>ออกจากระบบ</span>
+        </a>
       </nav>
     </aside>
 
@@ -290,40 +290,109 @@
       }
     }
 
-    // 4. ตั้งค่าราคาโปรแกรม
+    // 4. ⚙️ ตั้งค่าราคาและเวลาโปรแกรม (รูปแบบรวมหน้าเดียวตามเลเอาต์ Booking)
     async function editPrices() {
       const services = {{ services|tojson }};
-      try {
-        for (const s of services) {
-          const { value: price } = await Swal.fire({
-            title: `ราคา "${s.name}"`,
-            input: 'number',
-            inputValue: s.price,
-            inputLabel: 'บาท',
-            showCancelButton: true
-          });
-          if (price === undefined) return;
+      
+      const programs = services.filter(s => s.type === 'program');
+      const addons = services.filter(s => s.type === 'addon');
 
-          const { value: minutes } = await Swal.fire({
-            title: `เวลา "${s.name}"`,
-            input: 'number',
-            inputValue: s.minutes,
-            inputLabel: 'นาที',
-            showCancelButton: true
-          });
-          if (minutes === undefined) return;
+      let html = `<div style="text-align: left; font-size: 14px; max-height: 420px; overflow-y: auto; padding-right: 5px;">`;
 
-          await apiRequest('/admin/api/services/' + s.key, 'POST', { price: price, minutes: minutes });
+      // ส่วนที่ 1: โปรแกรมการซัก
+      html += `<h4 style="margin: 0 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">🧺 เลือกโปรแกรมการซัก</h4>`;
+      programs.forEach(s => {
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <span style="font-weight: 600; color: #2d3748;">${s.name}</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input id="min-${s.key}" type="number" min="0" value="${s.minutes}" class="swal2-input" style="width: 70px; margin: 0; height: 38px; text-align: center; font-size: 13px; border-radius: 6px;" placeholder="เวลา">
+              <span style="font-size: 12px; color: #64748b; margin-right: 6px;">นาที</span>
+              <input id="price-${s.key}" type="number" min="0" value="${s.price}" class="swal2-input" style="width: 75px; margin: 0; height: 38px; text-align: center; font-size: 13px; border-radius: 6px;" placeholder="ราคา">
+              <span style="font-size: 12px; color: #64748b;">บาท</span>
+            </div>
+          </div>
+        `;
+      });
+
+      // ส่วนที่ 2: ตัวเลือกเพิ่มเติม
+      html += `<h4 style="margin: 18px 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">✨ ตัวเลือกเพิ่มเติม</h4>`;
+      addons.forEach(s => {
+        const showMinutes = s.key !== 'softener';
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <span style="font-weight: 600; color: #2d3748;">${s.name}</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              ${showMinutes ? `
+                <input id="min-${s.key}" type="number" min="0" value="${s.minutes}" class="swal2-input" style="width: 70px; margin: 0; height: 38px; text-align: center; font-size: 13px; border-radius: 6px;" placeholder="เวลา">
+                <span style="font-size: 12px; color: #64748b; margin-right: 6px;">นาที</span>
+              ` : `<input id="min-${s.key}" type="hidden" value="${s.minutes}">`}
+              <input id="price-${s.key}" type="number" min="0" value="${s.price}" class="swal2-input" style="width: 75px; margin: 0; height: 38px; text-align: center; font-size: 13px; border-radius: 6px;" placeholder="ราคา">
+              <span style="font-size: 12px; color: #64748b;">บาท</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+
+      const { value: isConfirmed } = await Swal.fire({
+        title: '⚙️ ตั้งค่าราคาและเวลาบริการ',
+        html: html,
+        width: '540px',
+        showCancelButton: true,
+        confirmButtonText: 'บันทึกทั้งหมด',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#00036C',
+        cancelButtonColor: '#6c757d',
+        focusConfirm: false,
+        preConfirm: () => {
+          const updates = [];
+          for (const s of services) {
+            const priceEl = document.getElementById(`price-${s.key}`);
+            const minEl = document.getElementById(`min-${s.key}`);
+            if (priceEl && minEl) {
+              const price = parseInt(priceEl.value);
+              const minutes = parseInt(minEl.value);
+              if (isNaN(price) || isNaN(minutes) || price < 0 || minutes < 0) {
+                Swal.showValidationMessage('กรุณากรอกราคาและเวลาให้ถูกต้อง (ตัวเลขไม่ติดลบ)');
+                return false;
+              }
+              updates.push({ key: s.key, price: price, minutes: minutes });
+            }
+          }
+          return updates;
         }
-        Swal.fire('สำเร็จ', 'บันทึกราคาและเวลาเรียบร้อยแล้ว', 'success');
-        setTimeout(() => location.reload(), 1200);
-      } catch (e) {
-        Swal.fire('ข้อผิดพลาด', e.message, 'error');
+      });
+
+      if (isConfirmed) {
+        Swal.fire({
+          title: 'กำลังบันทึกข้อมูล...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        try {
+          for (const u of isConfirmed) {
+            await apiRequest('/admin/api/services/' + u.key, 'POST', { price: u.price, minutes: u.minutes });
+          }
+          Swal.fire({
+            icon: 'success',
+            title: 'บันทึกสำเร็จ',
+            text: 'อัปเดตราคาและเวลาโปรแกรมเรียบร้อยแล้ว',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+          Swal.fire('ข้อผิดพลาด', e.message, 'error');
+        }
       }
     }
     </script>
 
   </div>
+
   <script>
   // 1. Popup ยืนยันก่อนออกจากระบบ
   function confirmAdminLogout(event) {
@@ -340,7 +409,6 @@
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
-        // ใช้ location.replace เพื่อลบประวัติหน้าเดิม ไม่ให้กด ย้อนกลับ (Back) ได้
         window.location.replace('/admin/logout');
       }
     });
@@ -349,25 +417,21 @@
   // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
   window.addEventListener('pageshow', function (event) {
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-      // โหลดหน้าใหม่ทันที หากดึงมาจาก Cache (จะส่งผลให้ติดเช็ก Session แล้วเด้งไปหน้า Login)
       window.location.reload();
     }
   });
 </script>
+
 <!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
     (function() {
-      // เช็กว่าปัจจุบันอยู่ในหน้าฝั่งแอดมินหรือฝั่งผู้ใช้
       const isAdminPage = window.location.pathname.includes('/admin');
-      
-      // ตั้งค่า URL ปลายทาง และข้อความปุ่ม
       const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
       const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
-      const btnBg = isAdminPage ? '#17a2b8' : '#00036C'; // สีฟ้าเมื่อเปิดดูผู้ใช้ / สีน้ำเงินเข้มเมื่อกดกลับแอดมิน
+      const btnBg = isAdminPage ? '#17a2b8' : '#00036C';
       
-      // ไอคอนลูกตาเปิด (ดูผู้ใช้) และ ไอคอนลูกตาปิด/สแลช (กลับแอดมิน)
       const eyeIcon = isAdminPage 
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
