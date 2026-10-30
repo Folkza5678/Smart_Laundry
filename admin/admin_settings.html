@@ -56,14 +56,14 @@
         </a>
 
         <!-- ปุ่ม ออกจากระบบ (Logout) -->
-<a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-    <polyline points="16 17 21 12 16 7"></polyline>
-    <line x1="21" y1="12" x2="9" y2="12"></line>
-  </svg>
-  <span>ออกจากระบบ</span>
-</a>
+        <a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>ออกจากระบบ</span>
+        </a>
       </nav>
     </aside>
 
@@ -76,10 +76,10 @@
         <h2 class="header-th">ตั้งค่าระบบและจัดการสมาชิก</h2>
       </div>
 
-      <!-- Top Settings Grid (2 Cards) -->
-      <div class="settings-grid">
+      <!-- Top Settings Grid (1 Card ขยายเต็มความกว้าง) -->
+      <div class="settings-grid" style="grid-template-columns: 1fr;">
         
-        <!-- Card 1: เวลาเปิด-ปิดร้าน -->
+        <!-- Card: เวลาเปิด-ปิดร้าน -->
         <div class="setting-card">
           <div class="card-title-group">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0095FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -101,33 +101,6 @@
           <div class="card-footer-action">
             <span class="status-label">สถานะร้านปัจจุบัน: <strong class="{{ 'text-green' if is_open else 'text-red' }}">{{ 'เปิดให้บริการ' if is_open else 'ปิดให้บริการ' }}</strong></span>
             <button class="btn-save" onclick="saveTimes()">บันทึกเวลา</button>
-          </div>
-        </div>
-
-        <!-- Card 2: LINE Notification -->
-        <div class="setting-card">
-          <div class="card-title-group">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27AD6A" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <h3>LINE Notification</h3>
-          </div>
-          <p class="card-subtext">แจ้งเตือนผู้ดูแลระบบเมื่อมีรายการจองใหม่หรือเครื่องขัดข้อง</p>
-
-          <div class="toggle-row">
-            <span>ส่งการแจ้งเตือนอัตโนมัติ</span>
-            <label class="switch">
-              <input type="checkbox" id="lineEnabled" {% if line_enabled %}checked{% endif %}>
-              <span class="slider round"></span>
-            </label>
-          </div>
-
-          <div class="token-input-group">
-            <label>LINE Channel Access Token</label>
-            <input type="password" id="lineToken" autocomplete="off" placeholder="{{ 'ตั้งค่าแล้ว (เว้นว่างเพื่อใช้ค่าเดิม)' if has_token else 'วาง Channel access token' }}" class="text-control">
-          </div>
-
-          <div class="card-footer-action">
-            <button class="btn-secondary" onclick="testLine()">ทดสอบส่งแจ้งเตือน</button>
-            <button class="btn-save" onclick="saveLine()">บันทึกการตั้งค่า</button>
           </div>
         </div>
 
@@ -162,18 +135,37 @@
             </thead>
             <tbody>
               {% for u in users %}
+              {% set name_display = ((u.firstname or '') ~ ' ' ~ (u.lastname or ''))|trim or u.username or u.email %}
               <tr>
                 <td>{{ offset + loop.index }}</td>
-                <td><strong>{{ ((u.firstname or '') ~ ' ' ~ (u.lastname or ''))|trim or u.username or '-' }}</strong></td>
+                <td><strong>{{ name_display }}</strong></td>
                 <td>{{ u.email or u.username }}</td>
                 <td>{{ u.uses }} ครั้ง</td>
-                <td>{% if u.status == 'banned' %}<span class="badge-status status-banned">ระงับ</span>
-                    {% elif u.status == 'warning' %}<span class="badge-status status-warning">ผิดปกติ / เฝ้าระวัง</span>
-                    {% else %}<span class="badge-status status-normal">ปกติ</span>{% endif %}</td>
-                <td class="action-cell">
-                  <button class="btn-action-sm btn-edit" onclick="setStatus({{ u.id }}, '{{ 'normal' if u.status == 'warning' else 'warning' }}')">{{ 'ยกเลิกเฝ้าระวัง' if u.status == 'warning' else 'เฝ้าระวัง' }}</button>
-                  {% if u.status == 'banned' %}<button class="btn-action-sm btn-ban active-ban" onclick="setStatus({{ u.id }}, 'normal')">ปลดระงับ</button>
-                  {% else %}<button class="btn-action-sm btn-ban" onclick="if(confirm('ระงับบัญชีนี้?')) setStatus({{ u.id }}, 'banned')">ระงับ</button>{% endif %}
+                <td>
+                  {% if u.status == 'banned' %}
+                    <span class="badge-status status-banned" style="background:#fee2e2; color:#dc2626; padding:4px 12px; border-radius:12px; font-weight:600; font-size:12px;">🔴 ถูกระงับ</span>
+                  {% else %}
+                    <span class="badge-status status-normal" style="background:#d1fae5; color:#059669; padding:4px 12px; border-radius:12px; font-weight:600; font-size:12px;">🟢 ปกติ</span>
+                  {% endif %}
+                </td>
+                <td class="action-cell" style="text-align: center;">
+                  {% if u.status == 'banned' %}
+                    <!-- ปุ่มปลดระงับ (สีเขียว นูนชัดเจน) -->
+                    <button type="button" class="btn-action-custom btn-unban-custom" 
+                            onclick="confirmToggleBan({{ u.id }}, '{{ name_display }}', true)"
+                            style="background-color: #28a745; color: #ffffff; border: none; padding: 7px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(40,167,69,0.3); transition: all 0.2s ease;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      <span>ปลดระงับ</span>
+                    </button>
+                  {% else %}
+                    <!-- ปุ่มระงับ (สีแดง นูนชัดเจน) -->
+                    <button type="button" class="btn-action-custom btn-ban-custom" 
+                            onclick="confirmToggleBan({{ u.id }}, '{{ name_display }}', false)"
+                            style="background-color: #dc3545; color: #ffffff; border: none; padding: 7px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(220,53,69,0.3); transition: all 0.2s ease;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                      <span>ระงับบัญชี</span>
+                    </button>
+                  {% endif %}
                 </td>
               </tr>
               {% else %}
@@ -199,6 +191,7 @@
 
     </main>
   </div>
+
   <script>
     async function post(url, body) {
       const r = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
@@ -206,58 +199,92 @@
       if (!r.ok) throw new Error(d.error || 'เกิดข้อผิดพลาด');
       return d;
     }
-    async function run(fn, okMsg) { try { await fn(); if (okMsg) alert(okMsg); location.reload(); } catch (e) { alert(e.message); } }
-    const saveTimes = () => run(() => post('/admin/api/settings', {
-      open_time: document.getElementById('openTime').value, close_time: document.getElementById('closeTime').value }), 'บันทึกเวลาแล้ว');
-    const saveLine = () => run(() => post('/admin/api/settings', {
-      line_enabled: document.getElementById('lineEnabled').checked, line_token: document.getElementById('lineToken').value }), 'บันทึกแล้ว');
-    async function testLine() { try { await post('/admin/api/line-test'); alert('ส่งข้อความทดสอบแล้ว'); } catch (e) { alert(e.message); } }
-    const setStatus = (id, status) => run(() => post('/admin/api/users/' + id + '/status', {status: status}));
-  </script>
-  <script>
-  // 1. Popup ยืนยันก่อนออกจากระบบ
-  function confirmAdminLogout(event) {
-    event.preventDefault();
-    Swal.fire({
-      title: 'ออกจากระบบแอดมิน?',
-      text: 'คุณต้องการออกจากระบบใช่หรือไม่',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'ใช่, ออกจากระบบ',
-      cancelButtonText: 'ยกเลิก',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // ใช้ location.replace เพื่อลบประวัติหน้าเดิม ไม่ให้กด ย้อนกลับ (Back) ได้
-        window.location.replace('/admin/logout');
+
+    const saveTimes = () => post('/admin/api/settings', {
+      open_time: document.getElementById('openTime').value, 
+      close_time: document.getElementById('closeTime').value 
+    }).then(() => {
+      Swal.fire({ icon: 'success', title: 'บันทึกเวลาเปิด-ปิดร้านสำเร็จ', timer: 1500, showConfirmButton: false });
+      setTimeout(() => location.reload(), 1500);
+    }).catch(e => Swal.fire('ข้อผิดพลาด', e.message, 'error'));
+
+    // 🔒 ฟังก์ชัน SweetAlert2 ป๊อบอัปสวยงาม สำหรับการระงับ/ปลดระงับบัญชีผู้ใช้
+    function confirmToggleBan(userId, username, isBanned) {
+      const actionText = isBanned ? 'ปลดระงับ' : 'ระงับ';
+      const titleText = isBanned ? `ปลดระงับบัญชีคุณ "${username}"?` : `ระงับบัญชีคุณ "${username}"?`;
+      const descText = isBanned 
+        ? 'ผู้ใช้รายนี้จะกลับมาสามารถเข้าสู่ระบบและใช้งานตู้ซักผ้าได้ตามปกติ' 
+        : 'ผู้ใช้รายนี้จะไม่สามารถเข้าสู่ระบบหรือทำการจองตู้ซักผ้าได้จนกว่าจะถูกปลดระงับ';
+      const confirmBtnColor = isBanned ? '#28a745' : '#dc3545';
+      const iconType = isBanned ? 'question' : 'warning';
+
+      Swal.fire({
+        title: titleText,
+        text: descText,
+        icon: iconType,
+        showCancelButton: true,
+        confirmButtonColor: confirmBtnColor,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: `ใช่, ${actionText}บัญชี`,
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'กำลังดำเนินการ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          
+          post(`/admin/api/users/${userId}/status`, { status: isBanned ? 'normal' : 'banned' })
+            .then(() => {
+              Swal.fire({
+                icon: 'success',
+                title: `${actionText}บัญชีเรียบร้อยแล้ว`,
+                timer: 1500,
+                showConfirmButton: false
+              });
+              setTimeout(() => location.reload(), 1500);
+            })
+            .catch(e => Swal.fire('เกิดข้อผิดพลาด', e.message, 'error'));
+        }
+      });
+    }
+
+    // 1. Popup ยืนยันก่อนออกจากระบบ
+    function confirmAdminLogout(event) {
+      event.preventDefault();
+      Swal.fire({
+        title: 'ออกจากระบบแอดมิน?',
+        text: 'คุณต้องการออกจากระบบใช่หรือไม่',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.replace('/admin/logout');
+        }
+      });
+    }
+
+    // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
       }
     });
-  }
+  </script>
 
-  // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-      // โหลดหน้าใหม่ทันที หากดึงมาจาก Cache (จะส่งผลให้ติดเช็ก Session แล้วเด้งไปหน้า Login)
-      window.location.reload();
-    }
-  });
-</script>
 <!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
     (function() {
-      // เช็กว่าปัจจุบันอยู่ในหน้าฝั่งแอดมินหรือฝั่งผู้ใช้
       const isAdminPage = window.location.pathname.includes('/admin');
-      
-      // ตั้งค่า URL ปลายทาง และข้อความปุ่ม
       const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
       const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
-      const btnBg = isAdminPage ? '#17a2b8' : '#00036C'; // สีฟ้าเมื่อเปิดดูผู้ใช้ / สีน้ำเงินเข้มเมื่อกดกลับแอดมิน
+      const btnBg = isAdminPage ? '#17a2b8' : '#00036C';
       
-      // ไอคอนลูกตาเปิด (ดูผู้ใช้) และ ไอคอนลูกตาปิด/สแลช (กลับแอดมิน)
       const eyeIcon = isAdminPage 
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
