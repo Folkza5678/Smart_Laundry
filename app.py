@@ -1398,6 +1398,31 @@ def admin_transactions():
                            first=(page - 1) * per + 1 if total else 0, last=min(page * per, total))
 
 
+# 🔍 API ดึงรายละเอียดรายการชำระเงินและข้อมูลการซักสำหรับ Admin Details Pop-up
+@app.get("/admin/api/transaction-details/<int:pid>")
+@admin_required
+def admin_transaction_details(pid):
+    db = get_db()
+    r = db.execute("""
+        SELECT p.*, 
+               b.program_name, b.dry, b.softener, b.minutes, b.price AS booking_price, 
+               b.status AS booking_status, b.start_time, b.end_time, b.created_at AS booking_created,
+               m.name AS machine_name, m.code AS machine_code, m.kind AS machine_kind, m.capacity_kg,
+               u.username, u.email, u.firstname, u.lastname, u.line_user_id
+        FROM payments p
+        JOIN bookings b ON b.id = p.booking_id
+        JOIN machines m ON m.id = b.machine_id
+        JOIN users u ON u.id = b.user_id
+        WHERE p.id = ?
+    """, (pid,)).fetchone()
+    
+    if not r:
+        return err("ไม่พบข้อมูลรายการนี้", 404)
+    
+    d = dict(r)
+    return jsonify(ok=True, data=d)
+
+
 @app.route("/admin/admin_settings.html")
 @admin_required
 def admin_settings():
