@@ -14,12 +14,26 @@
   <link rel="stylesheet" href="../template/dashboard.css">
   <meta http-equiv="refresh" content="30"><!-- รีเฟรชทุก 30 วินาที (Real-time) -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* เอฟเฟกต์ชี้แท่งกราฟ */
+    .bar {
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+    .bar:hover {
+      filter: brightness(1.25);
+      transform: scaleY(1.05);
+      transform-origin: bottom;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
 </head>
 <body class="admin-body">
 
   <div class="admin-layout">
     
-    <!-- Sidebar (คงดีไซน์เดิม 100%) -->
+    <!-- Sidebar -->
     <aside class="sidebar">
       <a href="../index.html" class="sidebar-brand">
         <div class="brand-divider"></div>
@@ -53,23 +67,22 @@
         </a>
 
         <!-- ปุ่ม ออกจากระบบ (Logout) -->
-<a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-    <polyline points="16 17 21 12 16 7"></polyline>
-    <line x1="21" y1="12" x2="9" y2="12"></line>
-  </svg>
-  <span>ออกจากระบบ</span>
-</a>
+        <a href="/admin/logout" class="nav-item logout-btn" onclick="confirmAdminLogout(event)" style="margin-top: auto; color: #dc3545; display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 12px 16px; font-weight: 600;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>ออกจากระบบ</span>
+        </a>
       </nav>
     </aside>
 
-    <!-- Main Content (ปรับใหม่ให้อ่านง่าย สบายตา) -->
+    <!-- Main Content -->
     <main class="dashboard-content">
       
       <!-- Top Sales Cards -->
       <div class="stats-grid">
-        
         <div class="content-card">
           <div class="card-title">ยอดขายรายวัน</div>
           <div class="card-value">฿ {{ '{:,}'.format(daily) }}</div>
@@ -81,18 +94,17 @@
           <div class="card-value">฿ {{ '{:,}'.format(monthly) }}</div>
           <div class="card-subtitle">ประจำเดือนนี้</div>
         </div>
-
       </div>
 
       <!-- Graph Section -->
       <section class="content-card chart-card">
-        <h2 class="section-title">กราฟสรุปการใช้งาน</h2>
+        <h2 class="section-title">กราฟสรุปการใช้งาน <span style="font-size: 13px; font-weight: normal; color: #666;">(คลิกที่แท่งเพื่อดูรายละเอียด)</span></h2>
         
         <div class="chart-wrapper">
           <div class="chart-bars">
             {% for b in bars %}
-            <div class="bar-col">
-              <div class="bar{% if b.active %} bar-active{% endif %}" style="height: {{ b.height }}%;" title="{{ b.count }} รายการ"></div>
+            <div class="bar-col" onclick="showDayDetails('{{ b.date }}', '{{ b.label }}')">
+              <div class="bar{% if b.active %} bar-active{% endif %}" style="height: {{ b.height }}%;" title="คลิกเพื่อดูรายละเอียดวัน {{ b.label }} ({{ b.count }} รายการ)"></div>
               <span class="bar-text">{{ b.label }}</span>
             </div>
             {% endfor %}
@@ -114,15 +126,103 @@
             {% else %}<span class="status-badge badge-offline">งดให้บริการ</span>{% endif %}
           </div>
           {% endfor %}
-
         </div>
       </section>
 
     </main>
 
   </div>
-  <script>
-  // 1. Popup ยืนยันก่อนออกจากระบบ
+
+<script>
+  // 📊 ฟังก์ชันคลิกแท่งกราฟ เพื่อเปิด Pop-up รายละเอียดประจำวัน
+  function showDayDetails(dateStr, dayLabel) {
+    Swal.fire({
+      title: `⏳ กำลังโหลดข้อมูล...`,
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    fetch(`/admin/api/daily-details/${dateStr}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) throw new Error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+
+        if (data.details.length === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: `📊 รายละเอียดประจำวัน${dayLabel} (${dateStr})`,
+            html: '<p style="font-size: 15px; color: #666; margin-top: 10px;">ยังไม่มีรายการชำระเงินในวันนี้</p>',
+            confirmButtonColor: '#00036C',
+            confirmButtonText: 'ตกลง'
+          });
+          return;
+        }
+
+        let rowsHtml = data.details.map(item => {
+          const timeStr = item.paid_at ? item.paid_at.split(' ')[1].substring(0, 5) : '-';
+          const userStr = item.username || item.email || 'ผู้ใช้งาน';
+          return `
+            <tr style="border-bottom: 1px solid #edf2f7;">
+              <td style="padding: 10px 8px; text-align: left; font-size: 13px; color: #4a5568;">${timeStr} น.</td>
+              <td style="padding: 10px 8px; text-align: left; font-size: 13px; font-weight: 600; color: #2d3748;">${userStr}</td>
+              <td style="padding: 10px 8px; text-align: left; font-size: 13px; color: #718096;">${item.machine_name} (${item.program_name})</td>
+              <td style="padding: 10px 8px; text-align: right; font-size: 13px; font-weight: bold; color: #2b6cb0;">฿${item.amount}</td>
+            </tr>
+          `;
+        }).join('');
+
+        const contentHtml = `
+          <div style="font-family: inherit; text-align: left; margin-top: 10px;">
+            <!-- สรุปยอดเงินและจำนวนรายการ -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+              <div style="flex: 1; background: #eef2ff; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #c7d2fe;">
+                <div style="font-size: 12px; color: #4338ca; font-weight: 500;">ยอดขายรวม</div>
+                <div style="font-size: 20px; font-weight: bold; color: #1e1b4b; margin-top: 2px;">฿${data.total_amount.toLocaleString()}</div>
+              </div>
+              <div style="flex: 1; background: #ecfdf5; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #a7f3d0;">
+                <div style="font-size: 12px; color: #047857; font-weight: 500;">จำนวนผู้ใช้บริการ</div>
+                <div style="font-size: 20px; font-weight: bold; color: #064e3b; margin-top: 2px;">${data.total_count} รายการ</div>
+              </div>
+            </div>
+
+            <!-- ตารางแสดงรายชื่อ -->
+            <div style="max-height: 260px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="background: #f7fafc; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0;">
+                    <th style="padding: 8px; text-align: left; font-size: 12px; color: #718096;">เวลา</th>
+                    <th style="padding: 8px; text-align: left; font-size: 12px; color: #718096;">ผู้ใช้งาน</th>
+                    <th style="padding: 8px; text-align: left; font-size: 12px; color: #718096;">เครื่อง/โปรแกรม</th>
+                    <th style="padding: 8px; text-align: right; font-size: 12px; color: #718096;">ยอดเงิน</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        Swal.fire({
+          title: `📊 ประจำวัน${dayLabel} (${dateStr})`,
+          html: contentHtml,
+          width: '580px',
+          confirmButtonColor: '#00036C',
+          confirmButtonText: 'ปิดหน้าต่าง'
+        });
+      })
+      .catch(err => {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถดึงข้อมูลรายละเอียดได้',
+          confirmButtonColor: '#00036C'
+        });
+      });
+  }
+
+  // Popup ยืนยันก่อนออกจากระบบ
   function confirmAdminLogout(event) {
     event.preventDefault();
     Swal.fire({
@@ -137,34 +237,29 @@
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
-        // ใช้ location.replace เพื่อลบประวัติหน้าเดิม ไม่ให้กด ย้อนกลับ (Back) ได้
         window.location.replace('/admin/logout');
       }
     });
   }
 
-  // 2. ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
+  // ป้องกันการกดปุ่ม ย้อนกลับ (Back) ของเบราว์เซอร์ หลัง Logout
   window.addEventListener('pageshow', function (event) {
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-      // โหลดหน้าใหม่ทันที หากดึงมาจาก Cache (จะส่งผลให้ติดเช็ก Session แล้วเด้งไปหน้า Login)
       window.location.reload();
     }
   });
 </script>
+
 <!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
     (function() {
-      // เช็กว่าปัจจุบันอยู่ในหน้าฝั่งแอดมินหรือฝั่งผู้ใช้
       const isAdminPage = window.location.pathname.includes('/admin');
-      
-      // ตั้งค่า URL ปลายทาง และข้อความปุ่ม
       const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
       const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
-      const btnBg = isAdminPage ? '#17a2b8' : '#00036C'; // สีฟ้าเมื่อเปิดดูผู้ใช้ / สีน้ำเงินเข้มเมื่อกดกลับแอดมิน
+      const btnBg = isAdminPage ? '#17a2b8' : '#00036C';
       
-      // ไอคอนลูกตาเปิด (ดูผู้ใช้) และ ไอคอนลูกตาปิด/สแลช (กลับแอดมิน)
       const eyeIcon = isAdminPage 
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;

@@ -1239,9 +1239,37 @@ def admin_dashboard():
     for i, label in enumerate(["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."]):
         d = monday + timedelta(days=i)
         c = counts.get(d.isoformat(), 0)
-        bars.append(dict(label=label, count=c, active=(d == today), height=max(4, round(100 * c / peak)) if peak else 4))
+        bars.append(dict(
+            label=label, 
+            count=c, 
+            active=(d == today), 
+            height=max(4, round(100 * c / peak)) if peak else 4,
+            date=d.isoformat()  # 👈 เพิ่มส่งค่า Date สำหรับคลิกดูรายละเอียด
+        ))
     return render_template("admin/admin_dashboard.html", daily=daily, monthly=monthly,
                            bars=bars, machines=machine_states())
+
+
+# 📊 API ดึงรายละเอียดการใช้งานประจำวันสำหรับแสดงบน Pop-up แดชบอร์ด
+@app.get("/admin/api/daily-details/<date_str>")
+@admin_required
+def admin_daily_details(date_str):
+    db = get_db()
+    rows = db.execute("""
+        SELECT p.tx_id, p.amount, p.paid_at, u.username, u.email, m.name AS machine_name, b.program_name
+        FROM payments p
+        JOIN bookings b ON b.id = p.booking_id
+        JOIN machines m ON m.id = b.machine_id
+        JOIN users u ON u.id = b.user_id
+        WHERE p.status = 'success' AND date(p.paid_at) = ?
+        ORDER BY p.paid_at DESC
+    """, (date_str,)).fetchall()
+    
+    total_amount = sum(r["amount"] for r in rows)
+    total_count = len(rows)
+    
+    details = [dict(r) for r in rows]
+    return jsonify(ok=True, date=date_str, total_amount=total_amount, total_count=total_count, details=details)
 
 
 @app.route("/admin/manage.html")
