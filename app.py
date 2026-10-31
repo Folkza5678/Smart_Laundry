@@ -893,18 +893,29 @@ def api_payment_start():
     code = normalize_code((request.get_json(silent=True) or {}).get("machine_code"))
     if code != b["machine_code"]:
         return err(f"รหัสตู้ไม่ตรงกับเครื่องที่จองไว้ ({b['machine_code']})")
+    
     p = db.execute("SELECT * FROM payments WHERE booking_id=? AND status='pending'", (b["id"],)).fetchone()
+    t = now()
+
     if not p:
-        t = now()
         exp = t + timedelta(minutes=PAY_MINUTES)
         with db:
             cur = db.execute("""INSERT INTO payments(booking_id,tx_id,amount,status,payload,created_at,expires_at)
                                 VALUES(?,?,?,'pending',?,?,?)""",
                              (b["id"], t.strftime("%y%m%d%H%M%S") + str(secrets.randbelow(900) + 100),
                               b["price"], promptpay_payload(PROMPTPAY_ID, b["price"]), ts(t), ts(exp)))
-            db.execute("UPDATE bookings SET reserve_expires=? WHERE id=? AND reserve_expires<?",
-                       (ts(exp + timedelta(seconds=30)), b["id"], ts(exp + timedelta(seconds=30))))
+            # 🔒 ต่อเวลาล็อคตู้ใน bookings ให้ครอบคลุมช่วงเวลาชำระเงิน PromptPay (+30 วินาทีเผื่อเวลาประมวลผล)
+            db.execute("UPDATE bookings SET reserve_expires=? WHERE id=?",
+                       (ts(exp + timedelta(seconds=30)), b["id"]))
         p = db.execute("SELECT * FROM payments WHERE id=?", (cur.lastrowid,)).fetchone()
+    else:
+        # หากมีรายการชำระเงินเดิมที่กำลัง pending อยู่ ให้ขยายเวลา reserve_expires ของ booking ให้ครอบคลุมเวลา QR Code เสมอ
+        exp_dt = parse_ts(p["expires_at"])
+        if exp_dt and exp_dt > t:
+            with db:
+                db.execute("UPDATE bookings SET reserve_expires=? WHERE id=?",
+                           (ts(exp_dt + timedelta(seconds=30)), b["id"]))
+
     return jsonify(payment_json(p, b))
 
 

@@ -41,8 +41,6 @@
     .btn-upload-slip { width: 100%; padding: 14px; background-color: #00036C; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 3, 108, 0.25); transition: all 0.2s; margin-bottom: 10px; }
     .btn-upload-slip:hover { background-color: #00024A; transform: translateY(-1px); }
 
-    .btn-demo { width: 100%; padding: 12px; background-color: #10B981; color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.2s; margin-bottom: 10px; }
-    .btn-demo:hover { background-color: #059669; transform: translateY(-1px); }
     .btn-cancel { width: 100%; padding: 12px; background: transparent; color: #64748B; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
     .btn-cancel:hover { background: #F1F5F9; }
   </style>
@@ -88,9 +86,6 @@
 
       <!-- ปุ่มส่งสลิปตรวจสอบ -->
       <button class="btn-upload-slip" onclick="uploadSlip()">🚀 ส่งสลิปตรวจสอบ & เริ่มทำงาน</button>
-      
-      <!-- ปุ่มทดสอบระบบเดิม -->
-      <button class="btn-demo" onclick="simulateSuccess()">⚡ จำลองการชำระเงินสำเร็จ (Demo)</button>
       <button class="btn-cancel" onclick="cancelPayment()">ยกเลิกรายการ</button>
     </div>
   </main>
@@ -99,6 +94,9 @@
     let currentPaymentId = null, pollInterval = null, timerInterval = null;
 
     async function initPayment() {
+      // 🧹 เคลียร์เวลาจองเดิมใน localStorage ทันทีเมื่อเข้าสู่ขั้นตอนชำระเงิน
+      localStorage.removeItem('booking_expires_at');
+
       const urlParams = new URLSearchParams(window.location.search);
       const machineCode = urlParams.get('code') || 'M-01';
 
@@ -227,16 +225,6 @@
       }, 2000);
     }
 
-    async function simulateSuccess() {
-      if (!currentPaymentId) return;
-      localStorage.removeItem('booking_expires_at');
-      const res = await fetch(`/api/payment/${currentPaymentId}/simulate-success`, { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) {
-        Swal.fire('ข้อผิดพลาด', data.error || 'ไม่สามารถจำลองรายการได้', 'error');
-      }
-    }
-
     function startCountdown(seconds) {
       let timeLeft = seconds;
       timerInterval = setInterval(() => {
@@ -244,7 +232,7 @@
           clearInterval(timerInterval);
           clearInterval(pollInterval);
           localStorage.removeItem('booking_expires_at');
-          Swal.fire('หมดเวลาชำระเงิน', 'คิวจองของคุณหมดอายุแล้ว', 'warning')
+          Swal.fire('หมดเวลาชำระเงิน', 'รายการชำระเงินของคุณหมดอายุแล้ว', 'warning')
             .then(() => window.location.href = 'history1.html');
           return;
         }
@@ -264,11 +252,9 @@
     window.onload = initPayment;
   </script>
 
-  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะการซัก -->
+  <!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะการซักเสร็จ (ปิดตัวเช็กหมดเวลาจองเพื่อไม่ให้รบกวนหน้าชำระเงิน) -->
   <script>
     (function () {
-      let activeCheckInterval = null;
-
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
@@ -305,30 +291,8 @@
         }
       }
 
-      function checkBookingTimer() {
-        const expiresAt = localStorage.getItem('booking_expires_at');
-        if (!expiresAt) return;
-
-        if (Date.now() >= parseInt(expiresAt)) {
-          localStorage.removeItem('booking_expires_at');
-          Swal.fire({
-            icon: 'warning',
-            title: 'หมดเวลาการจอง!',
-            text: 'รายการจองของคุณหมดเวลาชำระเงิน ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-            confirmButtonText: 'ตกลง / ไปหน้าจอง',
-            confirmButtonColor: '#00036C',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-          }).then(() => {
-            window.location.href = 'booking.html';
-          });
-        }
-      }
-
       checkActiveStatus();
-      checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
-      setInterval(checkBookingTimer, 1000);
     })();
   </script>
 </body>
