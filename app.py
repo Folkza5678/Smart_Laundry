@@ -33,7 +33,7 @@ LINE_CHANNEL_ACCESS_TOKEN = "qCNm9TRkOKh2BR9H8DxZC0x4UxFo+pAl47zSksC/Yq5Twc1aUF2
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
 LINE_OTPS = {}
 
-# 🔑 [ระบุรหัสจาก SlipOK ตรงนี้ครับ]
+# 🔑 [ระบุรหัสจาก SlipOK]
 SLIPOK_URL = os.getenv("SLIPOK_URL", "https://api.slipok.com/api/line/apikey/79673")
 SLIPOK_API_KEY = os.getenv("SLIPOK_API_KEY", "SLIPOKWLNGVRW")
 
@@ -127,7 +127,6 @@ def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
 
-    # อัปเดตตาราง users เพิ่มคอลัมน์ line_user_id กรณีใช้ DB เดิม
     try:
         db.execute("ALTER TABLE users ADD COLUMN line_user_id TEXT")
     except sqlite3.OperationalError:
@@ -272,7 +271,6 @@ def refresh_states():
         db.execute("UPDATE bookings SET status='completed' WHERE status='washing' AND end_time<=?", (t,))
 
 
-# 🛡️ ป้องกัน Browser Cache หน้าแอดมิน เพื่อไม่ให้กดย้อนกลับ (Back) มาดูหน้าล็อกอินค้างได้
 @app.after_request
 def prevent_caching(response):
     if request.path.startswith('/admin') or "text/html" in response.headers.get("Content-Type", ""):
@@ -358,10 +356,9 @@ def admin_required(f):
 
 
 # ============================================================
-#  ระบบยิงข้อความ LINE OA & WEBHOOK (OTP Account Linking)
+#  ระบบยิงข้อความ LINE OA & WEBHOOK
 # ============================================================
 def send_line_message(line_user_id, text_message):
-    """ส่งข้อความ Push Message เข้าแชท LINE OA หาผู้ใช้เป็นรายบุคคล"""
     if not line_user_id or not LINE_CHANNEL_ACCESS_TOKEN or LINE_CHANNEL_ACCESS_TOKEN.startswith("วาง_"):
         return
 
@@ -388,7 +385,6 @@ def send_line_message(line_user_id, text_message):
 @app.post("/api/user/generate-line-otp")
 @login_required
 def generate_line_otp():
-    """สร้างรหัส OTP 6 หลัก สำหรับนำไปพิมพ์ส่งในแชท LINE OA"""
     u = current_user()
     otp_code = str(secrets.randbelow(900000) + 100000)
     LINE_OTPS[otp_code] = {
@@ -400,7 +396,6 @@ def generate_line_otp():
 
 @app.post("/api/line/webhook")
 def line_webhook():
-    """Webhook URL รับข้อความจาก LINE OA เพื่อตรวจสอบ OTP และผูก line_user_id"""
     data = request.get_json(silent=True) or {}
     events = data.get("events", [])
 
@@ -439,16 +434,13 @@ def line_webhook():
 #  ระบบตรวจสลิปผ่าน SlipOK API
 # ============================================================
 def verify_slip_with_slipok(file_storage, expected_amount=None):
-    """ส่งรูปภาพสลิปไปให้ SlipOK ตรวจสอบสลิปจริง ยอดโอน และสลิปซ้ำ"""
     url = SLIPOK_URL
     headers = {
         "x-authorization": SLIPOK_API_KEY
     }
-    
     files = {
         'files': (file_storage.filename, file_storage.read(), file_storage.mimetype)
     }
-    
     try:
         response = requests.post(url, headers=headers, files=files, timeout=12)
         res_data = response.json()
@@ -478,7 +470,7 @@ def assets(folder, filename):
 
 
 # ============================================================
-#  หน้าเว็บทั่วไป
+#  หน้าเว็บทั่วไป & การยืนยันตัวตน
 # ============================================================
 @app.route("/")
 def home():
@@ -490,9 +482,6 @@ def static_page(page):
     return render_template(page + ".html")
 
 
-# ============================================================
-#  สมัครสมาชิก / ล็อกอิน / ล็อกเอาต์ / โปรไฟล์
-# ============================================================
 @app.route("/register.html", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -568,7 +557,6 @@ def logout():
     return res
 
 
-# 🚪 ล็อกเอาต์ฝั่งแอดมิน (เคลียร์ Session + สั่งล้าง Cache)
 @app.route("/admin/logout")
 def admin_logout():
     session.clear()
@@ -684,7 +672,7 @@ def report():
 
 
 # ============================================================
-#  การจองเครื่อง (Booking Page & API)
+#  ระบบการจองตู้ซักผ้า (Booking System & APIs)
 # ============================================================
 def services_dict():
     return {r["key"]: dict(r) for r in get_db().execute("SELECT * FROM services")}
@@ -696,6 +684,13 @@ def booking_page():
     return render_template("booking.html", machines=machine_states(), store_open=store_open(),
                            programs=[s for s in sv.values() if s["type"] == "program"],
                            dry=sv["dry"], softener=sv["softener"])
+
+
+@app.get("/api/machines/status")
+@app.get("/api/machines")
+def api_machines_status():
+    """✨ API สำหรับให้ Frontend ยิง Polling สถานะตู้ทั้งหมดเรียลไทม์"""
+    return jsonify(machines=machine_states(), store_open=store_open())
 
 
 @app.post("/api/bookings")
@@ -728,7 +723,6 @@ def api_create_booking():
         return err("เครื่องนี้ถูกใช้งาน/จองไปแล้ว กรุณาเลือกเครื่องอื่น", 409)
     notify_admin(f"🧺 มีการจอง {m['name']} ({price} บาท)")
 
-    # 🔔 สเต็ปที่ 1: ยิงแจ้งเตือนจองตู้สำเร็จเข้า LINE OA
     if u["line_user_id"]:
         msg = (
             f"🧺 [Smart Laundry] ยืนยันการจองตู้ซักผ้า\n"
@@ -909,7 +903,6 @@ def api_payment_start():
                        (ts(exp + timedelta(seconds=30)), b["id"]))
         p = db.execute("SELECT * FROM payments WHERE id=?", (cur.lastrowid,)).fetchone()
     else:
-        # หากมีรายการชำระเงินเดิมที่กำลัง pending อยู่ ให้ขยายเวลา reserve_expires ของ booking ให้ครอบคลุมเวลา QR Code เสมอ
         exp_dt = parse_ts(p["expires_at"])
         if exp_dt and exp_dt > t:
             with db:
@@ -919,7 +912,6 @@ def api_payment_start():
     return jsonify(payment_json(p, b))
 
 
-# 🛡️ API อัปโหลดรูปภาพสลิปเพื่อตรวจผ่าน SlipOK (พร้อมระบบป้องกันสลิปซ้ำ)
 @app.post("/api/payment/upload-slip")
 @login_required
 def api_upload_slip():
@@ -937,21 +929,17 @@ def api_upload_slip():
     if file.filename == '':
         return err("ไม่ได้เลือกไฟล์รูปสลิป")
 
-    # 1. ตรวจสอบสลิปกับ SlipOK
     is_valid, message, slip_data = verify_slip_with_slipok(file, expected_amount=b["price"])
     if not is_valid:
         return err(message, 400)
 
-    # 2. ดึงรหัสอ้างอิงธุรกรรม (transRef) จากสลิป
     trans_ref = (slip_data or {}).get("transRef")
 
-    # 3. 🛡️ เช็กสลิปซ้ำ: หากรหัส transRef นี้เคยถูกใช้ชำระเงินสำเร็จไปแล้ว ให้ปฏิเสธทันที
     if trans_ref:
         dup = db.execute("SELECT 1 FROM payments WHERE tx_id=? AND status='success'", (trans_ref,)).fetchone()
         if dup:
             return err("สลิปนี้เคยถูกใช้ชำระเงินในระบบไปแล้ว ไม่สามารถใช้สลิปซ้ำได้!", 400)
 
-    # 4. บันทึกและอัปเดตรายการชำระเงิน
     p = db.execute("SELECT * FROM payments WHERE booking_id=? AND status='pending'", (b["id"],)).fetchone()
     if not p:
         t = now()
@@ -974,7 +962,6 @@ def api_upload_slip():
             with db:
                 db.execute("UPDATE payments SET tx_id=? WHERE id=?", (trans_ref, pid))
 
-    # 5. ปรับสถานะชำระเงินสำเร็จและสั่งตู้ทำงาน
     if mark_payment_success(pid):
         return jsonify(ok=True, message="สลิปถูกต้อง! ตู้ซักผ้าเริ่มทำงานแล้ว")
     else:
@@ -1004,9 +991,6 @@ def api_payment_cancel():
     return jsonify(ok=True)
 
 
-# ============================================================
-#  อัปเดตเมื่อจ่ายเงินสำเร็จ + แจ้งเตือนผู้ใช้งาน
-# ============================================================
 def mark_payment_success(pid):
     db = get_db()
     p = db.execute("""SELECT p.*, b.minutes, b.machine_id, m.code AS machine_code, m.name AS machine_name, b.user_id
@@ -1027,7 +1011,6 @@ def mark_payment_success(pid):
     notify_admin(f"💰 ได้รับชำระเงิน {p['amount']} บาท (รหัส {p['tx_id']}) - ตู้ {p['machine_name']} เริ่มทำงาน")
     notify_user(p["user_id"], f"💳 การชำระเงินสำเร็จ! ตู้ {p['machine_name']} เริ่มทำงานแล้ว ({p['minutes']} นาที)")
 
-    # 🔔 สเต็ปที่ 2: ยิงแจ้งเตือนชำระเงินสำเร็จ / เริ่มซักเข้า LINE OA
     u = db.execute("SELECT line_user_id FROM users WHERE id=?", (p["user_id"],)).fetchone()
     if u and u["line_user_id"]:
         end_dt = parse_ts(ts(t + timedelta(minutes=p["minutes"])))
@@ -1053,9 +1036,6 @@ def api_payment_simulate(pid):
     return jsonify(ok=True)
 
 
-# ============================================================
-#  API ตรวจสถานะการซักสำหรับ Global Notification
-# ============================================================
 @app.get("/api/user/active-status")
 @login_required
 def api_user_active_status():
@@ -1161,7 +1141,6 @@ def esp32_complete():
         notify_admin(f"✅ ตู้ {m['name']} ({code}) ซักผ้าเสร็จสิ้นแล้วสำหรับคุณ {b['username']}")
         notify_user(b["user_id"], f"🧺 ผ้าของคุณที่ตู้ {m['name']} ({code}) ซักเสร็จเรียบร้อยแล้ว! กรุณามารับผ้าด้วยครับ")
 
-        # 🔔 สเต็ปที่ 3: ยิงแจ้งเตือนผ้าซักเสร็จเรียบร้อยเข้า LINE OA
         u = db.execute("SELECT line_user_id FROM users WHERE id=?", (b["user_id"],)).fetchone()
         if u and u["line_user_id"]:
             msg = (
@@ -1177,7 +1156,7 @@ def esp32_complete():
 
 
 # ============================================================
-#  ประวัติการใช้งาน
+#  ระบบประวัติการซักผ้า และประวัติการจอง (History & Booking API)
 # ============================================================
 @app.route("/history1.html")
 @app.route("/history.html")
@@ -1197,6 +1176,31 @@ def history():
     return render_template("history1.html",
                            washes=[i for i in items if i["status"] in ("washing", "completed")],
                            bookings=items)
+
+
+@app.get("/api/user/history")
+@login_required
+def api_user_history():
+    """✨ API สำหรับให้ Frontend ยิง Polling ประวัติการซักและรายการจองเรียลไทม์"""
+    u = current_user()
+    rows = get_db().execute("""SELECT b.*, m.name AS machine_name, m.code AS machine_code, m.capacity_kg 
+                               FROM bookings b 
+                               JOIN machines m ON m.id=b.machine_id 
+                               WHERE b.user_id=? 
+                               ORDER BY b.id DESC""", (u["id"],)).fetchall()
+    items = []
+    for r in rows:
+        d = dict(r)
+        end = r["reserve_expires"] if r["status"] == "reserved" else r["end_time"]
+        sec = max(0, int((parse_ts(end) - now()).total_seconds())) if r["status"] in ("reserved", "washing") and end else 0
+        d["left_seconds"] = sec
+        d["left"] = sec / 60.0
+        items.append(d)
+
+    return jsonify(
+        washes=[i for i in items if i["status"] in ("washing", "completed")],
+        bookings=items
+    )
 
 
 # ============================================================
@@ -1255,13 +1259,12 @@ def admin_dashboard():
             count=c, 
             active=(d == today), 
             height=max(4, round(100 * c / peak)) if peak else 4,
-            date=d.isoformat()  # 👈 เพิ่มส่งค่า Date สำหรับคลิกดูรายละเอียด
+            date=d.isoformat()
         ))
     return render_template("admin/admin_dashboard.html", daily=daily, monthly=monthly,
                            bars=bars, machines=machine_states())
 
 
-# 📊 API ดึงรายละเอียดการใช้งานประจำวันสำหรับแสดงบน Pop-up แดชบอร์ด
 @app.get("/admin/api/daily-details/<date_str>")
 @admin_required
 def admin_daily_details(date_str):
@@ -1278,7 +1281,6 @@ def admin_daily_details(date_str):
     
     total_amount = sum(r["amount"] for r in rows)
     total_count = len(rows)
-    
     details = [dict(r) for r in rows]
     return jsonify(ok=True, date=date_str, total_amount=total_amount, total_count=total_count, details=details)
 
@@ -1293,7 +1295,6 @@ def admin_manage():
                            services=list(services_dict().values()))
 
 
-# 1. API เพิ่มเครื่องซักผ้าใหม่
 @app.post("/admin/api/machines")
 @admin_required
 def admin_add_machine():
@@ -1321,7 +1322,6 @@ def admin_add_machine():
         return err("รหัสเครื่อง (Code) นี้มีในระบบแล้ว", 409)
 
 
-# 2. API แก้ไขข้อมูลเครื่อง
 @app.post("/admin/api/machines/<int:mid>")
 @admin_required
 def admin_update_machine(mid):
@@ -1346,7 +1346,6 @@ def admin_update_machine(mid):
         return err("รหัสเครื่อง (Code) ซ้ำกับเครื่องอื่นในระบบ", 409)
 
 
-# 3. API ลบเครื่องซักผ้า (แก้ปัญหา Foreign Key Constraint)
 @app.delete("/admin/api/machines/<int:mid>")
 @admin_required
 def admin_delete_machine(mid):
@@ -1409,7 +1408,6 @@ def admin_transactions():
                            first=(page - 1) * per + 1 if total else 0, last=min(page * per, total))
 
 
-# 🔍 API ดึงรายละเอียดรายการชำระเงินและข้อมูลการซักสำหรับ Admin Details Pop-up
 @app.get("/admin/api/transaction-details/<int:pid>")
 @admin_required
 def admin_transaction_details(pid):

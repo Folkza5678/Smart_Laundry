@@ -15,7 +15,6 @@
   <script src="global-notify.js"></script>
 
   <style>
-    /* บังคับให้ Pop-up ของ SweetAlert2 ขึ้นมาแสดงหน้าสุดเสมอ */
     .swal2-container {
       z-index: 99999 !important;
     }
@@ -88,7 +87,7 @@
 
     <div class="machine-grid">
       {% for m in machines %}
-      <div class="machine-card">
+      <div class="machine-card" data-machine-id="{{ m.id }}">
         <div class="card-header">
           <h2 class="machine-title">{{ m.name }}</h2>
           {% if m.state == 'free' %}<span class="badge badge-available">ว่าง</span>
@@ -104,15 +103,17 @@
           <svg width="80" height="100" viewBox="0 0 80 100" fill="none"><rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/><rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/><circle cx="15" cy="17.5" r="3" fill="black"/><circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/><path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/></svg>
         {% endif %}</div>
         
+        <p class="machine-info">
         {% if m.state == 'free' %}
-          <p class="machine-info">ขนาด : {{ m.capacity_kg }} kg</p>
+          ขนาด : {{ m.capacity_kg }} kg
         {% elif m.state == 'busy' %}
-          <p class="machine-info">เหลือเวลา : <span class="countdown-timer" data-seconds="{{ m.left_seconds }}">{{ m.left_seconds|format_mmss }} นาที</span></p>
+          เหลือเวลา : <span class="countdown-timer" data-seconds="{{ m.left_seconds }}">{{ m.left_seconds|format_mmss }} นาที</span>
         {% elif m.state == 'reserved' %}
-          <p class="machine-info">เหลือเวลาจอง : <span class="countdown-timer" data-seconds="{{ m.left_seconds }}">{{ m.left_seconds|format_mmss }} นาที</span></p>
+          เหลือเวลาจอง : <span class="countdown-timer" data-seconds="{{ m.left_seconds }}">{{ m.left_seconds|format_mmss }} นาที</span>
         {% else %}
-          <p class="machine-info">งดให้บริการ</p>
+          งดให้บริการ
         {% endif %}
+        </p>
 
         {% if m.state == 'free' and store_open %}
         <button class="btn btn-primary" onclick="openBookingModal({{ m.id }}, '{{ m.name }}')">จองและเลือกโปรแกรมการซัก</button>
@@ -181,48 +182,120 @@
     </div>
   </div>
 
-  <!-- JavaScript สำหรับระบบนับถอยหลังและเปิด Modal -->
+  <!-- JavaScript ระบบนับถอยหลัง Real-time Polling -->
   <script>
-    // 1. ระบบนับถอยหลัง Real-time ฐาน 60
-    function initCountdowns() {
+    let machineTargets = {};
+
+    function updateCountdowns() {
       const timers = document.querySelectorAll('.countdown-timer');
       timers.forEach(timer => {
-        let totalSeconds = parseInt(timer.getAttribute('data-seconds')) || 0;
-        if (totalSeconds <= 0) {
+        const card = timer.closest('.machine-card');
+        if (!card) return;
+        const mid = card.getAttribute('data-machine-id');
+        const target = machineTargets[mid];
+        if (!target) return;
+
+        const diff = Math.ceil((target - Date.now()) / 1000);
+        if (diff <= 0) {
           timer.innerText = "หมดเวลา";
           timer.style.color = "#dc2626";
-          return;
-        }
-
-        const targetTime = Date.now() + totalSeconds * 1000;
-
-        function updateTimer() {
-          const now = Date.now();
-          const diff = targetTime - now;
-
-          if (diff <= 0) {
-            timer.innerText = "หมดเวลา";
-            timer.style.color = "#dc2626";
-            clearInterval(intervalId);
-            return;
-          }
-
-          const remainingSec = Math.ceil(diff / 1000);
-          const mins = Math.floor(remainingSec / 60);
-          const secs = remainingSec % 60;
+        } else {
+          const mins = Math.floor(diff / 60);
+          const secs = diff % 60;
           const formattedSecs = secs < 10 ? '0' + secs : secs;
-
           timer.innerText = `${mins}:${formattedSecs} นาที`;
+          timer.style.color = "";
         }
-
-        updateTimer();
-        const intervalId = setInterval(updateTimer, 1000);
       });
     }
 
-    document.addEventListener('DOMContentLoaded', initCountdowns);
+    // ⚡ Real-time Background Polling: ดึงสถานะตู้ล่าสุดจาก Server ทุกๆ 3 วินาที
+    async function pollMachineStates() {
+      try {
+        const res = await fetch('/api/machines');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.machines) return;
 
-    // 2. จัดการ Modal หน้าต่างเลือกโปรแกรม
+        data.machines.forEach(m => {
+          machineTargets[m.id] = Date.now() + (m.left_seconds * 1000);
+
+          const card = document.querySelector(`.machine-card[data-machine-id="${m.id}"]`);
+          if (!card) return;
+
+          // อัปเดต Badge หัวการ์ด
+          const header = card.querySelector('.card-header');
+          if (header) {
+            let badgeHtml = '';
+            if (m.state === 'free') badgeHtml = '<span class="badge badge-available">ว่าง</span>';
+            else if (m.state === 'reserved') badgeHtml = '<span class="badge badge-reserved">จอง</span>';
+            else if (m.state === 'busy') badgeHtml = '<span class="badge badge-busy">ไม่ว่าง</span>';
+            else badgeHtml = '<span class="badge badge-busy">ปิดใช้งาน</span>';
+            header.innerHTML = `<h2 class="machine-title">${m.name}</h2>` + badgeHtml;
+          }
+
+          // อัปเดตรูป SVG
+          const iconContainer = card.querySelector('.machine-icon');
+          if (iconContainer) {
+            if (m.state === 'free') {
+              iconContainer.innerHTML = `<svg width="80" height="100" viewBox="0 0 80 100" fill="none"><rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/><rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/><circle cx="15" cy="17.5" r="3" fill="black"/><circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/><path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#50C3FF"/></svg>`;
+            } else if (m.state === 'reserved') {
+              iconContainer.innerHTML = `<svg width="80" height="100" viewBox="0 0 80 100" fill="none"><rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/><rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/><circle cx="15" cy="17.5" r="3" fill="black"/><circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/><path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#ECF000"/></svg>`;
+            } else {
+              iconContainer.innerHTML = `<svg width="80" height="100" viewBox="0 0 80 100" fill="none"><rect width="80" height="100" rx="8" fill="#F5F5F5" stroke="black" stroke-width="1"/><rect x="10" y="10" width="60" height="15" fill="#9B9B9A" stroke="black" stroke-width="1"/><circle cx="15" cy="17.5" r="3" fill="black"/><circle cx="40" cy="60" r="25" fill="white" stroke="black" stroke-width="1"/><path d="M 15 60 A 25 25 0 0 0 65 60 Z" fill="#FE9616"/></svg>`;
+            }
+          }
+
+          // อัปเดตข้อความรายละเอียด
+          const infoText = card.querySelector('.machine-info');
+          if (infoText) {
+            if (m.state === 'free') {
+              infoText.innerHTML = `ขนาด : ${m.capacity_kg} kg`;
+            } else if (m.state === 'busy') {
+              infoText.innerHTML = `เหลือเวลา : <span class="countdown-timer" data-seconds="${m.left_seconds}">--:-- นาที</span>`;
+            } else if (m.state === 'reserved') {
+              infoText.innerHTML = `เหลือเวลาจอง : <span class="countdown-timer" data-seconds="${m.left_seconds}">--:-- นาที</span>`;
+            } else {
+              infoText.innerHTML = `งดให้บริการ`;
+            }
+          }
+
+          // อัปเดตปุ่มกด
+          const oldBtn = card.querySelector('button');
+          if (oldBtn) {
+            if (m.state === 'free') {
+              oldBtn.className = 'btn btn-primary';
+              oldBtn.disabled = false;
+              oldBtn.innerText = 'จองและเลือกโปรแกรมการซัก';
+              oldBtn.onclick = () => openBookingModal(m.id, m.name);
+            } else {
+              oldBtn.className = 'btn btn-disabled';
+              oldBtn.disabled = true;
+              oldBtn.innerText = m.state === 'reserved' ? 'ติดจอง' : (m.state === 'busy' ? 'ไม่ว่าง' : 'ปิดบริการ');
+              oldBtn.onclick = null;
+            }
+          }
+        });
+        updateCountdowns();
+      } catch (e) {
+        console.error('Error polling machine states:', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.machine-card').forEach(card => {
+        const mid = card.getAttribute('data-machine-id');
+        const timer = card.querySelector('.countdown-timer');
+        if (timer) {
+          const sec = parseInt(timer.getAttribute('data-seconds')) || 0;
+          machineTargets[mid] = Date.now() + sec * 1000;
+        }
+      });
+      updateCountdowns();
+      setInterval(updateCountdowns, 1000);
+      setInterval(pollMachineStates, 3000);
+    });
+
     let selectedMachineId = null;
     function openBookingModal(machineId, machineName) {
       selectedMachineId = machineId;
@@ -242,7 +315,6 @@
       }
     };
 
-    // 3. คำนวณเวลารวม และยอดเงินรวมแบบเรียลไทม์
     function calculateSummary() {
       let totalTime = 0;
       let totalPrice = 0;
@@ -268,7 +340,6 @@
       document.getElementById('summaryPrice').innerText = totalPrice + ' บาท';
     }
 
-    // 4. ยืนยันการจองผ่าน API + แสดง SweetAlert2
     async function confirmBooking() {
       const programOption = document.querySelector('input[name="wash_program"]:checked');
       if (!programOption) {
@@ -317,7 +388,6 @@
           return;
         }
 
-        // 👉👉👉 วาง 2 บรรทัดนี้ตรงนี้ครับ! (เมื่อจองผ่านแล้ว ก่อนเปิด Pop-up สำเร็จ) 👈👈👈
         const expiresAt = Date.now() + (data.hold_minutes || 10) * 60 * 1000;
         localStorage.setItem('booking_expires_at', expiresAt);
 
@@ -344,61 +414,22 @@
       }
     }
   </script>
-  <script>
-  function checkGlobalBookingTimer() {
-    const expiresAt = localStorage.getItem('booking_expires_at');
-    if (!expiresAt) return;
 
-    const now = Date.now();
-    const diff = parseInt(expiresAt) - now;
-
-    // ถ้าเวลาเหลือน้อยกว่าหรือเท่ากับ 0 (หมดเวลา 10 นาที)
-    if (diff <= 0) {
-      // ล้างค่านับถอยหลังออก
-      localStorage.removeItem('booking_expires_at');
-
-      // แสดง Pop-up แจ้งเตือนทันที
-      Swal.fire({
-        icon: 'warning',
-        title: 'หมดเวลาการจอง!',
-        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวเครื่องซักผ้าแล้ว กรุณาทำการจองใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง / ไปหน้าจอง',
-        confirmButtonColor: '#00036C',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then(() => {
-        window.location.href = 'booking.html';
-      });
-    }
-  }
-
-  // รันตรวจจับทุกๆ 1 วินาที และรันทันทีเมื่อโหลดหน้าเว็บ
-  setInterval(checkGlobalBookingTimer, 1000);
-  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
-</script>
-<!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     (function () {
-      let activeCheckInterval = null;
-
-      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
           if (!res.ok) return;
           const data = await res.json();
 
-          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
           if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
             localStorage.removeItem('booking_expires_at');
           }
 
-          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
           if (data.has_active && data.status === 'just_completed') {
             const notifiedKey = 'notified_completed_' + data.booking_id;
 
-            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
             if (!sessionStorage.getItem(notifiedKey)) {
               sessionStorage.setItem(notifiedKey, 'true');
               localStorage.removeItem('booking_expires_at');
@@ -422,7 +453,6 @@
         }
       }
 
-      // 2. ตรวจสอบหมดเวลาจองค้าง
       function checkBookingTimer() {
         const expiresAt = localStorage.getItem('booking_expires_at');
         if (!expiresAt) return;
@@ -443,27 +473,22 @@
         }
       }
 
-      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
       checkActiveStatus();
       checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
       setInterval(checkBookingTimer, 1000);
     })();
   </script>
-  <!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
+
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
     (function() {
-      // เช็กว่าปัจจุบันอยู่ในหน้าฝั่งแอดมินหรือฝั่งผู้ใช้
       const isAdminPage = window.location.pathname.includes('/admin');
-      
-      // ตั้งค่า URL ปลายทาง และข้อความปุ่ม
       const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
       const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
-      const btnBg = isAdminPage ? '#17a2b8' : '#00036C'; // สีฟ้าเมื่อเปิดดูผู้ใช้ / สีน้ำเงินเข้มเมื่อกดกลับแอดมิน
+      const btnBg = isAdminPage ? '#17a2b8' : '#00036C';
       
-      // ไอคอนลูกตาเปิด (ดูผู้ใช้) และ ไอคอนลูกตาปิด/สแลช (กลับแอดมิน)
       const eyeIcon = isAdminPage 
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
         : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
