@@ -24,7 +24,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # ============================================================
 BASE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE, "smartlaundry.db")
-UPLOAD_DIR = os.path.join(BASE, "uploads")          # รูปโปรไฟล์ที่ผู้ใช้อัปโหลด
+UPLOAD_DIR = os.path.join(BASE, "uploads")          # โฟลเดอร์เก็บรูปโปรไฟล์
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 🔑 [Channel Access Token จาก LINE Developers]
@@ -66,6 +66,8 @@ app.config.update(
 
 THAI_MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+
+ALLOWED_IMG = {"png", "jpg", "jpeg", "gif", "webp"}
 
 # ============================================================
 #  DATABASE (SQLite)
@@ -579,9 +581,9 @@ def profile():
     return render_template("profile.html")
 
 
-ALLOWED_IMG = {"png", "jpg", "jpeg", "gif", "webp"}
-
-
+# ============================================================
+#  ระบบแก้ไขโปรไฟล์ (Edit Profile Route - Updated)
+# ============================================================
 @app.route("/edit_profile.html", methods=["GET", "POST"])
 @login_required
 def edit_profile():
@@ -590,42 +592,61 @@ def edit_profile():
         f = request.form
         errors = []
         username = f.get("username", "").strip() or None
-        if username and not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
-            errors.append("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @)")
-        birth = None
-        if f.get("birthdate", "").strip():
-            try:
-                d, m, y = map(int, f["birthdate"].strip().split("/"))
-                birth = datetime(y - 543 if y > 2400 else y, m, d).strftime("%Y-%m-%d")
-            except ValueError:
-                errors.append("วันเกิดไม่ถูกต้อง (รูปแบบ dd/mm/yyyy)")
+        email = f.get("email", "").strip() or None
         gender = f.get("gender") if f.get("gender") in ("male", "female", "unspecified") else "unspecified"
+        
+        # ตรวจสอบชื่อผู้ใช้งาน
+        if not username:
+            errors.append("กรุณาระบุชื่อผู้ใช้งาน")
+        elif not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
+            errors.append("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @ หรือเว้นวรรค)")
+
+        # ตรวจสอบอีเมล
+        if not email:
+            errors.append("กรุณาระบุอีเมล")
+        elif not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            errors.append("รูปแบบอีเมลไม่ถูกต้อง")
+
+        # จัดการอัปโหลดรูปโปรไฟล์
         avatar = u["avatar"]
         up = request.files.get("avatar")
         if up and up.filename:
             ext = up.filename.rsplit(".", 1)[-1].lower() if "." in up.filename else ""
             if ext not in ALLOWED_IMG:
-                errors.append("รองรับเฉพาะไฟล์รูป png, jpg, gif, webp")
+                errors.append("รองรับเฉพาะไฟล์รูปภาพ (png, jpg, jpeg, gif, webp) เท่านั้น")
             else:
-                avatar = f"{u['id']}_{secrets.token_hex(6)}.{ext}"
-                up.save(os.path.join(UPLOAD_DIR, avatar))
+                new_avatar = f"user_{u['id']}_{secrets.token_hex(6)}.{ext}"
+                up.save(os.path.join(UPLOAD_DIR, new_avatar))
+                # ลบรูปโปรไฟล์เดิมถ้ามีอยู่จริง
                 if u["avatar"] and os.path.exists(os.path.join(UPLOAD_DIR, u["avatar"])):
-                    os.remove(os.path.join(UPLOAD_DIR, u["avatar"]))
+                    try:
+                        os.remove(os.path.join(UPLOAD_DIR, u["avatar"]))
+                    except Exception:
+                        pass
+                avatar = new_avatar
+
         if not errors:
             try:
                 with get_db() as db:
-                    db.execute("""UPDATE users SET username=?, firstname=?, lastname=?,
-                                  birthdate=?, gender=?, avatar=? WHERE id=?""",
-                               (username, f.get("firstname", "").strip(), f.get("lastname", "").strip(),
-                                birth, gender, avatar, u["id"]))
-                flask_flash("บันทึกข้อมูลเรียบร้อย", "success")
-            except sqlite3.IntegrityError:
-                flask_flash("ชื่อผู้ใช้งานนี้ถูกใช้แล้ว", "error")
+                    db.execute("""UPDATE users SET username=?, email=?, gender=?, avatar=? WHERE id=?""",
+                               (username, email, gender, avatar, u["id"]))
+                flask_flash("บันทึกข้อมูลเรียบร้อยแล้ว!", "success")
+                g.user = None  # บังคับโหลดข้อมูลผู้ใช้ใหม่จาก DB
+                return redirect("/profile.html")
+            except sqlite3.IntegrityError as e:
+                err_str = str(e).lower()
+                if "email" in err_str:
+                    errors.append("อีเมลนี้ถูกใช้งานในระบบแล้ว")
+                elif "username" in err_str:
+                    errors.append("ชื่อผู้ใช้งานนี้ถูกใช้งานในระบบแล้ว")
+                else:
+                    errors.append("ชื่อผู้ใช้งานหรืออีเมลนี้ถูกใช้งานในระบบแล้ว")
+
         for m in errors:
             flask_flash(m, "error")
         return redirect("/edit_profile.html")
-    b = parse_ts((u["birthdate"] or "") + " 00:00:00") if u["birthdate"] else None
-    return render_template("edit_profile.html", birthdate=b.strftime("%d/%m/%Y") if b else "")
+
+    return render_template("edit_profile.html", user=u)
 
 
 @app.route("/password.html", methods=["GET", "POST"])

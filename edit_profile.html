@@ -18,15 +18,15 @@
 </head>
 <body class="page-edit-profile">
 
-  <!-- Navbar (ใช้โครงสร้างเดียวกับหน้าก่อนหน้า) -->
+  <!-- Navbar -->
   <header class="navbar">
     <a href="index.html" class="nav-brand">
-  <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
-  <div class="brand-text">
-    <span class="brand-en">Smart Laundry</span>
-    <span class="brand-th">สมาร์ท ลอนดรี</span>
-  </div>
-</a>
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
 
     <nav class="nav-menu">
       <a href="index.html" class="nav-item">
@@ -86,17 +86,21 @@
       
       <!-- Profile Image Section -->
       <div class="avatar-section">
-        <div class="avatar-preview">{% if user.avatar %}<img src="/uploads/{{ user.avatar }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}
-          <!-- ไอคอนผู้ใช้เริ่มต้น -->
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        {% endif %}</div>
+        <div class="avatar-preview">
+          {% if user.avatar %}
+            <img src="/uploads/{{ user.avatar }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+          {% else %}
+            <!-- ไอคอนผู้ใช้เริ่มต้น -->
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          {% endif %}
+        </div>
         <div class="avatar-actions">
           <span class="avatar-label">ภาพโปรไฟล์</span>
           <label class="btn-choose-file">
             <!-- กล้องจิ๋ว -->
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             <span>เลือกรูปภาพ</span>
-            <input type="file" name="avatar" form="editForm" accept="image/*" class="file-input-hidden">
+            <input type="file" name="avatar" form="editForm" accept="image/*" class="file-input-hidden" onchange="previewAvatar(this)">
           </label>
         </div>
       </div>
@@ -105,7 +109,7 @@
 
       <!-- Form Section -->
       {% include "_flash.html" %}
-<form id="editForm" class="edit-form" action="#" method="POST" enctype="multipart/form-data">
+      <form id="editForm" class="edit-form" action="/edit_profile.html" method="POST" enctype="multipart/form-data">
         
         <!-- ชื่อผู้ใช้งาน -->
         <div class="form-group full-width">
@@ -113,26 +117,10 @@
           <input type="text" id="username" name="username" value="{{ user.username or '' }}" placeholder="ระบุชื่อผู้ใช้งาน...">
         </div>
 
-        <!-- ชื่อจริง - นามสกุล (2 คอลัมน์) -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstname">ชื่อจริง</label>
-            <input type="text" id="firstname" name="firstname" value="{{ user.firstname or '' }}" placeholder="ระบุชื่อจริง...">
-          </div>
-          <div class="form-group">
-            <label for="lastname">นามสกุล</label>
-            <input type="text" id="lastname" name="lastname" value="{{ user.lastname or '' }}" placeholder="ระบุนามสกุล...">
-          </div>
-        </div>
-
-        <!-- วันเกิด -->
-        <div class="form-group medium-width">
-          <label for="birthdate">วันเกิด</label>
-          <div class="input-with-icon">
-            <input type="text" id="birthdate" name="birthdate" value="{{ birthdate }}" placeholder="dd/mm/yyyy">
-            <!-- ไอคอนปฏิทิน -->
-            <svg class="calendar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          </div>
+        <!-- อีเมล (แทนที่ชื่อจริง-นามสกุล และวันเกิด) -->
+        <div class="form-group full-width">
+          <label for="email">อีเมล</label>
+          <input type="email" id="email" name="email" value="{{ user.email or '' }}" placeholder="ระบุอีเมลของคุณ (เช่น example@email.com)...">
         </div>
 
         <!-- เพศ -->
@@ -163,53 +151,63 @@
       </form>
     </div>
   </main>
-<!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
-<script>
-  function checkGlobalBookingTimer() {
-    const expiresAt = localStorage.getItem('booking_expires_at');
-    if (!expiresAt) return;
 
-    if (Date.now() >= parseInt(expiresAt)) {
-      localStorage.removeItem('booking_expires_at');
-      Swal.fire({
-        icon: 'warning',
-        title: 'หมดเวลาการจอง!',
-        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง / ไปหน้าจอง',
-        confirmButtonColor: '#00036C',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then(() => {
-        window.location.href = 'booking.html';
-      });
+  <!-- JavaScript พรีวิวรูปภาพโปรไฟล์สดทันทีเมื่อเลือกไฟล์ -->
+  <script>
+    function previewAvatar(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewContainer = document.querySelector('.avatar-preview');
+          previewContainer.innerHTML = `<img src="${e.target.result}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
     }
-  }
-  setInterval(checkGlobalBookingTimer, 1000);
-  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
-</script>
-<!-- 📌 สคริปต์ตรวจจับและแจ้งเตือนสถานะ (วางก่อนปิด </body>) -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </script>
+
+  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
+  <script>
+    function checkGlobalBookingTimer() {
+      const expiresAt = localStorage.getItem('booking_expires_at');
+      if (!expiresAt) return;
+
+      if (Date.now() >= parseInt(expiresAt)) {
+        localStorage.removeItem('booking_expires_at');
+        Swal.fire({
+          icon: 'warning',
+          title: 'หมดเวลาการจอง!',
+          text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง / ไปหน้าจอง',
+          confirmButtonColor: '#00036C',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        }).then(() => {
+          window.location.href = 'booking.html';
+        });
+      }
+    }
+    setInterval(checkGlobalBookingTimer, 1000);
+    document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+  </script>
+
   <script>
     (function () {
       let activeCheckInterval = null;
 
-      // 1. ตรวจสอบสถานะการซักเบื้องหลังทุกๆ 3 วินาที
       async function checkActiveStatus() {
         try {
           const res = await fetch('/api/user/active-status');
           if (!res.ok) return;
           const data = await res.json();
 
-          // 📌 ถ้ากำลังซักอยู่ หรือเพิ่งซักเสร็จ ให้ลบเวลาจองทิ้งทันที! (กันเด้งหมดเวลาจองแทรก)
           if (data.has_active && (data.status === 'washing' || data.status === 'just_completed')) {
             localStorage.removeItem('booking_expires_at');
           }
 
-          // 📌 ถ้าซักเสร็จแล้ว (status = 'just_completed')
           if (data.has_active && data.status === 'just_completed') {
             const notifiedKey = 'notified_completed_' + data.booking_id;
 
-            // ตรวจว่ารายการนี้เคยเด้ง Popup ใน Session นี้ไปแล้วหรือยัง
             if (!sessionStorage.getItem(notifiedKey)) {
               sessionStorage.setItem(notifiedKey, 'true');
               localStorage.removeItem('booking_expires_at');
@@ -233,7 +231,6 @@
         }
       }
 
-      // 2. ตรวจสอบหมดเวลาจองค้าง
       function checkBookingTimer() {
         const expiresAt = localStorage.getItem('booking_expires_at');
         if (!expiresAt) return;
@@ -254,57 +251,52 @@
         }
       }
 
-      // เริ่มทำงานทันทีเมื่อโหลดหน้าเว็บ
       checkActiveStatus();
       checkBookingTimer();
       setInterval(checkActiveStatus, 3000);
       setInterval(checkBookingTimer, 1000);
     })();
   </script>
-  <!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
-{% if user and user.is_admin %}
-<div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
-  <script>
-    (function() {
-      // เช็กว่าปัจจุบันอยู่ในหน้าฝั่งแอดมินหรือฝั่งผู้ใช้
-      const isAdminPage = window.location.pathname.includes('/admin');
-      
-      // ตั้งค่า URL ปลายทาง และข้อความปุ่ม
-      const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
-      const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
-      const btnBg = isAdminPage ? '#17a2b8' : '#00036C'; // สีฟ้าเมื่อเปิดดูผู้ใช้ / สีน้ำเงินเข้มเมื่อกดกลับแอดมิน
-      
-      // ไอคอนลูกตาเปิด (ดูผู้ใช้) และ ไอคอนลูกตาปิด/สแลช (กลับแอดมิน)
-      const eyeIcon = isAdminPage 
-        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
-        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
 
-      document.write(`
-        <button onclick="window.location.href='${targetUrl}'" title="${btnText}" style="
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background-color: ${btnBg};
-          color: #ffffff;
-          border: 2px solid #ffffff;
-          padding: 10px 18px;
-          border-radius: 50px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-          cursor: pointer;
-          font-family: inherit;
-          font-size: 14px;
-          font-weight: 600;
-          transition: all 0.25s ease;
-          user-select: none;
-        " onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.35)';" 
-          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.25)';">
-          ${eyeIcon}
-          <span>${btnText}</span>
-        </button>
-      `);
-    })();
-  </script>
-</div>
-{% endif %}
+  {% if user and user.is_admin %}
+  <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
+    <script>
+      (function() {
+        const isAdminPage = window.location.pathname.includes('/admin');
+        const targetUrl = isAdminPage ? '/index.html' : '/admin/admin_dashboard.html';
+        const btnText = isAdminPage ? 'ดูหน้าผู้ใช้' : 'กลับหน้าแอดมิน';
+        const btnBg = isAdminPage ? '#17a2b8' : '#00036C';
+        
+        const eyeIcon = isAdminPage 
+          ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
+          : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+        document.write(`
+          <button onclick="window.location.href='${targetUrl}'" title="${btnText}" style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: ${btnBg};
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 10px 18px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            user-select: none;
+          " onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.35)';" 
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.25)';">
+            ${eyeIcon}
+            <span>${btnText}</span>
+          </button>
+        `);
+      })();
+    </script>
+  </div>
+  {% endif %}
 </body>
 </html>
