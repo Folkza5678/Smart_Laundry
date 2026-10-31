@@ -1,5 +1,5 @@
 """
-Smart Laundry backend (Python Flask + SQLite + ESP32 Integration + SlipOK Verification + LINE OA Notification)
+Smart Laundry backend (Python Flask + SQLite + ESP32 Integration + SlipOK Verification + LINE OA Notification + Gmail OTP Password Reset)
 
 รัน:  pip install flask requests
       python app.py        ->  http://127.0.0.1:5000/index.html
@@ -8,10 +8,13 @@ import json
 import os
 import re
 import secrets
+import smtplib
 import sqlite3
 import threading
 import urllib.request
 from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from functools import wraps
 
 import requests
@@ -32,6 +35,13 @@ LINE_CHANNEL_ACCESS_TOKEN = "qCNm9TRkOKh2BR9H8DxZC0x4UxFo+pAl47zSksC/Yq5Twc1aUF2
 
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
 LINE_OTPS = {}
+
+# 🔑 [Config สำหรับส่ง Email OTP ผ่าน Gmail SMTP]
+GMAIL_USER = os.getenv("GMAIL_USER", "smartlaundry388@gmail.com")          # อีเมล Gmail ของระบบ
+GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "swfm efoq ahtf huzk")  # รหัสผ่านแอป (App Password 16 หลัก)
+
+# ตัวเก็บรหัส OTP สำหรับรีเซ็ตรหัสผ่าน { "email@example.com": {"otp": "123456", "expires_at": datetime} }
+RESET_OTPS = {}
 
 # 🔑 [ระบุรหัสจาก SlipOK]
 SLIPOK_URL = os.getenv("SLIPOK_URL", "https://api.slipok.com/api/line/apikey/79673")
@@ -358,6 +368,45 @@ def admin_required(f):
 
 
 # ============================================================
+#  ระบบส่งอีเมล Gmail OTP (SMTP)
+# ============================================================
+def send_otp_email(to_email, otp_code):
+    """ฟังก์ชันยิงอีเมล OTP ผ่าน Gmail SMTP"""
+    if "your_email" in GMAIL_USER or "your_16_digit" in GMAIL_APP_PASS:
+        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ใน app.py")
+        return False
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "🔐 รหัสยืนยันการรีเซ็ตรหัสผ่าน - Smart Laundry"
+    msg["From"] = f"Smart Laundry <{GMAIL_USER}>"
+    msg["To"] = to_email
+
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
+        <div style="max-width: 480px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <h2 style="color: #1e293b; text-align: center; margin-bottom: 10px;">Smart Laundry</h2>
+            <h4 style="color: #334155; text-align: center; margin-top: 0;">คำขอรีเซ็ตรหัสผ่าน</h4>
+            <p style="color: #64748b; font-size: 14px;">คุณได้ทำการร้องขอกู้คืนรหัสผ่าน กรุณาใช้รหัส OTP ด้านล่างนี้เพื่อยืนยันตัวตน (รหัสมีอายุ 10 นาที):</p>
+            <div style="text-align: center; margin: 25px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2563eb; background: #eff6ff; padding: 10px 24px; border-radius: 8px; border: 1px dashed #2563eb; display: inline-block;">{otp_code}</span>
+            </div>
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">หากคุณไม่ได้เป็นผู้ร้องขอ โปรดข้ามอีเมลฉบับนี้ไป รหัสผ่านของคุณจะไม่ถูกเปลี่ยนแปลง</p>
+        </div>
+    </div>
+    """
+    msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            server.login(GMAIL_USER, GMAIL_APP_PASS)
+            server.sendmail(GMAIL_USER, to_email, msg.as_string())
+        return True
+    except Exception as e:
+        app.logger.error("ส่งอีเมลไม่สำเร็จ: %s", e)
+        return False
+
+
+# ============================================================
 #  ระบบยิงข้อความ LINE OA & WEBHOOK
 # ============================================================
 def send_line_message(line_user_id, text_message):
@@ -550,6 +599,120 @@ def login():
     return render_template("login.html")
 
 
+# ============================================================
+#  ระบบลืมรหัสผ่านผ่าน Gmail (Forgot Password APIs & Form)
+# ============================================================
+@app.route("/forgot-password.html", methods=["GET", "POST"])
+def forgot_password_page():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        if not email or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            flask_flash("กรุณากรอกรูปแบบอีเมลให้ถูกต้อง", "error")
+            return render_template("forgot-password.html"), 400
+
+        db = get_db()
+        user = db.execute("SELECT id, email FROM users WHERE lower(email)=?", (email,)).fetchone()
+        if not user:
+            flask_flash("หากอีเมลนี้มีอยู่ในระบบ รหัส OTP จะถูกส่งไปที่ Gmail ของคุณ", "success")
+            return render_template("forgot-password.html")
+
+        otp_code = str(secrets.randbelow(900000) + 100000)
+        RESET_OTPS[email] = {
+            "otp": otp_code,
+            "expires_at": now() + timedelta(minutes=10)
+        }
+
+        if send_otp_email(email, otp_code):
+            flask_flash("ส่งรหัส OTP ไปยัง Gmail ของคุณเรียบร้อยแล้ว", "success")
+        else:
+            flask_flash("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการตั้งค่า Gmail SMTP", "error")
+
+        return render_template("forgot-password.html")
+
+    return render_template("forgot-password.html")
+
+
+@app.post("/api/auth/send-reset-otp")
+def api_send_reset_otp():
+    """1. รับอีเมล สร้าง OTP และส่งเข้า Gmail (สำหรับ AJAX/Fetch)"""
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower()
+
+    if not email or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        return err("กรุณากรอกรูปแบบอีเมลให้ถูกต้อง")
+
+    db = get_db()
+    user = db.execute("SELECT id, email FROM users WHERE lower(email)=?", (email,)).fetchone()
+    if not user:
+        return jsonify(ok=True, message="หากอีเมลนี้มีอยู่ในระบบ รหัส OTP จะถูกส่งไปที่ Gmail ของคุณ")
+
+    otp_code = str(secrets.randbelow(900000) + 100000)
+    RESET_OTPS[email] = {
+        "otp": otp_code,
+        "expires_at": now() + timedelta(minutes=10)
+    }
+
+    if send_otp_email(email, otp_code):
+        return jsonify(ok=True, message="ส่งรหัส OTP ไปยัง Gmail ของคุณเรียบร้อยแล้ว")
+    else:
+        return err("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง", 500)
+
+
+@app.post("/api/auth/verify-reset-otp")
+def api_verify_reset_otp():
+    """2. ตรวจสอบรหัส OTP ที่ผู้ใช้กรอก"""
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower()
+    otp_input = data.get("otp", "").strip()
+
+    if not email or not otp_input:
+        return err("กรุณากรอกข้อมูลให้ครบถ้วน")
+
+    record = RESET_OTPS.get(email)
+    if not record:
+        return err("ไม่พบคำขอรีเซ็ตรหัสผ่าน หรือรหัส OTP หมดอายุแล้ว")
+
+    if now() > record["expires_at"]:
+        del RESET_OTPS[email]
+        return err("รหัส OTP หมดอายุแล้ว กรุณากดขอรหัสใหม่")
+
+    if record["otp"] != otp_input:
+        return err("รหัส OTP ไม่ถูกต้อง")
+
+    reset_token = secrets.token_hex(16)
+    record["verified"] = True
+    record["token"] = reset_token
+
+    return jsonify(ok=True, reset_token=reset_token)
+
+
+@app.post("/api/auth/reset-password")
+def api_reset_password():
+    """3. บันทึกรหัสผ่านใหม่เข้า Database"""
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower()
+    token = data.get("reset_token", "").strip()
+    new_pw = data.get("new_password", "")
+    confirm_pw = data.get("confirm_password", "")
+
+    if len(new_pw) < 6:
+        return err("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร")
+    if new_pw != confirm_pw:
+        return err("รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน")
+
+    record = RESET_OTPS.get(email)
+    if not record or not record.get("verified") or record.get("token") != token:
+        return err("สิทธิ์การเปลี่ยนรหัสผ่านไม่ถูกต้อง หรือหมดอายุแล้ว", 403)
+
+    db = get_db()
+    with db:
+        db.execute("UPDATE users SET password_hash=? WHERE lower(email)=?",
+                   (generate_password_hash(new_pw), email))
+
+    del RESET_OTPS[email]
+    return jsonify(ok=True, message="เปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว กรุณาเข้าสู่ระบบ")
+
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -582,7 +745,7 @@ def profile():
 
 
 # ============================================================
-#  ระบบแก้ไขโปรไฟล์ (Edit Profile Route - Updated)
+#  ระบบแก้ไขโปรไฟล์ (Edit Profile Route)
 # ============================================================
 @app.route("/edit_profile.html", methods=["GET", "POST"])
 @login_required
@@ -595,19 +758,16 @@ def edit_profile():
         email = f.get("email", "").strip() or None
         gender = f.get("gender") if f.get("gender") in ("male", "female", "unspecified") else "unspecified"
         
-        # ตรวจสอบชื่อผู้ใช้งาน
         if not username:
             errors.append("กรุณาระบุชื่อผู้ใช้งาน")
         elif not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
             errors.append("ชื่อผู้ใช้งานต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @ หรือเว้นวรรค)")
 
-        # ตรวจสอบอีเมล
         if not email:
             errors.append("กรุณาระบุอีเมล")
         elif not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
             errors.append("รูปแบบอีเมลไม่ถูกต้อง")
 
-        # จัดการอัปโหลดรูปโปรไฟล์
         avatar = u["avatar"]
         up = request.files.get("avatar")
         if up and up.filename:
@@ -617,7 +777,6 @@ def edit_profile():
             else:
                 new_avatar = f"user_{u['id']}_{secrets.token_hex(6)}.{ext}"
                 up.save(os.path.join(UPLOAD_DIR, new_avatar))
-                # ลบรูปโปรไฟล์เดิมถ้ามีอยู่จริง
                 if u["avatar"] and os.path.exists(os.path.join(UPLOAD_DIR, u["avatar"])):
                     try:
                         os.remove(os.path.join(UPLOAD_DIR, u["avatar"]))
@@ -631,7 +790,7 @@ def edit_profile():
                     db.execute("""UPDATE users SET username=?, email=?, gender=?, avatar=? WHERE id=?""",
                                (username, email, gender, avatar, u["id"]))
                 flask_flash("บันทึกข้อมูลเรียบร้อยแล้ว!", "success")
-                g.user = None  # บังคับโหลดข้อมูลผู้ใช้ใหม่จาก DB
+                g.user = None
                 return redirect("/profile.html")
             except sqlite3.IntegrityError as e:
                 err_str = str(e).lower()
@@ -710,7 +869,6 @@ def booking_page():
 @app.get("/api/machines/status")
 @app.get("/api/machines")
 def api_machines_status():
-    """✨ API สำหรับให้ Frontend ยิง Polling สถานะตู้ทั้งหมดเรียลไทม์"""
     return jsonify(machines=machine_states(), store_open=store_open())
 
 
@@ -919,7 +1077,6 @@ def api_payment_start():
                                 VALUES(?,?,?,'pending',?,?,?)""",
                              (b["id"], t.strftime("%y%m%d%H%M%S") + str(secrets.randbelow(900) + 100),
                               b["price"], promptpay_payload(PROMPTPAY_ID, b["price"]), ts(t), ts(exp)))
-            # 🔒 ต่อเวลาล็อคตู้ใน bookings ให้ครอบคลุมช่วงเวลาชำระเงิน PromptPay (+30 วินาทีเผื่อเวลาประมวลผล)
             db.execute("UPDATE bookings SET reserve_expires=? WHERE id=?",
                        (ts(exp + timedelta(seconds=30)), b["id"]))
         p = db.execute("SELECT * FROM payments WHERE id=?", (cur.lastrowid,)).fetchone()
@@ -1202,7 +1359,6 @@ def history():
 @app.get("/api/user/history")
 @login_required
 def api_user_history():
-    """✨ API สำหรับให้ Frontend ยิง Polling ประวัติการซักและรายการจองเรียลไทม์"""
     u = current_user()
     rows = get_db().execute("""SELECT b.*, m.name AS machine_name, m.code AS machine_code, m.capacity_kg 
                                FROM bookings b 

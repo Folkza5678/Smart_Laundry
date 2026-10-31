@@ -20,12 +20,12 @@
   <!-- Header / Navbar -->
   <header class="navbar">
     <a href="index.html" class="nav-brand">
-  <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
-  <div class="brand-text">
-    <span class="brand-en">Smart Laundry</span>
-    <span class="brand-th">สมาร์ท ลอนดรี</span>
-  </div>
-</a>
+      <img src="images/logols.png" alt="Smart Laundry Logo" class="logo">
+      <div class="brand-text">
+        <span class="brand-en">Smart Laundry</span>
+        <span class="brand-th">สมาร์ท ลอนดรี</span>
+      </div>
+    </a>
 
     <nav class="nav-menu">
       <a href="index.html" class="nav-item">
@@ -106,7 +106,7 @@
     <div class="login-card">
       
       <!-- ฝั่งซ้าย: โลโก้ และ Gradient Background -->
-      <div class="login-brand-side">
+       <div class="login-brand-side">
   <div class="brand-graphics">
     
     <!-- โลโก้ SL Monogram (วางโค้ด SVG ของคุณตรงนี้) -->
@@ -132,7 +132,7 @@
         <h2 class="form-title">Login</h2>
 
         {% include "_flash.html" %}
-<form class="login-form" action="#" method="POST">
+        <form class="login-form" action="#" method="POST">
           
           <div class="form-group">
             <label for="username">Username or Email <span class="required">*</span></label>
@@ -140,13 +140,17 @@
           </div>
 
           <div class="form-group">
-            <label for="password">Password <span class="required">*</span></label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label for="password" style="margin-bottom: 0;">Password <span class="required">*</span></label>
+              <a href="forgot-password.html" class="forgot-password-link" style="font-size: 13px; color: #00036C; text-decoration: none;">ลืมรหัสผ่าน?</a>
+            </div>
             <input type="password" id="password" name="password" placeholder="Password..." required>
           </div>
 
           <button type="submit" class="btn btn-primary" style="width:100%;border:none;cursor:pointer;margin:6px 0 14px">เข้าสู่ระบบ</button>
+          
           <div class="form-footer-links">
-            <span>Already have an account?</span>
+            <span>Don't have an account?</span>
             <a href="register.html" class="register-link">Register</a>
           </div>
 
@@ -158,34 +162,35 @@
 
     </div>
   </main>
-  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
-<script>
-  function checkGlobalBookingTimer() {
-    const expiresAt = localStorage.getItem('booking_expires_at');
-    if (!expiresAt) return;
 
-    if (Date.now() >= parseInt(expiresAt)) {
-      localStorage.removeItem('booking_expires_at');
-      Swal.fire({
-        icon: 'warning',
-        title: 'หมดเวลาการจอง!',
-        text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง / ไปหน้าจอง',
-        confirmButtonColor: '#00036C',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then(() => {
-        window.location.href = 'booking.html';
-      });
+  <!-- สคริปต์ตรวจจับหมดเวลาการจองแบบ Global -->
+  <script>
+    function checkGlobalBookingTimer() {
+      const expiresAt = localStorage.getItem('booking_expires_at');
+      if (!expiresAt) return;
+
+      if (Date.now() >= parseInt(expiresAt)) {
+        localStorage.removeItem('booking_expires_at');
+        Swal.fire({
+          icon: 'warning',
+          title: 'หมดเวลาการจอง!',
+          text: 'รายการจองของคุณหมดเวลาชำระเงิน (10 นาที) ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
+          confirmButtonText: 'ตกลง / ไปหน้าจอง',
+          confirmButtonColor: '#00036C',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        }).then(() => {
+          window.location.href = 'booking.html';
+        });
+      }
     }
-  }
-  setInterval(checkGlobalBookingTimer, 1000);
-  document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
-</script>
-<script>
-  // เมื่อเด้งมาหน้า Login ให้เคลียร์ค่าในเครื่องทิ้งทันที
-  localStorage.clear();
-  sessionStorage.clear();
-</script>
+    setInterval(checkGlobalBookingTimer, 1000);
+    document.addEventListener('DOMContentLoaded', checkGlobalBookingTimer);
+  </script>
+  <script>
+    // เมื่อเด้งมาหน้า Login ให้เคลียร์ค่าในเครื่องทิ้งทันที
+    localStorage.clear();
+    sessionStorage.clear();
+  </script>
 </body>
 </html>
