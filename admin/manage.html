@@ -149,9 +149,9 @@
                     data-name="{{ m.name }}" 
                     data-kg="{{ m.capacity_kg }}" 
                     data-enabled="{{ m.enabled }}" 
-                    onclick="editMachineModal(this)">✏️ แก้ไข</button>
+                    onclick="editMachineModal(this)">แก้ไข</button>
             <button class="btn-action" style="flex:0.4; background-color:#dc3545;" 
-                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">🗑️ ลบ</button>
+                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">🗑️</button>
           </div>
         </div>
         {% endfor %}
