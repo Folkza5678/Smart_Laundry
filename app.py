@@ -19,7 +19,7 @@ from functools import wraps
 
 import requests
 from dotenv import load_dotenv
-from flask import (Flask, flash, flash as flask_flash, g, jsonify, redirect, render_template,
+from flask import (Flask, flash, flash as flask_flash, g, jsonify, make_response, redirect, render_template,
                    request, send_from_directory, session)
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -576,6 +576,10 @@ def register():
 
 @app.route("/login.html", methods=["GET", "POST"])
 def login():
+    # ถ้าล็อกอินอยู่แล้ว ห้ามเข้าหน้า login ให้กลับไปหน้าหลักทันที
+    if current_user():
+        return redirect("/index.html")
+
     if request.method == "POST":
         ident = request.form.get("username", "").strip().lower()
         pw = request.form.get("password", "")
@@ -599,7 +603,11 @@ def login():
             return redirect(next_url)
 
         return redirect("/admin/admin_dashboard.html" if u["is_admin"] else "/index.html")
-    return render_template("login.html")
+
+    # ป้องกันการ Cache หน้า Login
+    response = make_response(render_template("login.html"))
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 
 # ============================================================

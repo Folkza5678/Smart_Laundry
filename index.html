@@ -321,5 +321,34 @@
   </script>
 </div>
 {% endif %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ดักจับเหตุการณ์กดย้อนกลับ (Popstate)
+    history.pushState(null, null, location.href);
+    
+    window.addEventListener('popstate', function (event) {
+        // ดักไม่ให้หน้าเว็บย้อนกลับไปทันที
+        history.pushState(null, null, location.href);
+
+        // แสดง SweetAlert2 ถามยืนยันออกจากระบบ
+        Swal.fire({
+            title: 'ออกจากระบบหรือไม่?',
+            text: 'คุณกำลังกดปุ่มย้อนกลับ ต้องการออกจากระบบใช่หรือไม่',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ออกจากระบบ',
+            cancelButtonText: 'ยกเลิก / อยู่หน้านี้ต่อ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ถ้าตกลง ให้เปลี่ยนหน้าไปที่เส้นทาง Logout จริง
+                window.location.href = '/logout';
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
