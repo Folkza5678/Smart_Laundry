@@ -1,7 +1,7 @@
 """
 Smart Laundry backend (Python Flask + SQLite + ESP32 Integration + SlipOK Verification + LINE OA Notification + Gmail OTP Password Reset)
 
-รัน:  pip install flask requests
+รัน:  pip install flask requests python-dotenv
       python app.py        ->  http://127.0.0.1:5000/index.html
 """
 import json
@@ -18,34 +18,37 @@ from email.mime.text import MIMEText
 from functools import wraps
 
 import requests
+from dotenv import load_dotenv
 from flask import (Flask, flash, flash as flask_flash, g, jsonify, redirect, render_template,
                    request, send_from_directory, session)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # ============================================================
-#  ตั้งค่าทั่วไป & LINE OA Configuration
+#  โหลด Environment Variables จากไฟล์ .env
 # ============================================================
 BASE = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE, ".env"))
+
 DB_PATH = os.path.join(BASE, "smartlaundry.db")
 UPLOAD_DIR = os.path.join(BASE, "uploads")          # โฟลเดอร์เก็บรูปโปรไฟล์
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 🔑 [Channel Access Token จาก LINE Developers]
-LINE_CHANNEL_ACCESS_TOKEN = "qCNm9TRkOKh2BR9H8DxZC0x4UxFo+pAl47zSksC/Yq5Twc1aUF2fvbfdhsUAczT+Ly94W4m0xK4spIKl9oUgyHz9kyAjBwXB5wF6D2UZEmCO/L7sLmn8PG/k87ijCFVcAaktTxfGLAKKc8MCr0O9CwdB04t89/1O/w1cDnyilFU="
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
 
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
 LINE_OTPS = {}
 
 # 🔑 [Config สำหรับส่ง Email OTP ผ่าน Gmail SMTP]
-GMAIL_USER = os.getenv("GMAIL_USER", "smartlaundry388@gmail.com")          # อีเมล Gmail ของระบบ
-GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "swfm efoq ahtf huzk")  # รหัสผ่านแอป (App Password 16 หลัก)
+GMAIL_USER = os.getenv("GMAIL_USER", "")
+GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "")
 
 # ตัวเก็บรหัส OTP สำหรับรีเซ็ตรหัสผ่าน { "email@example.com": {"otp": "123456", "expires_at": datetime} }
 RESET_OTPS = {}
 
 # 🔑 [ระบุรหัสจาก SlipOK]
 SLIPOK_URL = os.getenv("SLIPOK_URL", "https://api.slipok.com/api/line/apikey/79673")
-SLIPOK_API_KEY = os.getenv("SLIPOK_API_KEY", "SLIPOKWLNGVRW")
+SLIPOK_API_KEY = os.getenv("SLIPOK_API_KEY", "")
 
 RESERVE_MINUTES = 3           # ถือจองเครื่องไว้ 3 นาที (โหมดทดสอบ)
 PAY_MINUTES = 3               # QR ชำระเงินหมดอายุ 3 นาที (โหมดทดสอบ)
@@ -372,8 +375,8 @@ def admin_required(f):
 # ============================================================
 def send_otp_email(to_email, otp_code):
     """ฟังก์ชันยิงอีเมล OTP ผ่าน Gmail SMTP"""
-    if "your_email" in GMAIL_USER or "your_16_digit" in GMAIL_APP_PASS:
-        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ใน app.py")
+    if not GMAIL_USER or not GMAIL_APP_PASS:
+        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ในไฟล์ .env")
         return False
 
     msg = MIMEMultipart("alternative")
@@ -410,7 +413,7 @@ def send_otp_email(to_email, otp_code):
 #  ระบบยิงข้อความ LINE OA & WEBHOOK
 # ============================================================
 def send_line_message(line_user_id, text_message):
-    if not line_user_id or not LINE_CHANNEL_ACCESS_TOKEN or LINE_CHANNEL_ACCESS_TOKEN.startswith("วาง_"):
+    if not line_user_id or not LINE_CHANNEL_ACCESS_TOKEN:
         return
 
     url = "https://api.line.me/v2/bot/message/push"
