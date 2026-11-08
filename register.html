@@ -132,32 +132,39 @@
 
         {% include "_flash.html" %}
 <form class="login-form" action="#" method="POST">
-          
-          <div class="form-group">
-            <label for="username">Username or Email <span class="required">*</span></label>
-            <input type="text" id="username" name="username" placeholder="Username or Email..." required>
-          </div>
+  
+  <!-- ช่อง Username (บังคับ) -->
+  <div class="form-group">
+    <label for="username">Username <span class="required">*</span></label>
+    <input type="text" id="username" name="username" placeholder="Username..." required>
+  </div>
 
-          <div class="form-group">
-            <label for="password">Password <span class="required">*</span></label>
-            <input type="password" id="password" name="password" placeholder="Password..." required>
-          </div>
+  <!-- ช่อง Email (บังคับ) -->
+  <div class="form-group">
+    <label for="email">Email <span class="required">*</span></label>
+    <input type="email" id="email" name="email" placeholder="Email..." required>
+  </div>
 
-          <div class="form-group">
-            <label for="confirm_password">Confirm Password <span class="required">*</span></label>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="Password..." required>
-          </div>
+  <div class="form-group">
+    <label for="password">Password <span class="required">*</span></label>
+    <input type="password" id="password" name="password" placeholder="Password..." required>
+  </div>
 
-          <button type="submit" class="btn btn-primary" style="width:100%;border:none;cursor:pointer;margin:6px 0 14px">สมัครสมาชิก</button>
-          <div class="form-footer-links">
-            <span>Already have an account?</span>
-            <a href="login.html" class="register-link">Login</a>
-          </div>
+  <div class="form-group">
+    <label for="confirm_password">Confirm Password <span class="required">*</span></label>
+    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password..." required>
+  </div>
 
-          <p class="terms-text">การดำเนินการต่อแสดงว่าคุณยอมรับข้อตกลงการใช้บริการ</p>
-          <a href="privacy.html" class="privacy-link">นโยบายส่วนตัวของเรา</a>
+  <button type="submit" class="btn btn-primary" style="width:100%;border:none;cursor:pointer;margin:6px 0 14px">สมัครสมาชิก</button>
+  <div class="form-footer-links">
+    <span>Already have an account?</span>
+    <a href="login.html" class="register-link">Login</a>
+  </div>
 
-        </form>
+  <p class="terms-text">การดำเนินการต่อแสดงว่าคุณยอมรับข้อตกลงการใช้บริการ</p>
+  <a href="privacy.html" class="privacy-link">นโยบายส่วนตัวของเรา</a>
+
+</form>
       </div>
 
     </div>
