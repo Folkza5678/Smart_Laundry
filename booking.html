@@ -395,7 +395,7 @@
           icon: 'success',
           title: 'จองเรียบร้อย!',
           html: `กรุณาสแกนตู้และชำระเงินภายใน <b>${data.hold_minutes || 10} นาที</b><br>(ยอดชำระ <b>${data.price} บาท</b>)`,
-          confirmButtonText: 'ไปหน้าชำระเงิน',
+          confirmButtonText: 'Scan QR Code',
           confirmButtonColor: '#00036C',
           customClass: { popup: 'rounded-4' }
         }).then((result) => {
@@ -463,7 +463,7 @@
             icon: 'warning',
             title: 'หมดเวลาการจอง!',
             text: 'รายการจองของคุณหมดเวลาชำระเงิน ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-            confirmButtonText: 'ตกลง / ไปหน้าจอง',
+            confirmButtonText: 'ตกลง',
             confirmButtonColor: '#00036C',
             allowOutsideClick: false,
             allowEscapeKey: false
