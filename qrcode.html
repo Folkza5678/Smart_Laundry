@@ -239,13 +239,57 @@
         return; 
       }
       
+      // 1. กรณีผู้ใช้ยังไม่ได้ทำการจองตู้ใดๆ ไว้ก่อน
+      if (!pendingMachine) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ยังไม่มีรายการจอง',
+          text: 'คุณยังไม่ได้ทำการจองตู้ซักผ้า กรุณาทำรายการจองผ่านหน้า Booking ก่อนครับ',
+          confirmButtonText: 'ไปหน้า Booking',
+          confirmButtonColor: '#00036C',
+          showCancelButton: true,
+          cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = 'booking.html';
+          } else {
+            // เริ่มสแกนกล้องใหม่อีกครั้ง
+            if (videoStream && !isScanning) {
+              isScanning = true;
+              requestAnimationFrame(scanQRCodeTick);
+            }
+          }
+        });
+        return;
+      }
+
+      // 2. กรณีสแกน/กรอก รหัสตู้ไม่ตรงกับตู้ที่ทำการจองไว้
+      if (parseMachineCode(code) !== parseMachineCode(pendingMachine)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'รหัสตู้ไม่ตรงกับรายการจอง!',
+          text: `คุณได้จองเครื่อง ${pendingMachine} ไว้ แต่สแกนเป็นเครื่อง ${code} กรุณาสแกนให้ตรงกับตู้ที่จองไว้ครับ`,
+          confirmButtonText: 'ตกลง / สแกนใหม่',
+          confirmButtonColor: '#00036C'
+        }).then(() => {
+          // เคลียร์ช่อง Input และเปิดการสแกนกล้องใหม่อีกครั้ง
+          document.getElementById('machine-id-input').value = '';
+          if (videoStream && !isScanning) {
+            isScanning = true;
+            requestAnimationFrame(scanQRCodeTick);
+          }
+        });
+        return;
+      }
+
+      // 3. ถ้ารหัสตู้ถูกต้อง ให้ปิดกล้องและไปยังหน้ากดยืนยัน (confirm-checkin.html)
       if (videoStream) {
         videoStream.getTracks().forEach(t => t.stop());
       }
       
       window.location.href = `confirm-checkin.html?code=${encodeURIComponent(code)}`;
     }
-
+    
     window.addEventListener('DOMContentLoaded', () => { loadPendingBooking(); startCamera(); });
   </script>
 
