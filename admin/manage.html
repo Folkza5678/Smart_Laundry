@@ -448,7 +448,7 @@
     reverseButtons: true
   }).then((result) => {
     if (result.isConfirmed) {
-      // 🧹 ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
+      //  ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
       localStorage.clear();
       sessionStorage.clear();
 
@@ -465,7 +465,7 @@
   });
 </script>
 
-<!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
+<!--  ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
