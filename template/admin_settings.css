@@ -334,6 +334,7 @@ input:checked + .slider:before { transform: translateX(22px); }
   position: relative;
   display: flex;
   align-items: center;
+  transform: translateX(10px);
   width: 320px;
 }
 
