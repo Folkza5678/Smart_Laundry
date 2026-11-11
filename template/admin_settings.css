@@ -330,11 +330,6 @@ input:checked + .slider:before { transform: translateX(22px); }
   font-weight: 600;
 }
 
-.section-desc {
-  font-size: 15px;
-  color: #666666;
-}
-
 .search-box {
   position: relative;
   display: flex;
