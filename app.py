@@ -307,11 +307,7 @@ def prevent_caching(response):
 
 
 def store_open():
-    n = now().strftime("%H:%M")
-    o, c = get_setting("open_time", "08:00"), get_setting("close_time", "22:00")
-    if o == c:
-        return True
-    return (o <= n < c) if o < c else (n >= o or n < c)
+    return True  # บังคับเปิดร้านตลอด 24 ชั่วโมง
 
 
 def machine_states():
