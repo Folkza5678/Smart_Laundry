@@ -329,7 +329,7 @@
       }
     }
 
-    // 4. ⚙️ ตั้งค่าราคาและเวลาโปรแกรม
+    // 4.  ตั้งค่าราคาและเวลาโปรแกรม
     async function editPrices() {
       const services = {{ services|tojson }};
       
@@ -339,7 +339,7 @@
       let html = `<div style="text-align: left; font-size: 14px; max-height: 420px; overflow-y: auto; padding-right: 5px;">`;
 
       // ส่วนที่ 1: โปรแกรมการซัก
-      html += `<h4 style="margin: 0 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">🧺 เลือกโปรแกรมการซัก</h4>`;
+      html += `<h4 style="margin: 0 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;"> เลือกโปรแกรมการซัก</h4>`;
       programs.forEach(s => {
         html += `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
@@ -355,7 +355,7 @@
       });
 
       // ส่วนที่ 2: ตัวเลือกเพิ่มเติม
-      html += `<h4 style="margin: 18px 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">✨ ตัวเลือกเพิ่มเติม</h4>`;
+      html += `<h4 style="margin: 18px 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;"> ตัวเลือกเพิ่มเติม</h4>`;
       addons.forEach(s => {
         const showMinutes = s.key !== 'softener';
         html += `
@@ -376,7 +376,7 @@
       html += `</div>`;
 
       const { value: isConfirmed } = await Swal.fire({
-        title: '⚙️ ตั้งค่าราคาและเวลาบริการ',
+        title: ' ตั้งค่าราคาและเวลาบริการ',
         html: html,
         width: '540px',
         showCancelButton: true,
