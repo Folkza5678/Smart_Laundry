@@ -121,8 +121,6 @@
           <p class="scanner-tip">สแกน QR Code ที่ติดอยู่บนตู้ซักผ้า</p>
         </div>
       </div>
-      
-    </div>
   </main>
 
   <script>
@@ -235,10 +233,60 @@
       const code = parseMachineCode(rawInput);
 
       if (!code) { 
-        Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอกรหัสตู้ซักผ้าหน้าร้าน', confirmButtonColor: '#00036C' });
+        Swal.fire({ 
+          icon: 'warning', 
+          title: 'แจ้งเตือน', 
+          text: 'กรุณากรอกรหัสตู้ซักผ้าหน้าร้าน', 
+          confirmButtonColor: '#00036C' 
+        });
         return; 
       }
-      
+
+      // 1. กรณีผู้ใช้ยังไม่ได้ทำการจองตู้ใดๆ ไว้ก่อน
+      if (!pendingMachine) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ยังไม่มีรายการจอง',
+          text: 'คุณยังไม่ได้ทำการจองตู้ซักผ้า กรุณาทำรายการจองผ่านหน้า Booking ก่อนครับ',
+          confirmButtonText: 'ไปหน้า Booking',
+          confirmButtonColor: '#00036C',
+          showCancelButton: true,
+          cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = 'booking.html';
+          } else {
+            document.getElementById('machine-id-input').value = '';
+            if (videoStream && !isScanning) {
+              isScanning = true;
+              requestAnimationFrame(scanQRCodeTick);
+            }
+          }
+        });
+        return;
+      }
+
+      // 2. กรณีสแกน/กรอก รหัสตู้ไม่ตรงกับตู้ที่ทำการจองไว้ (ขึ้น SweetAlert2 เตือน ไม่เด้งไปหน้าอื่น)
+      const cleanPendingMachine = parseMachineCode(pendingMachine);
+      if (code !== cleanPendingMachine) {
+        Swal.fire({
+          icon: 'error',
+          title: 'รหัสตู้ไม่ตรงกับรายการจอง!',
+          html: `คุณได้จองเครื่อง <b style="color:#00036C; font-size:18px;">${pendingMachine}</b> ไว้<br>แต่สแกนเป็นเครื่อง <b style="color:#d33; font-size:18px;">${code}</b><br><br>กรุณาสแกนตู้ให้ตรงกับรายการที่จองไว้ครับ`,
+          confirmButtonText: 'ตกลง / สแกนใหม่',
+          confirmButtonColor: '#00036C'
+        }).then(() => {
+          // เคลียร์ค่าในช่องอินพุต และเปิดกล้องสแกนต่อทันที
+          document.getElementById('machine-id-input').value = '';
+          if (videoStream && !isScanning) {
+            isScanning = true;
+            requestAnimationFrame(scanQRCodeTick);
+          }
+        });
+        return; // 🛑 หยุดทำงานทันที ไม่เปลี่ยนหน้าไป confirm-checkin.html
+      }
+
+      // 3. ถ้ารหัสตู้ถูกต้อง ปิดกล้องแล้วไปยังหน้า confirm-checkin.html
       if (videoStream) {
         videoStream.getTracks().forEach(t => t.stop());
       }
@@ -300,7 +348,7 @@
             icon: 'warning',
             title: 'หมดเวลาการจอง!',
             text: 'รายการจองของคุณหมดเวลาชำระเงิน ระบบได้คืนคิวแล้ว กรุณาทำรายการใหม่อีกครั้ง',
-            confirmButtonText: 'ตกลง',
+            confirmButtonText: 'ตกลง / ไปหน้าจอง',
             confirmButtonColor: '#00036C',
             allowOutsideClick: false,
             allowEscapeKey: false

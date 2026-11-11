@@ -1,8 +1,7 @@
 """
 Smart Laundry backend (Python Flask + SQLite + ESP32 Integration + SlipOK Verification + LINE OA Notification + Gmail OTP Password Reset)
 
-รัน:  pip install flask requests python-dotenv
-      python app.py        ->  http://127.0.0.1:5000/index.html
+รันในเครื่อง:  python app.py  ->  http://127.0.0.1:5000/
 """
 import json
 import os
@@ -34,38 +33,42 @@ UPLOAD_DIR = os.path.join(BASE, "uploads")          # โฟลเดอร์�
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 🔑 [Channel Access Token จาก LINE Developers]
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
 
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
 LINE_OTPS = {}
 
 # 🔑 [Config สำหรับส่ง Email OTP ผ่าน Gmail SMTP]
-GMAIL_USER = os.getenv("GMAIL_USER", "")
-GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "")
+GMAIL_USER = os.getenv("GMAIL_USER", "").strip()
+# ลบช่องว่างใน App Password ให้อัตโนมัติ (กรณีก็อปมาวางแล้วติดเว้นวรรค)
+GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "").replace(" ", "").strip()
 
 # ตัวเก็บรหัส OTP สำหรับรีเซ็ตรหัสผ่าน { "email@example.com": {"otp": "123456", "expires_at": datetime} }
 RESET_OTPS = {}
 
 # 🔑 [ระบุรหัสจาก SlipOK]
-SLIPOK_URL = os.getenv("SLIPOK_URL", "https://api.slipok.com/api/line/apikey/79673")
-SLIPOK_API_KEY = os.getenv("SLIPOK_API_KEY", "")
+SLIPOK_URL = os.getenv("SLIPOK_URL", "https://api.slipok.com/api/line/apikey").strip()
+SLIPOK_API_KEY = os.getenv("SLIPOK_API_KEY", "").strip()
 
 RESERVE_MINUTES = 3           # ถือจองเครื่องไว้ 3 นาที (โหมดทดสอบ)
 PAY_MINUTES = 3               # QR ชำระเงินหมดอายุ 3 นาที (โหมดทดสอบ)
 DEMO_MODE = os.getenv("DEMO_MODE", "1") == "1"      # เปิดปุ่ม "จำลองจ่ายเงินสำเร็จ"
-PROMPTPAY_ID = os.getenv("PROMPTPAY_ID", "0838903307")  # เบอร์/เลขบัตร ปชช. ผู้รับเงิน
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@smartlaundry.local")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin1234")  # เปลี่ยนก่อนใช้งานจริง!
+PROMPTPAY_ID = os.getenv("PROMPTPAY_ID", "0838903307").strip()  # เบอร์/เลขบัตร ปชช. ผู้รับเงิน
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@smartlaundry.local").strip()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin1234").strip()
 
 
 def _secret_key():
     if os.getenv("SECRET_KEY"):
         return os.environ["SECRET_KEY"]
     path = os.path.join(BASE, ".secret_key")
-    if not os.path.exists(path):
-        with open(path, "w") as f:
-            f.write(secrets.token_hex(32))
-    return open(path).read().strip()
+    try:
+        if not os.path.exists(path):
+            with open(path, "w") as f:
+                f.write(secrets.token_hex(32))
+        return open(path).read().strip()
+    except Exception:
+        return "smartlaundry_secret_key_fallback_2026"
 
 
 app = Flask(__name__, static_folder=None, template_folder=BASE)
@@ -168,9 +171,17 @@ def init_db():
     for k, v in {"open_time": "08:00", "close_time": "22:00",
                  "line_enabled": "0", "line_token": ""}.items():
         db.execute("INSERT OR IGNORE INTO settings VALUES(?,?)", (k, v))
+        
+    # สร้างบัญชี Admin เริ่มต้น (หากยังไม่มี)
     if not db.execute("SELECT 1 FROM users WHERE is_admin=1").fetchone():
         db.execute("INSERT INTO users(email,username,password_hash,is_admin,created_at) VALUES(?,?,?,1,?)",
                    (ADMIN_EMAIL, "admin", generate_password_hash(ADMIN_PASSWORD), ts(now())))
+
+    # สร้างบัญชี User สมาชิกทดสอบ (หากยังไม่มี เพื่อให้พร้อมใช้งานทันทีเมื่อ Deploy บน Render)
+    if not db.execute("SELECT 1 FROM users WHERE is_admin=0").fetchone():
+        db.execute("INSERT INTO users(email,username,password_hash,firstname,lastname,is_admin,created_at) VALUES(?,?,?,?,?,0,?)",
+                   ("user@test.com", "user", generate_password_hash("user1234"), "ผู้ใช้งาน", "ทดสอบ", ts(now())))
+
     db.commit()
     db.close()
 
@@ -296,11 +307,7 @@ def prevent_caching(response):
 
 
 def store_open():
-    n = now().strftime("%H:%M")
-    o, c = get_setting("open_time", "08:00"), get_setting("close_time", "22:00")
-    if o == c:
-        return True
-    return (o <= n < c) if o < c else (n >= o or n < c)
+    return True  # บังคับเปิดร้านตลอด 24 ชั่วโมง
 
 
 def machine_states():
@@ -371,12 +378,12 @@ def admin_required(f):
 
 
 # ============================================================
-#  ระบบส่งอีเมล Gmail OTP (SMTP)
+#  ระบบส่งอีเมล Gmail OTP (SMTP SSL Port 465)
 # ============================================================
 def send_otp_email(to_email, otp_code):
-    """ฟังก์ชันยิงอีเมล OTP ผ่าน Gmail SMTP"""
+    """ฟังก์ชันยิงอีเมล OTP ผ่าน Gmail SMTP (ใช้ SSL Port 465 ที่รองรับคลาวด์อย่าง Render)"""
     if not GMAIL_USER or not GMAIL_APP_PASS:
-        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ในไฟล์ .env")
+        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ใน Environment Variables")
         return False
 
     msg = MIMEMultipart("alternative")
@@ -387,11 +394,11 @@ def send_otp_email(to_email, otp_code):
     html_content = f"""
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
         <div style="max-width: 480px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            <h2 style="color: #1e293b; text-align: center; margin-bottom: 10px;">Smart Laundry</h2>
+            <h2 style="color: #00036C; text-align: center; margin-bottom: 10px;">Smart Laundry</h2>
             <h4 style="color: #334155; text-align: center; margin-top: 0;">คำขอรีเซ็ตรหัสผ่าน</h4>
             <p style="color: #64748b; font-size: 14px;">คุณได้ทำการร้องขอกู้คืนรหัสผ่าน กรุณาใช้รหัส OTP ด้านล่างนี้เพื่อยืนยันตัวตน (รหัสมีอายุ 10 นาที):</p>
             <div style="text-align: center; margin: 25px 0;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2563eb; background: #eff6ff; padding: 10px 24px; border-radius: 8px; border: 1px dashed #2563eb; display: inline-block;">{otp_code}</span>
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #00036C; background: #eff6ff; padding: 10px 24px; border-radius: 8px; border: 1px dashed #00036C; display: inline-block;">{otp_code}</span>
             </div>
             <p style="color: #94a3b8; font-size: 12px; text-align: center;">หากคุณไม่ได้เป็นผู้ร้องขอ โปรดข้ามอีเมลฉบับนี้ไป รหัสผ่านของคุณจะไม่ถูกเปลี่ยนแปลง</p>
         </div>
@@ -403,6 +410,7 @@ def send_otp_email(to_email, otp_code):
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(GMAIL_USER, GMAIL_APP_PASS)
             server.sendmail(GMAIL_USER, to_email, msg.as_string())
+        app.logger.info("ส่งอีเมล OTP ไปยัง %s สำเร็จ", to_email)
         return True
     except Exception as e:
         app.logger.error("ส่งอีเมลไม่สำเร็จ: %s", e)
@@ -488,6 +496,10 @@ def line_webhook():
 #  ระบบตรวจสลิปผ่าน SlipOK API
 # ============================================================
 def verify_slip_with_slipok(file_storage, expected_amount=None):
+    if not SLIPOK_API_KEY:
+        app.logger.warning("ยังไม่ได้ตั้งค่า SLIPOK_API_KEY ใน Environment Variables")
+        return False, "ยังไม่ได้ตั้งค่า SLIPOK_API_KEY บนเซิร์ฟเวอร์", None
+
     url = SLIPOK_URL
     headers = {
         "x-authorization": SLIPOK_API_KEY
@@ -576,7 +588,6 @@ def register():
 
 @app.route("/login.html", methods=["GET", "POST"])
 def login():
-    # ถ้าล็อกอินอยู่แล้ว ห้ามเข้าหน้า login ให้กลับไปหน้าหลักทันที
     if current_user():
         return redirect("/index.html")
 
@@ -604,7 +615,6 @@ def login():
 
         return redirect("/admin/admin_dashboard.html" if u["is_admin"] else "/index.html")
 
-    # ป้องกันการ Cache หน้า Login
     response = make_response(render_template("login.html"))
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
@@ -636,7 +646,7 @@ def forgot_password_page():
         if send_otp_email(email, otp_code):
             flask_flash("ส่งรหัส OTP ไปยัง Gmail ของคุณเรียบร้อยแล้ว", "success")
         else:
-            flask_flash("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการตั้งค่า Gmail SMTP", "error")
+            flask_flash("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการตั้งค่า GMAIL_APP_PASS", "error")
 
         return render_template("forgot-password.html")
 
@@ -666,7 +676,7 @@ def api_send_reset_otp():
     if send_otp_email(email, otp_code):
         return jsonify(ok=True, message="ส่งรหัส OTP ไปยัง Gmail ของคุณเรียบร้อยแล้ว")
     else:
-        return err("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง", 500)
+        return err("ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาตรวจสอบการตั้งค่า GMAIL_APP_PASS", 500)
 
 
 @app.post("/api/auth/verify-reset-otp")
@@ -985,7 +995,7 @@ def confirm_checkin_page():
 
     if not machine:
         flash("ไม่พบข้อมูลตู้ซักผ้าที่สแกน", "error")
-        return redirect("/history.html")
+        return redirect("/qrcode.html")
 
     booking = db.execute("""
         SELECT b.*, m.name AS machine_name, m.code AS machine_code, m.capacity_kg 
@@ -994,9 +1004,10 @@ def confirm_checkin_page():
         WHERE b.user_id = ? AND b.machine_id = ? AND b.status = 'reserved' AND b.reserve_expires > ?
     """, (u["id"], machine["id"], ts(now()))).fetchone()
 
+    # หากรหัสตู้ที่สแกนไม่ตรงกับที่จองไว้ แจ้งเตือนและส่งกลับไปหน้าสแกน QR
     if not booking:
-        flash(f"คุณไม่ได้จองตู้ {machine['name']} ไว้ หรือการจองหมดอายุแล้ว", "error")
-        return redirect("/history.html")
+        flash(f"รหัสตู้ไม่ตรงกับรายการที่คุณจองไว้ หรือรายการจองหมดอายุแล้ว", "error")
+        return redirect("/qrcode.html")
 
     return render_template("confirm-checkin.html", booking=booking, machine=machine, user=u)
 
