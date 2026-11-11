@@ -311,7 +311,7 @@ input:checked + .slider:before { transform: translateX(22px); }
   background: #FAFAFA;
   border: 2px solid #0095FF;
   border-radius: 20px;
-  padding: 24px;
+  padding: 14px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
 }
 
@@ -334,6 +334,7 @@ input:checked + .slider:before { transform: translateX(22px); }
   position: relative;
   display: flex;
   align-items: center;
+  transform: translateX(70px);
   width: 320px;
 }
 
