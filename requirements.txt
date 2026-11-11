@@ -1,1 +1,4 @@
-flask>=3.0
+Flask==2.3.3
+requests==2.34.2
+python-dotenv==1.0.0
+gunicorn==26.2.0

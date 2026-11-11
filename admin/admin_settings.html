@@ -75,37 +75,7 @@
         <h2 class="header-en">Settings / User Management</h2>
         <h1 class="header-th">ตั้งค่าระบบและจัดการสมาชิก</h1>
       </div>
-
-      <!-- Top Settings Grid (1 Card ขยายเต็มความกว้าง) -->
-      <div class="settings-grid" style="grid-template-columns: 1fr;">
-        
-        <!-- Card: เวลาเปิด-ปิดร้าน -->
-        <div class="setting-card">
-          <div class="card-title-group">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0095FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <h3>เวลาเปิด-ปิดร้าน</h3>
-          </div>
-          <p class="card-subtext">กำหนดช่วงเวลาเปิดให้บริการหน้าร้านอัตโนมัติ</p>
-
-          <div class="time-inputs">
-            <div class="input-group">
-              <label>เวลาเปิดร้าน</label>
-              <input type="time" id="openTime" value="{{ open_time }}" class="time-control">
-            </div>
-            <div class="input-group">
-              <label>เวลาปิดร้าน</label>
-              <input type="time" id="closeTime" value="{{ close_time }}" class="time-control">
-            </div>
-          </div>
-
-          <div class="card-footer-action">
-            <span class="status-label">สถานะร้านปัจจุบัน: <strong class="{{ 'text-green' if is_open else 'text-red' }}">{{ 'เปิดให้บริการ' if is_open else 'ปิดให้บริการ' }}</strong></span>
-            <button class="btn-save" onclick="saveTimes()">บันทึกเวลา</button>
-          </div>
-        </div>
-
-      </div>
-
+      
       <!-- Bottom Card: User Management Table -->
       <div class="user-management-section">
         <div class="section-header">
