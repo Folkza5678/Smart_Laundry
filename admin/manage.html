@@ -151,7 +151,7 @@
                     data-enabled="{{ m.enabled }}" 
                     onclick="editMachineModal(this)">แก้ไข</button>
             <button class="btn-action" style="flex:0.4; background-color:#dc3545;" 
-                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">🗑️</button>
+                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')"></button>
           </div>
         </div>
         {% endfor %}
@@ -172,7 +172,7 @@
       return d;
     }
 
-    // ⏱️ สคริปต์นับถอยหลัง Real-time หน้า Manage (นาที:วินาที)
+    //  สคริปต์นับถอยหลัง Real-time หน้า Manage (นาที:วินาที)
     function startRealtimeTimers() {
       document.querySelectorAll('.timer-countdown').forEach(el => {
         let sec = parseInt(el.getAttribute('data-seconds') || '0', 10);
@@ -204,7 +204,7 @@
     // 1. ป๊อปอัปเพิ่มเครื่องใหม่
     async function addMachineModal() {
       const { value: formValues } = await Swal.fire({
-        title: '➕ เพิ่มเครื่องซักผ้าใหม่',
+        title: ' เพิ่มเครื่องซักผ้าใหม่',
         html: `
           <div style="text-align:left; font-size:14px;">
             <label style="display:block; margin-top:8px;">ชื่อเครื่อง (เช่น เครื่อง 07):</label>
@@ -260,7 +260,7 @@
       const isEnabled = d.enabled === "1" || d.enabled === "true";
 
       const { value: formValues } = await Swal.fire({
-        title: `✏️ แก้ไข ${d.name}`,
+        title: ` แก้ไข ${d.name}`,
         html: `
           <div style="text-align:left; font-size:14px;">
             <label style="display:block; margin-top:8px;">ชื่อเครื่อง:</label>
