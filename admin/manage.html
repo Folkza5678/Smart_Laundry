@@ -71,8 +71,8 @@
 
       <!-- Action Buttons -->
       <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-        <button class="btn-action" style="max-width:200px; background-color:#28a745;" onclick="addMachineModal()">➕ เพิ่มเครื่องใหม่</button>
-        <button class="btn-action" style="max-width:220px; background-color:#00036C;" onclick="editPrices()">⚙️ ตั้งราคา/เวลาโปรแกรม</button>
+        <button class="btn-action" style="max-width:200px; background-color:#28a745;" onclick="addMachineModal()">เพิ่มเครื่องใหม่</button>
+        <button class="btn-action" style="max-width:220px; background-color:#00036C;" onclick="editPrices()"> ตั้งราคา/เวลาโปรแกรม</button>
       </div>
 
       <!-- Summary Top Cards -->
@@ -151,7 +151,7 @@
                     data-enabled="{{ m.enabled }}" 
                     onclick="editMachineModal(this)">แก้ไข</button>
             <button class="btn-action" style="flex:0.4; background-color:#dc3545;" 
-                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">🗑️</button>
+                    onclick="deleteMachineConfirm({{ m.id }}, '{{ m.name }}')">ลบ</button>
           </div>
         </div>
         {% endfor %}
@@ -172,7 +172,7 @@
       return d;
     }
 
-    // ⏱️ สคริปต์นับถอยหลัง Real-time หน้า Manage (นาที:วินาที)
+    //  สคริปต์นับถอยหลัง Real-time หน้า Manage (นาที:วินาที)
     function startRealtimeTimers() {
       document.querySelectorAll('.timer-countdown').forEach(el => {
         let sec = parseInt(el.getAttribute('data-seconds') || '0', 10);
@@ -204,7 +204,7 @@
     // 1. ป๊อปอัปเพิ่มเครื่องใหม่
     async function addMachineModal() {
       const { value: formValues } = await Swal.fire({
-        title: '➕ เพิ่มเครื่องซักผ้าใหม่',
+        title: ' เพิ่มเครื่องซักผ้าใหม่',
         html: `
           <div style="text-align:left; font-size:14px;">
             <label style="display:block; margin-top:8px;">ชื่อเครื่อง (เช่น เครื่อง 07):</label>
@@ -260,7 +260,7 @@
       const isEnabled = d.enabled === "1" || d.enabled === "true";
 
       const { value: formValues } = await Swal.fire({
-        title: `✏️ แก้ไข ${d.name}`,
+        title: ` แก้ไข ${d.name}`,
         html: `
           <div style="text-align:left; font-size:14px;">
             <label style="display:block; margin-top:8px;">ชื่อเครื่อง:</label>
@@ -329,7 +329,7 @@
       }
     }
 
-    // 4. ⚙️ ตั้งค่าราคาและเวลาโปรแกรม
+    // 4.  ตั้งค่าราคาและเวลาโปรแกรม
     async function editPrices() {
       const services = {{ services|tojson }};
       
@@ -339,7 +339,7 @@
       let html = `<div style="text-align: left; font-size: 14px; max-height: 420px; overflow-y: auto; padding-right: 5px;">`;
 
       // ส่วนที่ 1: โปรแกรมการซัก
-      html += `<h4 style="margin: 0 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">🧺 เลือกโปรแกรมการซัก</h4>`;
+      html += `<h4 style="margin: 0 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;"> เลือกโปรแกรมการซัก</h4>`;
       programs.forEach(s => {
         html += `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
@@ -355,7 +355,7 @@
       });
 
       // ส่วนที่ 2: ตัวเลือกเพิ่มเติม
-      html += `<h4 style="margin: 18px 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;">✨ ตัวเลือกเพิ่มเติม</h4>`;
+      html += `<h4 style="margin: 18px 0 12px 0; color: #00036C; font-size: 15px; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px;"> ตัวเลือกเพิ่มเติม</h4>`;
       addons.forEach(s => {
         const showMinutes = s.key !== 'softener';
         html += `
@@ -376,7 +376,7 @@
       html += `</div>`;
 
       const { value: isConfirmed } = await Swal.fire({
-        title: '⚙️ ตั้งค่าราคาและเวลาบริการ',
+        title: ' ตั้งค่าราคาและเวลาบริการ',
         html: html,
         width: '540px',
         showCancelButton: true,
@@ -448,7 +448,7 @@
     reverseButtons: true
   }).then((result) => {
     if (result.isConfirmed) {
-      // 🧹 ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
+      //  ล้างข้อมูลการจอง/ผู้ใช้ค้างในเบราว์เซอร์ทิ้งทั้งหมด
       localStorage.clear();
       sessionStorage.clear();
 
@@ -465,7 +465,7 @@
   });
 </script>
 
-<!-- 👁️ ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
+<!--  ปุ่มสลับมุมมอง แอดมิน <-> ผู้ใช้ (Admin Eye Toggle Widget) -->
 {% if user and user.is_admin %}
 <div id="admin-eye-toggle-widget" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999;">
   <script>
