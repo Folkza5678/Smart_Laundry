@@ -956,7 +956,7 @@ def normalize_code(s):
         
     }
     for link, mcode in QR_ALIASES.items():
-        if link in s_upper:
+        if link.upper() in s_upper:
             return mcode
 
     m_param = re.search(r"(?:code|machine_id|machine|id)=([^&]+)", raw, re.I)
