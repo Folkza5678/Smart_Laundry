@@ -945,8 +945,14 @@ def normalize_code(s):
     raw = str(s).strip()
     s_upper = raw.upper()
 
-    if "QRCO.DE/BH4HGQ" in s_upper:
-        return "M-01"
+      QR_ALIASES = {
+        "QRCO.DE/BH4HGQ": "M-01",
+        "QRCO.DE/BH6K1M": "M-02",
+        
+    }
+    for link, mcode in QR_ALIASES.items():
+        if link in s_upper:
+            return mcode
 
     m_param = re.search(r"(?:code|machine_id|machine|id)=([^&]+)", raw, re.I)
     if m_param:
