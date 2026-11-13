@@ -945,7 +945,7 @@ def normalize_code(s):
     raw = str(s).strip()
     s_upper = raw.upper()
 
-      QR_ALIASES = {
+    QR_ALIASES = {
         "QRCO.DE/BH4HGQ": "M-01",
         "QRCO.DE/BH6K1M": "M-02",
         
