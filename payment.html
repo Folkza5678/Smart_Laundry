@@ -98,13 +98,38 @@
       localStorage.removeItem('booking_expires_at');
 
       const urlParams = new URLSearchParams(window.location.search);
-      const machineCode = urlParams.get('code') || 'M-01';
+      let machineCode = urlParams.get('code');
+      const bookingId = urlParams.get('booking_id');
+
+      // หาก URL ไม่ได้แนบ ?code=... มา (เช่น กดมาจากหน้าประวัติ ?booking_id=...) ให้ดึงรหัสตู้จากรายการที่จองอยู่
+      if (!machineCode) {
+        try {
+          const statusRes = await fetch('/api/user/active-status');
+          if (statusRes.ok) {
+            const statusData = await statusRes.json();
+            if (statusData.has_active && statusData.machine_code) {
+              machineCode = statusData.machine_code;
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching active machine code:', e);
+        }
+      }
+
+      if (!machineCode) {
+        Swal.fire('เกิดข้อผิดพลาด', 'ไม่พบรหัสตู้ซักผ้า กรุณาสแกน QR Code หน้าตู้อีกครั้ง', 'error')
+          .then(() => window.location.href = 'history1.html');
+        return;
+      }
+
+      const payload = { machine_code: machineCode.trim().toUpperCase() };
+      if (bookingId) payload.booking_id = bookingId;
 
       try {
         const res = await fetch('/api/payment/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ machine_code: machineCode })
+          body: JSON.stringify(payload)
         });
         
         const data = await res.json();
