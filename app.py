@@ -551,23 +551,23 @@ def static_page(page):
 @app.route("/register.html", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        ident = request.form.get("username", "").strip()
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
         pw = request.form.get("password", "")
         confirm = request.form.get("confirm_password", "")
-        email = username = None
         errors = []
-        if "@" in ident:
-            if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", ident):
-                errors.append("รูปแบบอีเมลไม่ถูกต้อง")
-            email = ident.lower()
-        elif re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", ident):
-            username = ident
-        else:
-            errors.append("Username ต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว หรือใช้อีเมล")
+
+        if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
+            errors.append("Username ต้องเป็นอักษรอังกฤษ/ตัวเลข 3-30 ตัว (ห้ามมี @ หรือเว้นวรรค)")
+        if not email:
+            errors.append("กรุณากรอกอีเมล")
+        elif not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            errors.append("รูปแบบอีเมลไม่ถูกต้อง")
         if len(pw) < 6:
             errors.append("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร")
         if pw != confirm:
             errors.append("รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน")
+
         if not errors:
             try:
                 with get_db() as db:
@@ -580,6 +580,7 @@ def register():
                 return redirect("/index.html")
             except sqlite3.IntegrityError:
                 errors.append("Username / อีเมลนี้ถูกใช้งานแล้ว")
+
         for m in errors:
             flask_flash(m, "error")
         return render_template("register.html"), 400
