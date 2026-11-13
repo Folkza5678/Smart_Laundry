@@ -38,7 +38,8 @@ LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
 # ตัวเก็บรหัส OTP ชั่วคราวสำหรับผูกบัญชี { "123456": {"user_id": 1, "expires_at": datetime} }
 LINE_OTPS = {}
 
-# 🔑 [Config สำหรับส่ง Email OTP ผ่าน Gmail SMTP]
+# 🔑 [Config สำหรับส่ง Email OTP ผ่าน Google Apps Script / Gmail SMTP]
+GMAIL_SCRIPT_URL = os.getenv("GMAIL_SCRIPT_URL", "").strip()
 GMAIL_USER = os.getenv("GMAIL_USER", "").strip()
 # ลบช่องว่างใน App Password ให้อัตโนมัติ (กรณีก็อปมาวางแล้วติดเว้นวรรค)
 GMAIL_APP_PASS = os.getenv("GMAIL_APP_PASS", "").replace(" ", "").strip()
@@ -378,19 +379,13 @@ def admin_required(f):
 
 
 # ============================================================
-#  ระบบส่งอีเมล Gmail OTP (SMTP SSL Port 465)
+#  ระบบส่งอีเมล Gmail OTP (Google Apps Script HTTPS + SMTP สำรอง)
 # ============================================================
 def send_otp_email(to_email, otp_code):
-    """ฟังก์ชันยิงอีเมล OTP ผ่าน Gmail SMTP (ใช้ SSL Port 465 ที่รองรับคลาวด์อย่าง Render)"""
-    if not GMAIL_USER or not GMAIL_APP_PASS:
-        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_USER หรือ GMAIL_APP_PASS ใน Environment Variables")
-        return False
+    """ฟังก์ชันยิงอีเมล OTP ผ่าน Google Apps Script (HTTPS Port 443) หรือ SMTP สำรอง"""
+    script_url = os.getenv("GMAIL_SCRIPT_URL", "").strip()
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "🔐 รหัสยืนยันการรีเซ็ตรหัสผ่าน - Smart Laundry"
-    msg["From"] = f"Smart Laundry <{GMAIL_USER}>"
-    msg["To"] = to_email
-
+    subject = "🔐 รหัสยืนยันการรีเซ็ตรหัสผ่าน - Smart Laundry"
     html_content = f"""
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f8;">
         <div style="max-width: 480px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
@@ -404,6 +399,33 @@ def send_otp_email(to_email, otp_code):
         </div>
     </div>
     """
+
+    # 1. ส่งผ่าน Google Apps Script (HTTPS Port 443 - ใช้ได้บน Render Free Tier)
+    if script_url:
+        try:
+            res = requests.post(
+                script_url,
+                json={"to": to_email, "subject": subject, "html": html_content},
+                timeout=15
+            )
+            if res.status_code == 200 and res.json().get("ok"):
+                app.logger.info("ส่งอีเมล OTP ผ่าน Apps Script ไปยัง %s สำเร็จ", to_email)
+                return True
+            app.logger.error("Apps Script ตอบกลับผิดพลาด: %s", res.text)
+            return False
+        except Exception as e:
+            app.logger.error("ส่งอีเมลผ่าน Apps Script ไม่สำเร็จ: %s", e)
+            return False
+
+    # 2. กรณีไม่ได้ตั้งค่า GMAIL_SCRIPT_URL ให้ใช้ SMTP เดิม (สำหรับรันในเครื่อง)
+    if not GMAIL_USER or not GMAIL_APP_PASS:
+        app.logger.warning("ยังไม่ได้ตั้งค่า GMAIL_SCRIPT_URL หรือ GMAIL_USER / GMAIL_APP_PASS")
+        return False
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = f"Smart Laundry <{GMAIL_USER}>"
+    msg["To"] = to_email
     msg.attach(MIMEText(html_content, "html", "utf-8"))
 
     try:
@@ -988,8 +1010,6 @@ def normalize_code(s):
         'qrco.de/bh6K4U': 'M-04',
         'qrco.de/bh6K4h': 'M-05',
         'qrco.de/bh6K4q': 'M-06'
-
-        
     }
     for link, mcode in QR_ALIASES.items():
         if link.upper() in s_upper:
@@ -1158,6 +1178,7 @@ def api_payment_start():
                            (ts(exp_dt + timedelta(seconds=30)), b["id"]))
 
     return jsonify(payment_json(p, b))
+
 
 @app.post("/api/payment/upload-slip")
 @login_required
