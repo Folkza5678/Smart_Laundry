@@ -947,7 +947,12 @@ def normalize_code(s):
 
     QR_ALIASES = {
         'qrco.de/bh4hgq': 'M-01',
-        'qrco.de/bh6k1m': 'M-02'
+        'qrco.de/bh6k1m': 'M-02',
+        'qrco.de/bh6K45': 'M-03',
+        'qrco.de/bh6K4U': 'M-04',
+        'qrco.de/bh6K4h': 'M-05',
+        'qrco.de/bh6K4q': 'M-06'
+
         
     }
     for link, mcode in QR_ALIASES.items():
