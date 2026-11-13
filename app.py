@@ -1159,9 +1159,6 @@ def api_payment_start():
 
     return jsonify(payment_json(p, b))
 
-
-@app.post("/api/payment/upload-slip")
-@login_required
 @app.post("/api/payment/upload-slip")
 @login_required
 def api_upload_slip():
