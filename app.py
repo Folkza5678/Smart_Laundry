@@ -946,8 +946,8 @@ def normalize_code(s):
     s_upper = raw.upper()
 
     QR_ALIASES = {
-        "QRCO.DE/BH4HGQ": "M-01",
-        "https://qrco.de/bh6K1m": "M-02",
+        'qrco.de/bh4hgq': 'M-01',
+        'qrco.de/bh6k1m': 'M-02'
         
     }
     for link, mcode in QR_ALIASES.items():

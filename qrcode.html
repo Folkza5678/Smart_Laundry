@@ -137,8 +137,15 @@
       let str = text.trim();
       
       // แปลงลิงก์ย่อหน้าตู้ https://qrco.de/bh4hgQ เป็น M-01
-      if (str.toLowerCase().includes('qrco.de/bh4hgq')) {
-        return 'M-01';
+           // แปลงลิงก์ย่อ QR ของแต่ละตู้เป็นรหัสตู้
+      const QR_ALIASES = {
+        'qrco.de/bh4hgq': 'M-01',
+        'qrco.de/bh6k1m': 'M-02'
+        // ตู้อื่นเพิ่มต่อตรงนี้ เช่น 'qrco.de/xxxxxx': 'M-03'
+      };
+      const lower = str.toLowerCase();
+      for (const link in QR_ALIASES) {
+        if (lower.includes(link)) return QR_ALIASES[link];
       }
 
       if (str.includes('?')) {
