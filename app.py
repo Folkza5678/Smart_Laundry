@@ -495,7 +495,7 @@ def line_webhook():
 # ============================================================
 #  ระบบตรวจสลิปผ่าน SlipOK API
 # ============================================================
-def verify_slip_with_slipok(file_storage, expected_amount=None):
+def verify_slip_with_slipok(file_storage, expected_amount=None, booking_created_at=None):
     if not SLIPOK_API_KEY:
         app.logger.warning("ยังไม่ได้ตั้งค่า SLIPOK_API_KEY ใน Environment Variables")
         return False, "ยังไม่ได้ตั้งค่า SLIPOK_API_KEY บนเซิร์ฟเวอร์", None
@@ -505,18 +505,54 @@ def verify_slip_with_slipok(file_storage, expected_amount=None):
         "x-authorization": SLIPOK_API_KEY
     }
     files = {
-        'files': (file_storage.filename, file_storage.read(), file_storage.mimetype)
+        "files": (file_storage.filename, file_storage.read(), file_storage.mimetype)
     }
+    # ส่ง log=true เพื่อให้ SlipOK บันทึกประวัติและดักสลิปซ้ำให้อัตโนมัติ (แม้ DB บน Render จะรีเซ็ต)
+    form_data = {
+        "log": "true"
+    }
+
     try:
-        response = requests.post(url, headers=headers, files=files, timeout=12)
+        response = requests.post(url, headers=headers, files=files, data=form_data, timeout=12)
         res_data = response.json()
 
         if response.status_code == 200 and res_data.get("success"):
             data = res_data.get("data", {})
-            paid_amount = float(data.get("amount", 0))
 
-            if expected_amount and paid_amount < float(expected_amount):
-                return False, f"ยอดเงินในสลิป ({paid_amount} บาท) ไม่ตรงกับยอดที่ต้องชำระ ({expected_amount} บาท)", data
+            # 1. เช็กยอดเงิน (ต้องไม่น้อยกว่ายอดที่ต้องชำระ)
+            paid_amount = float(data.get("amount", 0))
+            if expected_amount is not None and paid_amount < float(expected_amount):
+                return False, f"ยอดเงินในสลิป ({paid_amount:.2f} บาท) ไม่ตรงกับยอดที่ต้องชำระ ({float(expected_amount):.2f} บาท)", data
+
+            # 2. เช็กบัญชีผู้รับเงิน (ป้องกันสลิปโอนเข้าบัญชีคนอื่น)
+            receiver = data.get("receiver") or {}
+            rec_name = f"{receiver.get('displayName', '')} {receiver.get('name', '')}".strip().lower()
+            proxy_val = re.sub(r"\D", "", str((receiver.get("proxy") or {}).get("value", "")))
+            acc_val = re.sub(r"\D", "", str((receiver.get("account") or {}).get("value", "")))
+
+            expected_name = os.getenv("SLIPOK_RECEIVER_NAME", "").strip().lower()
+            promptpay_digits = re.sub(r"\D", "", PROMPTPAY_ID)
+            last4 = promptpay_digits[-4:] if len(promptpay_digits) >= 4 else ""
+
+            if expected_name:
+                if expected_name not in rec_name:
+                    return False, "ชื่อบัญชีผู้รับในสลิปไม่ตรงกับบัญชีของร้าน", data
+            elif last4:
+                if last4 not in proxy_val and last4 not in acc_val:
+                    return False, f"บัญชีผู้รับในสลิปไม่ตรงกับพร้อมเพย์ของร้าน (ลงท้าย {last4})", data
+
+            # 3. เช็กวัน-เวลาโอน (ป้องกันนำสลิปเก่าก่อนกดจองมาใช้)
+            trans_date = str(data.get("transDate", "")).strip()  # YYYYMMDD
+            trans_time = str(data.get("transTime", "")).strip()  # HH:MM:SS
+            if booking_created_at and len(trans_date) == 8 and len(trans_time) >= 5:
+                try:
+                    slip_dt = datetime.strptime(f"{trans_date} {trans_time[:8]}", "%Y%m%d %H:%M:%S")
+                    book_dt = parse_ts(booking_created_at)
+                    # อนุโลมเวลาคลาดเคลื่อนก่อนกดจองได้ไม่เกิน 2 นาที
+                    if book_dt and slip_dt < (book_dt - timedelta(minutes=2)):
+                        return False, "สลิปนี้ถูกโอนก่อนเวลาที่ทำรายการจอง กรุณาโอนเงินใหม่", data
+                except ValueError:
+                    pass
 
             return True, "สลิปถูกต้อง", data
         else:
@@ -1126,6 +1162,8 @@ def api_payment_start():
 
 @app.post("/api/payment/upload-slip")
 @login_required
+@app.post("/api/payment/upload-slip")
+@login_required
 def api_upload_slip():
     u = current_user()
     db = get_db()
@@ -1141,7 +1179,11 @@ def api_upload_slip():
     if file.filename == '':
         return err("ไม่ได้เลือกไฟล์รูปสลิป")
 
-    is_valid, message, slip_data = verify_slip_with_slipok(file, expected_amount=b["price"])
+    is_valid, message, slip_data = verify_slip_with_slipok(
+        file,
+        expected_amount=b["price"],
+        booking_created_at=b["created_at"]
+    )
     if not is_valid:
         return err(message, 400)
 

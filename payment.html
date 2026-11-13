@@ -101,24 +101,24 @@
       let machineCode = urlParams.get('code');
       const bookingId = urlParams.get('booking_id');
 
-      // หาก URL ไม่ได้แนบ ?code=... มา (เช่น กดมาจากหน้าประวัติ ?booking_id=...) ให้ดึงรหัสตู้จากรายการที่จองอยู่
+      // หาก URL ไม่ได้แนบ ?code=... มา (เช่น เข้าจาก ?booking_id=102) ให้ดึงจากรายการที่จองค้างไว้
       if (!machineCode) {
         try {
-          const statusRes = await fetch('/api/user/active-status');
-          if (statusRes.ok) {
-            const statusData = await statusRes.json();
-            if (statusData.has_active && statusData.machine_code) {
-              machineCode = statusData.machine_code;
+          const pendingRes = await fetch('/api/bookings/pending');
+          if (pendingRes.ok) {
+            const pendingData = await pendingRes.json();
+            if (pendingData.booking && pendingData.booking.machine_code) {
+              machineCode = pendingData.booking.machine_code;
             }
           }
         } catch (e) {
-          console.error('Error fetching active machine code:', e);
+          console.error('Error fetching pending booking:', e);
         }
       }
 
       if (!machineCode) {
-        Swal.fire('เกิดข้อผิดพลาด', 'ไม่พบรหัสตู้ซักผ้า กรุณาสแกน QR Code หน้าตู้อีกครั้ง', 'error')
-          .then(() => window.location.href = 'history1.html');
+        Swal.fire('ไม่พบรายการจอง', 'รายการจองหมดอายุแล้ว (เกิน 3 นาที) หรือไม่พบรายการที่รอชำระเงิน', 'warning')
+          .then(() => window.location.href = 'booking.html');
         return;
       }
 
@@ -152,7 +152,6 @@
         startPolling();
       } catch (err) { console.error(err); }
     }
-
     // ฟังก์ชันพรีวิวรูปสลิปเมื่อเลือกไฟล์
     function previewSlip(event) {
       const file = event.target.files[0];
